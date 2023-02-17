@@ -21,11 +21,9 @@ services:
     environment:
       STUDIO_PG_META_URL: http://meta:8080
       POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
-
       DEFAULT_ORGANIZATION_NAME: ${STUDIO_DEFAULT_ORGANIZATION}
       DEFAULT_PROJECT_NAME: ${STUDIO_DEFAULT_PROJECT}
-
-      SUPABASE_URL: http://kong:8000
+      SUPABASE_URL: ${SUPABASE_URL}
       SUPABASE_PUBLIC_URL: ${SUPABASE_PUBLIC_URL}
       SUPABASE_ANON_KEY: ${ANON_KEY}
       SUPABASE_SERVICE_KEY: ${SERVICE_ROLE_KEY}
@@ -239,3 +237,40 @@ services:
       # Must be superuser to enable pg_net extension
       - ./volumes/db/webhooks.sql:/etc/postgresql.schema.sql
       - ./volumes/db/data:/var/lib/postgresql/data
+  medusa-server:
+    build:
+      context: ../medusa
+      dockerfile: Dockerfile
+    image: backend:starter
+    container_name: medusa-server
+    depends_on:
+      redis:
+        condition: service_healthy
+      db:
+        condition: service_healthy
+        
+    environment:
+      DATABASE_URL: postgres://${POSTGRES_USER}:${POSTGRES_PASSWORD}@${POSTGRES_HOST}:${POSTGRES_PORT}/${POSTGRES_DB}
+      REDIS_URL: redis://redis
+      JWT_SECRET: something
+      COOKIE_SECRET: something
+      PORT: 9000
+    ports:
+      - "9000:9000"
+    volumes:
+      - .:/app/medusa
+      - node_modules:/app/medusa/node_modules
+
+  redis:
+    image: redis
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 1s
+      timeout: 3s
+      retries: 30
+    expose:
+      - 6379
+
+volumes:
+  node_modules:
+  
