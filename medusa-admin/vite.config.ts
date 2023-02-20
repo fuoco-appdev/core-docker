@@ -1,5 +1,4 @@
 import path from "path"
-import { env } from "process"
 import dns from "dns"
 import { defineConfig } from "vite"
 import react from "@vitejs/plugin-react"
@@ -27,15 +26,6 @@ export default defineConfig({
         "src/compat/reach-router-compat.tsx"
       ),
     },
-  },
-  define: {
-    __MEDUSA_BACKEND_URL__: JSON.stringify(
-      env.MEDUSA_BACKEND_URL ||
-        // Backwards-compat with Gatsby.
-        env.GATSBY_MEDUSA_BACKEND_URL ||
-        env.GATSBY_STORE_URL ||
-        ""
-    ),
   },
   optimizeDeps: {
     exclude: ["typeorm", "medusa-interfaces"],
