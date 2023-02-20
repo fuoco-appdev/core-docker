@@ -252,8 +252,8 @@ services:
     environment:
       DATABASE_URL: postgres://${POSTGRES_USER}:${POSTGRES_PASSWORD}@${POSTGRES_HOST}:${POSTGRES_PORT}/${POSTGRES_DB}
       REDIS_URL: redis://redis
-      JWT_SECRET: something
-      COOKIE_SECRET: something
+      JWT_SECRET: ${REDIS_JWT_SECRET}
+      COOKIE_SECRET: ${REDIS_COOKIE_SECRET}
       PORT: 9000
     ports:
       - "9000:9000"
