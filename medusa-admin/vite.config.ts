@@ -15,6 +15,9 @@ export default defineConfig({
     port: 7000,
     host: true,
   },
+  define: {
+    __MEDUSA_BACKEND_URL__: JSON.stringify(process.env.MEDUSA_BACKEND_URL),
+  },
   build: {
     outDir: "public",
   },
