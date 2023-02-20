@@ -7,13 +7,10 @@ import react from "@vitejs/plugin-react"
 // @see https://vitejs.dev/config/server-options.html#server-host.
 dns.setDefaultResultOrder("verbatim")
 
-export default ({ mode }) => {
-  process.env = { ...process.env, ...loadEnv(mode, process.cwd()) }
-
-  // import.meta.env.VITE_NAME available here with: process.env.VITE_NAME
-  // import.meta.env.VITE_PORT available here with: process.env.VITE_PORT
-
-  return defineConfig({
+export default defineConfig(({ command, mode }) => {
+  const env = loadEnv(mode, process.cwd(), "")
+  console.log(env)
+  return {
     plugins: [react()],
     // Backwards-compat with Gatsby.
     publicDir: "static",
@@ -22,7 +19,7 @@ export default ({ mode }) => {
       host: true,
     },
     define: {
-      __MEDUSA_BACKEND_URL__: JSON.stringify(process.env.MEDUSA_BACKEND_URL),
+      __MEDUSA_BACKEND_URL__: JSON.stringify(env.MEDUSA_BACKEND_URL),
     },
     build: {
       outDir: "public",
@@ -39,5 +36,5 @@ export default ({ mode }) => {
     optimizeDeps: {
       exclude: ["typeorm", "medusa-interfaces"],
     },
-  })
-}
+  }
+})
