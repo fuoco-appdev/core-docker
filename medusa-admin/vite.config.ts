@@ -18,7 +18,7 @@ export default defineConfig({
     host: true,
   },
   define: {
-    __MEDUSA_BACKEND_URL__: env.MEDUSA_BACKEND_URL,
+    __MEDUSA_BACKEND_URL__: JSON.stringify(env.MEDUSA_BACKEND_URL),
   },
   build: {
     outDir: "public",
