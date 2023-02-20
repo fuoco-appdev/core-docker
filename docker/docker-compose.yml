@@ -254,6 +254,8 @@ services:
       REDIS_URL: redis://redis
       JWT_SECRET: ${MEDUSA_JWT_SECRET}
       COOKIE_SECRET: ${MEDUSA_COOKIE_SECRET}
+      SENDGRID_API_KEY: ${SENDGRID_API_KEY}
+      SENDGRID_FROM: ${SENDGRID_FROM}
       PORT: 9000
     ports:
       - "9000:9000"
