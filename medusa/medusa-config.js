@@ -60,6 +60,8 @@ module.exports = {
     database_type: "postgres",
     store_cors: STORE_CORS,
     admin_cors: ADMIN_CORS,
+    jwt_secret: process.env.JWT_SECRET,
+    cookie_secret: process.env.COOKIE_SECRET,
   },
   plugins,
 };
