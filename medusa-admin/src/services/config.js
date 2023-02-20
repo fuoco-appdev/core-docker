@@ -1,4 +1,3 @@
-const medusaUrl = import.meta.env.MEDUSA_BACKEND_URL ?? "http://localhost:9000"
-console.log(import.meta.env.MEDUSA_BACKEND_URL)
+const medusaUrl = __MEDUSA_BACKEND_URL__ || "http://localhost:9000"
 
 export { medusaUrl }
