@@ -7,14 +7,6 @@
 version: "3.8"
 
 services:
-  pgadmin:
-    image: dpage/pgadmin4:latest
-    environment:
-      PGADMIN_DEFAULT_EMAIL: ${PGADMIN_DEFAULT_EMAIL}
-      PGADMIN_DEFAULT_PASSWORD: ${PGADMIN_DEFAULT_PASSWORD}
-    ports:
-      - 80:80
-
   studio:
     container_name: supabase-studio
     image: supabase/studio:20230127-6bfd87b
