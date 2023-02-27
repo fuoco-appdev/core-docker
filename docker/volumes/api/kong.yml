@@ -6,10 +6,10 @@ _format_version: "1.1"
 consumers:
   - username: anon
     keyauth_credentials:
-      - key: eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.ewogICAgInJvbGUiOiAiYW5vbiIsCiAgICAiaXNzIjogInN1cGFiYXNlIiwKICAgICJpYXQiOiAxNjc2NjEwMDAwLAogICAgImV4cCI6IDE4MzQzNzY0MDAKfQ.fQwBHdkmGnCxgEwrBxUUoH_3LHvym8bUBktaunVDXFA
+      - key: eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.ewogICAgInJvbGUiOiAiYW5vbiIsCiAgICAiaXNzIjogInN1cGFiYXNlIiwKICAgICJpYXQiOiAxNjc3MDQyMDAwLAogICAgImV4cCI6IDE4MzQ4MDg0MDAKfQ.elF8quqYuD91-BkXrzR2qSsLmSQaXjAcXdpdFozeqfo
   - username: service_role
     keyauth_credentials:
-      - key: eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.ewogICAgInJvbGUiOiAic2VydmljZV9yb2xlIiwKICAgICJpc3MiOiAic3VwYWJhc2UiLAogICAgImlhdCI6IDE2NzY2MTAwMDAsCiAgICAiZXhwIjogMTgzNDM3NjQwMAp9.mjC8qASIjamTK5M5OVViUIXBiVEmyOjxKbl0cXyLbZY
+      - key: eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.ewogICAgInJvbGUiOiAic2VydmljZV9yb2xlIiwKICAgICJpc3MiOiAic3VwYWJhc2UiLAogICAgImlhdCI6IDE2NzcwNDIwMDAsCiAgICAiZXhwIjogMTgzNDgwODQwMAp9.7kBiv3YNCfJco7YAg2Do762UOz6tHx1JRygtwa2ehDg
 
 ###
 ### Access Control List
