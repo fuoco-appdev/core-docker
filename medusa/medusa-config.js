@@ -48,7 +48,19 @@ const plugins = [
       api_key: process.env.SENDGRID_API_KEY,
       from: process.env.SENDGRID_FROM,
     }
-  }
+  },
+  {
+    resolve: `medusa-plugin-meilisearch`,
+    options: {
+      config: {
+        host: process.env.MEILISEARCH_HOST,
+        apiKey: process.env.MEILISEARCH_API_KEY,
+      },
+      settings: {
+        // index settings...
+      },
+    },
+  },
   // Uncomment to add Stripe support.
   // You can create a Stripe account via: https://stripe.com
   // {

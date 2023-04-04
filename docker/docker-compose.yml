@@ -366,6 +366,8 @@ services:
       SENDGRID_FROM: ${SENDGRID_FROM}
       ADMIN_CORS: ${MEDUSA_ADMIN_CORS}
       STORE_CORS: ${MEDUSA_STORE_CORS}
+      MEILISEARCH_HOST: ${MEILI_HOST}
+      MEILISEARCH_API_KEY: ${MEILI_MASTER_KEY}
       PORT: 9000
     ports:
       - "9000:9000"
@@ -389,6 +391,23 @@ services:
     volumes:
       - .:/app/medusa-admin
       - node_modules:/app/medusa-admin/node_modules
+
+  meilisearch:
+    container_name: meilisearch
+    image: getmeili/meilisearch:v1.1
+    environment:
+      - http_proxy
+      - https_proxy
+      - MEILI_MASTER_KEY=${MEILI_MASTER_KEY}
+      - MEILI_NO_ANALYTICS=${MEILI_NO_ANALYTICS}
+      - MEILI_ENV=${MEILI_ENV}
+      - MEILI_LOG_LEVEL
+      - MEILI_DB_PATH=${MEILI_DB_PATH}
+    ports:
+      - ${MEILI_PORT}:7700
+    volumes:
+      - ./data.ms:/data.ms
+    restart: unless-stopped
 
   redis:
     image: redis
