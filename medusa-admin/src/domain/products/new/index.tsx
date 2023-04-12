@@ -30,10 +30,12 @@ import AddSalesChannelsForm, {
   AddSalesChannelsFormType,
 } from "./add-sales-channels"
 import AddVariantsForm, { AddVariantsFormType } from "./add-variants"
+import AddMetadataForm, { AddMetadataFormType } from "./add-metadata"
 
 type NewProductForm = {
   general: GeneralFormType
   discounted: DiscountableFormType
+  metadata: AddMetadataFormType
   organize: OrganizeFormType
   variants: AddVariantsFormType
   customs: CustomsFormType
@@ -225,6 +227,14 @@ const NewProduct = ({ onClose }: Props) => {
                   </div>
                 </div>
               </Accordion.Item>
+              <Accordion.Item title="Metadata" value="metadata">
+                <p className="text-grey-50 inter-base-regular">
+                  Add metadata of this product.
+                </p>
+                <div className="mt-large">
+                  <AddMetadataForm form={nestedForm(form, "metadata")} />
+                </div>
+              </Accordion.Item>
               <Accordion.Item title="Variants" value="variants">
                 <p className="text-grey-50 inter-base-regular">
                   Add variations of this product.
@@ -279,6 +289,12 @@ const createPayload = (
   publish = true,
   salesChannelsEnabled = false
 ): AdminPostProductsReq => {
+  const metadata: Record<string, any> = {}
+  for (const key in data.metadata.data) {
+    metadata[key] = data.metadata.data[key]
+  }
+  console.log(data.metadata.data)
+  console.log(metadata)
   const payload: AdminPostProductsReq = {
     title: data.general.title,
     subtitle: data.general.subtitle || undefined,
@@ -309,6 +325,7 @@ const createPayload = (
     options: data.variants.options.map((o) => ({
       title: o.title,
     })),
+    metadata: metadata,
     variants: data.variants.entries.map((v) => ({
       title: v.general.title!,
       material: v.general.material || undefined,
@@ -380,6 +397,9 @@ const createBlank = (): NewProductForm => {
     },
     thumbnail: {
       images: [],
+    },
+    metadata: {
+      data: [],
     },
     variants: {
       entries: [],

@@ -44,7 +44,6 @@ const AddVariantsForm = ({
   productDimensions,
 }: Props) => {
   const { control, path, register } = form
-
   const { checkForDuplicate, getOptions } = useCheckOptions(form)
 
   const {
