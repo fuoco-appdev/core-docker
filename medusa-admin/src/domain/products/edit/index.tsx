@@ -5,6 +5,7 @@ import Spinner from "../../../components/atoms/spinner"
 import { getErrorStatus } from "../../../utils/get-error-status"
 import AttributesSection from "./sections/attributes"
 import GeneralSection from "./sections/general"
+import MetadataSection from "./sections/metadata"
 import MediaSection from "./sections/media"
 import RawSection from "./sections/raw"
 import ThumbnailSection from "./sections/thumbnail"
@@ -54,6 +55,7 @@ const Edit = () => {
       <div className="grid grid-cols-12 gap-x-base">
         <div className="col-span-8 flex flex-col gap-y-xsmall">
           <GeneralSection product={product} />
+          <MetadataSection product={product} />
           <VariantsSection product={product} />
           <AttributesSection product={product} />
           <RawSection product={product} />

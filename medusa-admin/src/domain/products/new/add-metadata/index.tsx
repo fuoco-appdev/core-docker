@@ -1,25 +1,10 @@
-import clsx from "clsx"
-import React, { useCallback, useEffect, useMemo, useState } from "react"
-import { Controller, useFieldArray, useForm, useWatch } from "react-hook-form"
-import { v4 as uuidv4 } from "uuid"
-import Button from "../../../../components/fundamentals/button"
-import PlusIcon from "../../../../components/fundamentals/icons/plus-icon"
-import TrashIcon from "../../../../components/fundamentals/icons/trash-icon"
+import { useFieldArray, useWatch } from "react-hook-form"
 import IconTooltip from "../../../../components/molecules/icon-tooltip"
-import InputField from "../../../../components/molecules/input"
-import Modal from "../../../../components/molecules/modal"
-import TagInput from "../../../../components/molecules/tag-input"
-import { useDebounce } from "../../../../hooks/use-debounce"
-import useToggleState from "../../../../hooks/use-toggle-state"
 import { NestedForm } from "../../../../utils/nested-form"
-import { CustomsFormType } from "../../components/customs-form"
-import { DimensionsFormType } from "../../components/dimensions-form"
-import CreateFlowVariantForm, {
-  CreateFlowVariantFormType,
-} from "../../components/variant-form/create-flow-variant-form"
 import Metadata, {
   MetadataField,
 } from "../../../../components/organisms/metadata"
+import { useEffect, useLayoutEffect, useState } from "react"
 
 export type AddMetadataFormType = {
   data: MetadataField[]
@@ -30,32 +15,25 @@ type Props = {
 }
 
 const AddMetadataForm = ({ form }: Props) => {
-  const { control, path } = form
-  const watchedMetadata = useWatch({
-    control: control,
-    name: path("data"),
-  })
-  const {
-    append: appendMetadata,
-    remove: removeMetadata,
-    update: updateMetadata,
-  } = useFieldArray({
+  const { path, register, control } = form
+  const { replace: replaceMetadata } = useFieldArray({
     control,
     name: path("data"),
     shouldUnregister: true,
   })
+  const watchedMetadata = useWatch({
+    control: control,
+    name: path("data"),
+  })
+  const [metadata, setMetadata] = useState<MetadataField[]>(watchedMetadata)
 
-  const setMetadata = (metadata: MetadataField[]) => {
-    for (let i = 0; i < watchedMetadata.length; i++) {
-      removeMetadata(i)
-    }
+  useEffect(() => {
+    register(path("data"))
+  }, [])
 
-    for (const meta of metadata) {
-      appendMetadata(meta)
-    }
-
-    console.log(metadata)
-  }
+  useLayoutEffect(() => {
+    replaceMetadata(metadata)
+  }, [metadata])
 
   return (
     <>
@@ -68,7 +46,7 @@ const AddMetadataForm = ({ form }: Props) => {
           />
         </div>
         <div className="mt-xlarge w-full">
-          <Metadata setMetadata={setMetadata} metadata={watchedMetadata} />
+          <Metadata setMetadata={setMetadata} metadata={metadata} />
         </div>
       </div>
     </>

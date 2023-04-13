@@ -159,6 +159,7 @@ const useCopyProduct = () => {
 
     base.title = newTitle
     base.handle = newHandle
+    base.metadata = product.metadata ?? {}
 
     mutate(base as AdminPostProductsReq, {
       onSuccess: ({ product: copiedProduct }) => {

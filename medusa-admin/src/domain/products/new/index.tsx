@@ -1,7 +1,7 @@
 import { AdminPostProductsReq } from "@medusajs/medusa"
 import { useAdminCreateProduct } from "medusa-react"
 import { useEffect } from "react"
-import { useForm, useWatch } from "react-hook-form"
+import { useFieldArray, useForm, useWatch } from "react-hook-form"
 import { useNavigate } from "react-router-dom"
 import Button from "../../../components/fundamentals/button"
 import FeatureToggle from "../../../components/fundamentals/feature-toggle"
@@ -31,6 +31,7 @@ import AddSalesChannelsForm, {
 } from "./add-sales-channels"
 import AddVariantsForm, { AddVariantsFormType } from "./add-variants"
 import AddMetadataForm, { AddMetadataFormType } from "./add-metadata"
+import { MetadataField } from "../../../components/organisms/metadata"
 
 type NewProductForm = {
   general: GeneralFormType
@@ -52,6 +53,12 @@ type Props = {
 const NewProduct = ({ onClose }: Props) => {
   const form = useForm<NewProductForm>({
     defaultValues: createBlank(),
+  })
+  const { control } = form
+  const { replace: replaceMetadata } = useFieldArray({
+    control,
+    name: "metadata.data",
+    shouldUnregister: true,
   })
   const { mutate } = useAdminCreateProduct()
   const navigate = useNavigate()
@@ -83,6 +90,10 @@ const NewProduct = ({ onClose }: Props) => {
   }, [])
 
   const { isFeatureEnabled } = useFeatureFlag()
+
+  const onMetadataChanged = (metadata: MetadataField[]) => {
+    replaceMetadata(metadata)
+  }
 
   const onSubmit = (publish = true) =>
     handleSubmit(async (data) => {
@@ -290,11 +301,10 @@ const createPayload = (
   salesChannelsEnabled = false
 ): AdminPostProductsReq => {
   const metadata: Record<string, any> = {}
-  for (const key in data.metadata.data) {
-    metadata[key] = data.metadata.data[key]
+  for (const meta of data.metadata.data) {
+    metadata[meta.key] = meta.value
   }
-  console.log(data.metadata.data)
-  console.log(metadata)
+
   const payload: AdminPostProductsReq = {
     title: data.general.title,
     subtitle: data.general.subtitle || undefined,
@@ -325,7 +335,7 @@ const createPayload = (
     options: data.variants.options.map((o) => ({
       title: o.title,
     })),
-    metadata: metadata,
+    metadata: { specs: metadata },
     variants: data.variants.entries.map((v) => ({
       title: v.general.title!,
       material: v.general.material || undefined,

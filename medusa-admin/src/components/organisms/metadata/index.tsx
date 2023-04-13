@@ -20,12 +20,6 @@ const Metadata: React.FC<AddMetadataProps> = ({
   setMetadata,
   heading = "Metadata",
 }) => {
-  const [localData, setLocalData] = useState<MetadataField[]>([])
-
-  useEffect(() => {
-    setLocalData(metadata)
-  }, [metadata])
-
   const addKeyPair = () => {
     setMetadata([...metadata, { key: ``, value: `` }])
   }
@@ -49,6 +43,10 @@ const Metadata: React.FC<AddMetadataProps> = ({
     }
   }
 
+  const onBlur = () => {
+    setMetadata([...metadata])
+  }
+
   const deleteKeyPair = (index: number) => {
     return () => {
       setMetadata(metadata.filter((_, i) => i !== index))
@@ -59,13 +57,14 @@ const Metadata: React.FC<AddMetadataProps> = ({
     <div>
       <span className="inter-base-semibold">{heading}</span>
       <div className="flex flex-col mt-base gap-y-base">
-        {localData.map((field, index) => {
+        {metadata.map((field, index) => {
           return (
             <DeletableElement key={index} onDelete={deleteKeyPair(index)}>
               <Field
                 field={field}
                 updateKey={onKeyChange(index)}
                 updateValue={onValueChange(index)}
+                onBlur={onBlur}
               />
             </DeletableElement>
           )
@@ -91,9 +90,15 @@ type FieldProps = {
   field: MetadataField
   updateKey: (key: string) => void
   updateValue: (value: string) => void
+  onBlur: () => void
 }
 
-const Field: React.FC<FieldProps> = ({ field, updateKey, updateValue }) => {
+const Field: React.FC<FieldProps> = ({
+  field,
+  updateKey,
+  updateValue,
+  onBlur,
+}) => {
   return (
     <div className="flex items-center w-full gap-x-xsmall">
       <div className="maw-w-[200px]">
@@ -104,6 +109,7 @@ const Field: React.FC<FieldProps> = ({ field, updateKey, updateValue }) => {
           onChange={(e) => {
             updateKey(e.currentTarget.value)
           }}
+          onBlur={onBlur}
         />
       </div>
       <div className="flex-grow">
@@ -114,6 +120,7 @@ const Field: React.FC<FieldProps> = ({ field, updateKey, updateValue }) => {
           onChange={(e) => {
             updateValue(e.currentTarget.value)
           }}
+          onBlur={onBlur}
         />
       </div>
     </div>

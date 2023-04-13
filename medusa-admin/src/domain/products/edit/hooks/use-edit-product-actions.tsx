@@ -6,6 +6,7 @@ import {
 import {
   useAdminCreateVariant,
   useAdminDeleteProduct,
+  useAdminDeleteProductOption,
   useAdminDeleteVariant,
   useAdminProduct,
   useAdminUpdateProduct,
@@ -26,6 +27,7 @@ const useEditProductActions = (productId: string) => {
   const updateVariant = useAdminUpdateVariant(productId)
   const deleteVariant = useAdminDeleteVariant(productId)
   const addVariant = useAdminCreateVariant(productId)
+  const deleteProductOption = useAdminDeleteProductOption(productId)
 
   const onDelete = async () => {
     const shouldDelete = await dialog({
@@ -43,6 +45,13 @@ const useEditProductActions = (productId: string) => {
         },
       })
     }
+  }
+
+  const onDeleteProductOption = (variable: string) => {
+    deleteProductOption.mutate(variable, {
+      onSuccess: () => {},
+      onError: (err) => {},
+    })
   }
 
   const onAddVariant = (
@@ -154,6 +163,7 @@ const useEditProductActions = (productId: string) => {
     onAddVariant,
     onUpdateVariant,
     onDeleteVariant,
+    onDeleteProductOption,
     updating: updateProduct.isLoading,
     deleting: deleteProduct.isLoading,
     addingVariant: addVariant.isLoading,
