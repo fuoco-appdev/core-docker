@@ -369,6 +369,7 @@ services:
       MEILISEARCH_HOST: ${MEILI_HOST}
       MEILISEARCH_API_KEY: ${MEILI_MASTER_KEY}
       MEDUSA_FF_SALES_CHANNELS: "true"
+      MEDUSA_FF_TAX_INCLUSIVE_PRICING: "true"
       PORT: 9000
     ports:
       - "9000:9000"
