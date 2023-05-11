@@ -57,7 +57,13 @@ const plugins = [
         apiKey: process.env.MEILISEARCH_API_KEY,
       },
       settings: {
-        // index settings...
+        products: {
+          indexSettings: {
+            searchableAttributes: process.env.MEILI_SEARCHABLE_ATTRIBUTES.split(' '),
+            displayedAttributes: process.env.MEILI_DISPLAYED_ATTRIBUTES.split(' '),
+          },
+          primaryKey: process.env.MEILI_PRIMARY_KEY,
+        },
       },
     },
   },
