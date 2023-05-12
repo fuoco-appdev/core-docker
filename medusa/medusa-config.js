@@ -62,7 +62,7 @@ const plugins = [
             searchableAttributes: process.env.MEILI_SEARCHABLE_ATTRIBUTES.split(' ') ?? [],
             displayedAttributes: process.env.MEILI_DISPLAYED_ATTRIBUTES.split(' ') ?? [],
             filterableAttributes: process.env.MEILI_FILTERABLE_ATTRIBUTES.split(' ') ?? []
-          }
+          },
         },
       },
     },
