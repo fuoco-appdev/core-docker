@@ -98,5 +98,13 @@ module.exports = {
     jwt_secret: process.env.JWT_SECRET,
     cookie_secret: process.env.COOKIE_SECRET,
   },
+  modules: {
+    inventoryService: {
+      resolve: "@medusajs/inventory",
+    },
+    stockLocationService: {
+      resolve: "@medusajs/stock-location",
+    },
+  },
   plugins,
 };
