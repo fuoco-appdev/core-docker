@@ -343,7 +343,7 @@ services:
       - ./volumes/db/data:/var/lib/postgresql/data
   medusa-server:
     build:
-      context: ../medusa
+      context: ../medusa-server
       dockerfile: Dockerfile
     image: medusa/server:v0.0.1
     container_name: medusa-server
