@@ -399,23 +399,6 @@ services:
       - .:/app/medusa
       - node_modules:/app/medusa/node_modules
 
-  medusa-admin:
-    container_name: medusa-admin
-    build:
-      context: ../medusa-admin
-      dockerfile: Dockerfile
-    image: medusa/admin:v0.1.0
-    environment:
-      MEDUSA_BACKEND_URL: ${MEDUSA_BACKEND_URL}
-    depends_on:
-      - medusa-server
-    ports:
-      - "7000:7000"
-    tty: true
-    volumes:
-      - .:/app/medusa-admin
-      - node_modules:/app/medusa-admin/node_modules
-
   meilisearch:
     container_name: meilisearch
     image: getmeili/meilisearch:latest
