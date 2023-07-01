@@ -2,7 +2,7 @@ openref: 0.1
 
 info:
   id: reference/supabase-js
-  title: Supabase Client
+  title: Supabase Javascript Client
   description: |
 
     Supabase JavaScript.
@@ -68,7 +68,7 @@ functions:
           ```
         description: |
           By default the API server points to the `public` schema. You can enable other database schemas within the Dashboard.
-          Go to [Settings > API > Exposed schemas](https://app.supabase.com/project/_/settings/api) and add the schema which you want to expose to the API.
+          Go to [Settings > API > Exposed schemas](https://supabase.com/dashboard/project/_/settings/api) and add the schema which you want to expose to the API.
 
           Note: each client connection can only access a single schema, so the code above can access the `other_schema` schema but cannot access the `public` schema.
       - id: custom-fetch-implementation
@@ -136,13 +136,13 @@ functions:
     title: 'signUp()'
     $ref: '@supabase/gotrue-js.GoTrueClient.signUp'
     notes: |
-      - By default, the user needs to verify their email address before logging in. To turn this off, disable **Confirm email** in [your project](https://app.supabase.com/project/_/auth/providers).
+      - By default, the user needs to verify their email address before logging in. To turn this off, disable **Confirm email** in [your project](https://supabase.com/dashboard/project/_/auth/providers).
       - **Confirm email** determines if users need to confirm their email address after signing up.
         - If **Confirm email** is enabled, a `user` is returned but `session` is null.
         - If **Confirm email** is disabled, both a `user` and a `session` are returned.
-      - When the user confirms their email address, they are redirected to the [`SITE_URL`](https://supabase.com/docs/reference/auth/config#site_url) by default. You can modify your `SITE_URL` or add additional redirect URLs in [your project](https://app.supabase.com/project/_/auth/url-configuration).
+      - When the user confirms their email address, they are redirected to the [`SITE_URL`](https://supabase.com/docs/reference/auth/config#site_url) by default. You can modify your `SITE_URL` or add additional redirect URLs in [your project](https://supabase.com/dashboard/project/_/auth/url-configuration).
       - If signUp() is called for an existing confirmed user:
-          - If **Confirm email** is enabled in [your project](https://app.supabase.com/project/_/auth/providers), an obfuscated/fake user object is returned.
+          - If **Confirm email** is enabled in [your project](https://supabase.com/dashboard/project/_/auth/providers), an obfuscated/fake user object is returned.
           - If **Confirm email** is disabled, the error message, `User already registered` is returned.
       - To fetch the currently logged-in user, refer to [`getUser()`](/docs/reference/javascript/auth-getuser).
     examples:
@@ -177,7 +177,7 @@ functions:
       - id: sign-up-with-redirect
         name: Sign up with a redirect URL
         description: |
-          - See [redirect URLs and wildcards](/docs/guides/auth/overview#redirect-urls-and-wildcards) to add additional redirect URLs to your project.
+          - See [redirect URLs and wildcards](/docs/guides/auth#redirect-urls-and-wildcards) to add additional redirect URLs to your project.
         code: |
           ```js
           const { data, error } = await supabase.auth.signUp(
@@ -232,8 +232,9 @@ functions:
       - If you're using an email, you can configure whether you want the user to receive a magiclink or a OTP.
       - If you're using phone, you can configure whether you want the user to receive a OTP.
       - The magic link's destination URL is determined by the [`SITE_URL`](/docs/reference/auth/config#site_url).
-      - See [redirect URLs and wildcards](/docs/guides/auth/overview#redirect-urls-and-wildcards) to add additional redirect URLs to your project.
-      - Magic links and OTPs share the same implementation. To send users a one-time code instead of a magic link, [modify the magic link email template](https://app.supabase.com/project/_/auth/templates) to include `{{ .Token }}` instead of `{{ .ConfirmationURL }}`.
+      - See [redirect URLs and wildcards](/docs/guides/auth#redirect-urls-and-wildcards) to add additional redirect URLs to your project.
+      - Magic links and OTPs share the same implementation. To send users a one-time code instead of a magic link, [modify the magic link email template](https://supabase.com/dashboard/project/_/auth/templates) to include `{{ .Token }}` instead of `{{ .ConfirmationURL }}`.
+      - See our [Twilio Phone Auth Guide](/docs/guides/auth/phone-login/twilio) for details about configuring WhatsApp sign in.
     examples:
       - id: sign-in-with-email
         name: Sign in with email
@@ -258,12 +259,25 @@ functions:
             phone: '+13334445555',
           })
           ```
+      - id: sign-in-with-whatsapp-otp
+        name: Sign in with WhatsApp OTP
+        isSpotlight: false
+        description: The user will be sent a WhatsApp message which contains a OTP. By default, a given user can only request a OTP once every 60 seconds. Note that a user will need to have a valid WhatsApp account that is linked to Twilio in order to use this feature.
+        code: |
+          ```js
+          const { data, error } = await supabase.auth.signInWithOtp({
+            phone: '+13334445555',
+            options: {
+              channel:'whatsapp',
+            }
+          })
+          ```
   - id: sign-in-with-oauth
     title: 'signInWithOAuth()'
     $ref: '@supabase/gotrue-js.GoTrueClient.signInWithOAuth'
     notes: |
       - This method is used for signing in using a third-party provider.
-      - Supabase supports many different [third-party providers](https://supabase.com/docs/guides/auth#providers).
+      - Supabase supports many different [third-party providers](https://supabase.com/docs/guides/auth#configure-third-party-providers).
     examples:
       - id: sign-in-using-a-third-party-provider
         name: Sign in using a third-party provider
@@ -279,11 +293,11 @@ functions:
         isSpotlight: false
         description: |
           - When the third-party provider successfully authenticates the user, the provider redirects the user to the URL specified in the `redirectTo` parameter. This parameter defaults to the [`SITE_URL`](/docs/reference/auth/config#site_url). It does not redirect the user immediately after invoking this method.
-          - See [redirect URLs and wildcards](/docs/guides/auth/overview#redirect-urls-and-wildcards) to add additional redirect URLs to your project.
+          - See [redirect URLs and wildcards](/docs/guides/auth#redirect-urls-and-wildcards) to add additional redirect URLs to your project.
         code: |
           ```js
           const { data, error } = await supabase.auth.signInWithOAuth({
-            provider: 'github'
+            provider: 'github',
             options: {
               redirectTo: 'https://example.com/welcome'
             }
@@ -298,12 +312,56 @@ functions:
         code: |
           ```js
           const { data, error } = await supabase.auth.signInWithOAuth({
-            provider: 'github'
+            provider: 'github',
             options: {
               scopes: 'repo gist notifications'
             }
           })
           const oAuthToken = data.session.provider_token // use to access provider API
+          ```
+  - id: sign-in-with-sso
+    title: 'signInWithSSO()'
+    $ref: '@supabase/gotrue-js.GoTrueClient.signInWithSSO'
+    notes: |
+      - Before you can call this method you need to [establish a connection](/docs/guides/auth/sso/auth-sso-saml#managing-saml-20-connections) to an identity provider. Use the [CLI commands](/docs/reference/cli/supabase-sso) to do this.
+      - If you've associated an email domain to the identity provider, you can use the `domain` property to start a sign-in flow.
+      - In case you need to use a different way to start the authentication flow with an identity provider, you can use the `providerId` property. For example:
+          - Mapping specific user email addresses with an identity provider.
+          - Using different hints to identity the identity provider to be used by the user, like a company-specific page, IP address or other tracking information.
+    examples:
+      - id: sign-in-with-domain
+        name: Sign in with email domain
+        isSpotlight: true
+        code: |
+          ```js
+            // You can extract the user's email domain and use it to trigger the
+            // authentication flow with the correct identity provider.
+
+            const { data, error } = await supabase.auth.signInWithSSO({
+              domain: 'company.com'
+            })
+
+            if (data?.url) {
+              // redirect the user to the identity provider's authentication flow
+              window.location.href = data.url
+            }
+          ```
+      - id: sign-in-with-provider-uuid
+        name: Sign in with provider UUID
+        isSpotlight: true
+        code: |
+          ```js
+            // Useful when you need to map a user's sign in request according
+            // to different rules that can't use email domains.
+
+            const { data, error } = await supabase.auth.signInWithSSO({
+              providerId: '21648a9d-8d5a-4555-a9d1-d6375dc14e92'
+            })
+
+            if (data?.url) {
+              // redirect the user to the identity provider's authentication flow
+              window.location.href = data.url
+            }
           ```
   - id: sign-out
     title: 'signOut()'
@@ -322,7 +380,7 @@ functions:
     title: 'verifyOtp()'
     $ref: '@supabase/gotrue-js.GoTrueClient.verifyOtp'
     notes: |
-      - The `verifyOtp` method takes in different verification types. If a phone number is used, the type can either be `sms` or `phone_change`. If an email address is used, the type can be one of the following: `signup`, `magiclink`, `recovery`, `invite` or `email_change`.
+      - The `verifyOtp` method takes in different verification types. If a phone number is used, the type can either be `sms` or `phone_change`. If an email address is used, the type can be one of the following: `email`, `recovery`, `invite` or `email_change` (`signup` and `magiclink` types are deprecated).
       - The verification type used should be determined based on the corresponding auth method called before `verifyOtp` to sign up / sign-in a user.
     examples:
       - id: verify-sms-one-time-password(otp)
@@ -337,11 +395,14 @@ functions:
         isSpotlight: false
         code: |
           ```js
-          const { data, error } = await supabase.auth.verifyOtp({ email, token, type: 'signup'})
+          const { data, error } = await supabase.auth.verifyOtp({ email, token, type: 'email'})
           ```
   - id: get-session
     title: 'getSession()'
     $ref: '@supabase/gotrue-js.GoTrueClient.getSession'
+    notes: |
+      - This method retrieves the current local session (i.e local storage).
+      - If the session has an expired access token, this method will use the refresh token to get a new session.
     examples:
       - id: get-the-session-data
         name: Get the session data
@@ -354,8 +415,8 @@ functions:
     title: 'getUser()'
     $ref: '@supabase/gotrue-js.GoTrueClient.getUser'
     notes: |
-      - This method gets the user object from the current session.
-      - Fetches the user object from the database instead of local session.
+      - This method fetches the user object from the database instead of local session.
+      - This method is useful for checking if the user is authorized because it validates the user's access token JWT on the server.
       - Should be used only when you require the most current user data. For faster results, `getSession().session.user` is recommended.
     examples:
       - id: get-the-logged-in-user-with-the-current-existing-session
@@ -378,7 +439,7 @@ functions:
     notes: |
       - In order to use the `updateUser()` method, the user needs to be signed in first.
       - By Default, email updates sends a confirmation link to both the user's current and new email.
-      To only send a confirmation link to the user's new email, disable **Secure email change** in your project's [email auth provider settings](https://app.supabase.com/project/_/auth/providers).
+      To only send a confirmation link to the user's new email, disable **Secure email change** in your project's [email auth provider settings](https://supabase.com/dashboard/project/_/auth/providers).
     examples:
       - id: update-the-email-for-an-authenticated-user
         name: Update the email for an authenticated user
@@ -402,6 +463,82 @@ functions:
           ```js
           const { data, error } = await supabase.auth.updateUser({
             data: { hello: 'world' }
+          })
+          ```
+      - id: update-password-with-reauthentication
+        name: Update the user's password with a nonce
+        description: If "Secure password change" is enabled, updating the user's password would require a nonce. The nonce is sent to the user's email or phone number.
+        isSpotlight: true
+        code: |
+          ```js
+          const { data, error } = await supabase.auth.updateUser({
+            password: 'new password',
+            nonce: '123456'
+          })
+          ```
+  - id: send-password-reauthentication
+    title: 'reauthenticate()'
+    $ref: '@supabase/gotrue-js.GoTrueClient.reauthenticate'
+    notes: |
+      - This method is used together with `updateUser()` when a user's password needs to be updated.
+      - This method will send a nonce to the user's email. If the user doesn't have a confirmed email address, the method will send the nonce to the user's confirmed phone number instead.
+    examples:
+      - id: send-reauthentication-nonce
+        name: Send reauthentication nonce
+        description: Sends a reauthentication nonce to the user's email or phone number.
+        isSpotlight: true
+        code: |
+          ```js
+          const { data, error } = await supabase.auth.reauthenticate()
+          ```
+  - id: resend-email-or-phone-otps
+    title: 'resend()'
+    $ref: '@supabase/gotrue-js.GoTrueClient.resend'
+    notes: |
+      - Resends a signup confirmation, email change or phone change email to the user.
+      - Passwordless sign-ins can be resent by calling the `signInWithOtp()` method again.
+      - Password recovery emails can be resent by calling the `resetPassswordForEmail()` method again.
+      - This method will only resend an email or phone OTP to the user if there was an initial signup, email change or phone change request being made.
+    examples:
+      - id: resend-email-signup-confirmation
+        name: Resend an email signup confirmation
+        description: Resends the email signup confirmation to the user
+        isSpotlight: true
+        code: |
+          ```js
+          const { data, error } = await supabase.auth.resend({
+            type: 'signup',
+            email: 'email@example.com'
+          })
+          ```
+      - id: resend-phone-signup-confirmation
+        name: Resend a phone signup confirmation
+        description: Resends the phone signup confirmation email to the user
+        code: |
+          ```js
+          const { data, error } = await supabase.auth.resend({
+            type: 'sms',
+            phone: '1234567890'
+          })
+          ```
+      - id: resend-email-change-email
+        name: Resend email change email
+        description: Resends the email change email to the user
+        code: |
+          ```js
+          const { data, error } = await supabase.auth.resend({
+            type: 'email_change',
+            email: 'email@example.com'
+          })
+          ```
+      - id: resend-phone-change
+        name: Resend phone change OTP
+        description: Resends the phone change OTP to the user
+        code: |
+          ```js
+          const { data, error } = await supabase.auth.resend({
+            type: 'phone_change',
+            phone: '1234567890'
           })
           ```
   - id: set-session
@@ -428,7 +565,7 @@ functions:
     title: 'refreshSession()'
     $ref: '@supabase/gotrue-js.GoTrueClient.refreshSession'
     notes: |
-      - This method will refresh the session whether the current one is expired or not.
+      - This method will refresh and return a new session whether the current one is expired or not.
     examples:
       - id: refresh-session-using-the-current-session
         name: Refresh session using the current session
@@ -509,6 +646,27 @@ functions:
             if (event == 'USER_UPDATED') console.log('USER_UPDATED', session)
           })
           ```
+  - id: exchange-code-for-session
+    title: 'exchangeCodeForSession()'
+    $ref: '@supabase/gotrue-js.GoTrueClient.exchangeCodeForSession'
+    notes: |
+      - Used when `flowType` is set to `pkce` in client options.
+    examples:
+      - id: exchange-auth-code
+        name: Exchange Auth Code
+        isSpotlight: true
+        code: |
+          ```js
+          supabase.auth.exchangeCodeForSession('34e770dd-9ff9-416c-87fa-43b31d7ef225')
+          ```
+  - id: auth-mfa-api
+    title: 'Overview'
+    notes: |
+      This section contains methods commonly used for Multi-Factor Authentication (MFA) and are invoked behind the `supabase.auth.mfa` namespace. 
+
+      Currently, we only support time-based one-time password (TOTP) as the 2nd factor. We don't support recovery codes but we allow users to enroll more than 1 TOTP factor, with an upper limit of 10.
+
+      Having a 2nd TOTP factor for recovery frees the user of the burden of having to store their recovery codes somewhere. It also reduces the attack surface since multiple recovery codes are usually generated compared to just having 1 backup TOTP factor.
   - id: mfa-enroll
     title: 'mfa.enroll()'
     $ref: '@supabase/gotrue-js.GoTrueMFAApi.enroll'
@@ -682,6 +840,8 @@ functions:
     $ref: '@supabase/gotrue-js.GoTrueAdminApi.createUser'
     notes: |
       - To confirm the user's email address or phone number, set `email_confirm` or `phone_confirm` to true. Both arguments default to false.
+      - `createUser()` will not send a confirmation email to the user. You can use [`inviteUserByEmail()`](/docs/reference/javascript/auth-admin-inviteuserbyemail) if you want to send them an email invite instead.
+      - If you are sure that the created user's email or phone number is legitimate and verified, you can set the `email_confirm` or `phone_confirm` param to `true`.
     examples:
       - id: create-a-new-user-with-custom-user-metadata
         name: With custom user metadata
@@ -753,7 +913,7 @@ functions:
       You can use [`onAuthStateChange()`](/docs/reference/javascript/auth-onauthstatechange) to listen and invoke a callback function on these events.
       - When the user clicks the reset link in the email they are redirected back to your application.
       You can configure the URL that the user is redirected to with the `redirectTo` parameter.
-      See [redirect URLs and wildcards](/docs/guides/auth/overview#redirect-urls-and-wildcards) to add additional redirect URLs to your project.
+      See [redirect URLs and wildcards](/docs/guides/auth#redirect-urls-and-wildcards) to add additional redirect URLs to your project.
       - After the user has been redirected successfully, prompt them for a new password and call `updateUser()`:
       ```js
       const { data, error } = await supabase.auth.updateUser({
@@ -803,6 +963,10 @@ functions:
   - id: generate-link
     title: 'generateLink()'
     $ref: '@supabase/gotrue-js.GoTrueAdminApi.generateLink'
+    notes: |
+      - The following types can be passed into `generateLink()`: `signup`, `magiclink`, `invite`, `recovery`, `email_change_current`, `email_change_new`, `phone_change`.
+      - `generateLink()` only generates the email link for `email_change_email` if the "Secure email change" setting is enabled under the "Email" provider in your Supabase project.
+      - `generateLink()` handles the creation of the user for `signup`, `invite` and `magiclink`.
     examples:
       - id: generate-a-signup-link
         name: Generate a signup link
@@ -812,9 +976,7 @@ functions:
           const { data, error } = await supabase.auth.admin.generateLink({
             type: 'signup',
             email: 'email@example.com',
-            options: {
-              'password': 'secret'
-            }
+            password: 'secret'
           })
           ```
       - id: generate-an-invite-link
@@ -960,7 +1122,7 @@ functions:
     title: 'Fetch data: select()'
     $ref: '@supabase/postgrest-js.PostgrestQueryBuilder.select'
     notes: |
-      - By default, Supabase projects return a maximum of 1,000 rows. This setting can be changed in your project's [API settings](https://app.supabase.com/project/_/settings/api). It's recommended that you keep it low to limit the payload size of accidental or malicious requests. You can use `range()` queries to paginate through your data.
+      - By default, Supabase projects return a maximum of 1,000 rows. This setting can be changed in your project's [API settings](https://supabase.com/dashboard/project/_/settings/api). It's recommended that you keep it low to limit the payload size of accidental or malicious requests. You can use `range()` queries to paginate through your data.
       - `select()` can be combined with [Filters](/docs/reference/javascript/using-filters)
       - `select()` can be combined with [Modifiers](/docs/reference/javascript/using-modifiers)
       - `apikey` is a reserved keyword if you're using the [Supabase Platform](/docs/guides/platform) and [should be avoided as a column name](https://github.com/supabase/supabase/issues/5465).
@@ -1320,21 +1482,21 @@ functions:
           sql: |
             ```sql
             create table countries (
-              "id" "uuid" primary key default "extensions"."uuid_generate_v4"() not null, 
+              "id" "uuid" primary key default "extensions"."uuid_generate_v4"() not null,
               "name" text
             );
 
             create table cities (
-              "id" "uuid" primary key default "extensions"."uuid_generate_v4"() not null, 
-              "name" text, 
+              "id" "uuid" primary key default "extensions"."uuid_generate_v4"() not null,
+              "name" text,
               "country_id" "uuid" references public.countries on delete cascade
             );
-            
+
             with country as (
-              insert into countries (name) 
+              insert into countries (name)
               values ('united kingdom') returning id
             )
-            insert into cities (name, country_id) values 
+            insert into cities (name, country_id) values
             ('London', (select id from country)),
             ('Manchester', (select id from country)),
             ('Liverpool', (select id from country)),
@@ -3550,7 +3712,7 @@ functions:
   - id: using-modifiers
     title: Using Modifiers
     description: |
-      Filters work on the row level—they allows you to return rows that
+      Filters work on the row level—they allow you to return rows that
       only match certain conditions without changing the shape of the rows.
       Modifiers are everything that don't fit that definition—allowing you to
       change the format of the response (e.g., returning a CSV string).
@@ -3889,7 +4051,7 @@ functions:
             }
             ```
         description: |
-          You can use an [`AbortController`](https://developer.mozilla.org/en-US/docs/Web/API/AbortController) to abort requests. 
+          You can use an [`AbortController`](https://developer.mozilla.org/en-US/docs/Web/API/AbortController) to abort requests.
           Note that `status` and `statusText` don't mean anything for aborted requests as the request wasn't fulfilled.
         hideCodeBlock: true
         isSpotlight: true
@@ -4111,7 +4273,7 @@ functions:
   - id: invoke
     title: invoke()
     description: |
-      Invoke a Supabase Function.
+      Invoke a Supabase Edge Function.
     $ref: '@supabase/functions-js.FunctionsClient.invoke'
     notes: |
       - Requires an Authorization header.
@@ -4145,7 +4307,8 @@ functions:
           })
 
           if (error instanceof FunctionsHttpError) {
-            console.log('Function returned an error', error.message)
+            const errorMessage = await error.context.json()
+            console.log('Function returned an error', errorMessage)
           } else if (error instanceof FunctionsRelayError) {
             console.log('Relay error:', error.message)
           } else if (error instanceof FunctionsFetchError) {
@@ -4166,13 +4329,42 @@ functions:
             body: { foo: 'bar' }
           })
           ```
+      - id: calling-with-delete-verb
+        name: Calling with DELETE HTTP verb
+        description: |
+          You can also set the HTTP verb to `DELETE` when calling your Edge Function.
+        isSpotlight: true
+        code: |
+          ```js
+          const { data, error } = await supabase.functions.invoke('hello', {
+            headers: {
+              "my-custom-header": 'my-custom-header-value'
+            },
+            body: { foo: 'bar' },
+            method: 'DELETE'
+          })
+          ```
+      - id: calling-with-get-verb
+        name: Calling with GET HTTP verb
+        description: |
+          You can also set the HTTP verb to `GET` when calling your Edge Function.
+        isSpotlight: true
+        code: |
+          ```js
+          const { data, error } = await supabase.functions.invoke('hello', {
+            headers: {
+              "my-custom-header": 'my-custom-header-value'
+            },
+            method: 'GET'
+          })
+          ```
 
   - id: subscribe
     title: on().subscribe()
     $ref: '@supabase/realtime-js.RealtimeChannel.on'
     notes: |
       - By default, Broadcast and Presence are enabled for all projects.
-      - By default, listening to database changes is disabled for new projects due to database performance and security concerns. You can turn it on by managing Realtime's [replication](/docs/guides/database/api#realtime-api-overview).
+      - By default, listening to database changes is disabled for new projects due to database performance and security concerns. You can turn it on by managing Realtime's [replication](/docs/guides/api#realtime-api-overview).
       - You can receive the "previous" data for updates and deletes by setting the table's `REPLICA IDENTITY` to `FULL` (e.g., `ALTER TABLE your_table REPLICA IDENTITY FULL;`).
       - Row level security is not applied to delete statements. When RLS is enabled and replica identity is set to full, only the primary key is sent to clients.
     examples:
@@ -4433,7 +4625,11 @@ functions:
           ```js
           const { data, error } = await supabase
             .storage
-            .createBucket('avatars', { public: false })
+            .createBucket('avatars', {
+              public: false,
+              allowedMimeTypes: ['image/png'],
+              fileSizeLimit: 1024
+            })
           ```
 
   - id: empty-bucket
@@ -4459,7 +4655,7 @@ functions:
     $ref: '@supabase/storage-js.packages/StorageBucketApi.default.updateBucket'
     notes: |
       - RLS policy permissions required:
-        - `buckets` table permissions: `update`
+        - `buckets` table permissions: `select` and `update`
         - `objects` table permissions: none
       - Refer to the [Storage guide](/docs/guides/storage#access-control) on how access control works
     examples:
@@ -4470,7 +4666,11 @@ functions:
           ```js
           const { data, error } = await supabase
             .storage
-            .updateBucket('avatars', { public: false })
+            .updateBucket('avatars', {
+              public: false,
+              allowedMimeTypes: ['image/png'],
+              fileSizeLimit: 1024
+            })
           ```
 
   - id: delete-bucket
@@ -4498,7 +4698,7 @@ functions:
     notes: |
       - RLS policy permissions required:
         - `buckets` table permissions: none
-        - `objects` table permissions: `insert`
+        - `objects` table permissions: only `insert` when you are uploading new files and `select`, `insert` and `update` when you are upserting files
       - Refer to the [Storage guide](/docs/guides/storage#access-control) on how access control works
       - For React Native, using either `Blob`, `File` or `FormData` does not work as intended. Upload file using `ArrayBuffer` from base64 file data instead, see example below.
     examples:
@@ -4551,7 +4751,6 @@ functions:
             .from('avatars')
             .update('public/avatar1.png', avatarFile, {
               cacheControl: '3600',
-              // Overwrite file if it exists
               upsert: true
             })
           ```
@@ -4676,11 +4875,51 @@ functions:
             .createSignedUrls(['folder/avatar1.png', 'folder/avatar2.png'], 60)
           ```
 
+  - id: from-create-signed-upload-url
+    title: from.createSignedUploadUrl()
+    $ref: '@supabase/storage-js.packages/StorageFileApi.default.createSignedUploadUrl'
+    notes: |
+      - RLS policy permissions required:
+        - `buckets` table permissions: none
+        - `objects` table permissions: `insert`
+      - Refer to the [Storage guide](/docs/guides/storage#access-control) on how access control works
+    examples:
+      - id: create-signed-upload-url
+        name: Create Signed Upload URL
+        isSpotlight: true
+        code: |
+          ```js
+          const { data, error } = await supabase
+            .storage
+            .from('avatars')
+            .createSignedUploadUrl('folder/cat.jpg')
+          ```
+
+  - id: from-upload-to-signed-url
+    title: from.uploadToSignedUrl()
+    $ref: '@supabase/storage-js.packages/StorageFileApi.default.uploadToSignedUrl'
+    notes: |
+      - RLS policy permissions required:
+        - `buckets` table permissions: none
+        - `objects` table permissions: none
+      - Refer to the [Storage guide](/docs/guides/storage#access-control) on how access control works
+    examples:
+      - id: upload-to-signed-url
+        name: Upload to a signed URL
+        isSpotlight: true
+        code: |
+          ```js
+          const { data, error } = await supabase
+            .storage
+            .from('avatars')
+            .uploadToSignedUrl('folder/cat.jpg', 'token-from-createSignedUploadUrl', file)
+          ```
+
   - id: from-get-public-url
     title: from.getPublicUrl()
     $ref: '@supabase/storage-js.packages/StorageFileApi.default.getPublicUrl'
     notes: |
-      - The bucket needs to be set to public, either via [updateBucket()](/docs/reference/javascript/storage-updatebucket) or by going to Storage on [app.supabase.com](https://app.supabase.com), clicking the overflow menu on a bucket and choosing "Make public"
+      - The bucket needs to be set to public, either via [updateBucket()](/docs/reference/javascript/storage-updatebucket) or by going to Storage on [supabase.com/dashboard](https://supabase.com/dashboard), clicking the overflow menu on a bucket and choosing "Make public"
       - RLS policy permissions required:
         - `buckets` table permissions: none
         - `objects` table permissions: none
@@ -4755,6 +4994,7 @@ functions:
               transform: {
                 width: 100,
                 height: 100,
+                quality: 80
               }
             })
           ```

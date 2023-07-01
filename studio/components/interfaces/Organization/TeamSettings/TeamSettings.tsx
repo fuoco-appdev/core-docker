@@ -1,32 +1,40 @@
-import { useState } from 'react'
-import { observer } from 'mobx-react-lite'
-import { Button, Input, IconSearch } from 'ui'
 import * as Tooltip from '@radix-ui/react-tooltip'
+import { useState } from 'react'
+import { Button, IconSearch, Input } from 'ui'
 
-import { useStore, useParams } from 'hooks'
-import { post } from 'lib/common/fetch'
-import { API_URL } from 'lib/constants'
-import InviteMemberButton from './InviteMemberButton'
-import MembersView from './MembersView'
-import { getRolesManagementPermissions, hasMultipleOwners } from './TeamSettings.utils'
+import { useParams } from 'common/hooks'
 import { confirmAlert } from 'components/to-be-cleaned/ModalsDeprecated/ConfirmModal'
 import { useOrganizationDetailQuery } from 'data/organizations/organization-detail-query'
 import { useOrganizationRolesQuery } from 'data/organizations/organization-roles-query'
+import { usePermissionsQuery } from 'data/permissions/permissions-query'
+import { useSelectedOrganization, useStore } from 'hooks'
+import { delete_ } from 'lib/common/fetch'
+import { API_URL } from 'lib/constants'
+import { useProfile } from 'lib/profile'
+import InviteMemberButton from './InviteMemberButton'
+import MembersView from './MembersView'
+import { hasMultipleOwners, useGetRolesManagementPermissions } from './TeamSettings.utils'
 
 const TeamSettings = () => {
   const { ui } = useStore()
   const { slug } = useParams()
 
-  const user = ui.profile
-  const isOwner = ui.selectedOrganization?.is_owner
+  const { profile } = useProfile()
+  const selectedOrganization = useSelectedOrganization()
+  const isOwner = selectedOrganization?.is_owner
 
+  const { data: permissions } = usePermissionsQuery()
   const { data: detailData } = useOrganizationDetailQuery({ slug })
   const { data: rolesData } = useOrganizationRolesQuery({ slug })
 
   const members = detailData?.members ?? []
   const roles = rolesData?.roles ?? []
 
-  const { rolesAddable } = getRolesManagementPermissions(roles)
+  const { rolesAddable } = useGetRolesManagementPermissions(
+    selectedOrganization?.id,
+    roles,
+    permissions ?? []
+  )
 
   const [isLeaving, setIsLeaving] = useState(false)
   const [searchString, setSearchString] = useState('')
@@ -41,7 +49,9 @@ const TeamSettings = () => {
         title: 'Are you sure?',
         message: 'Are you sure you want to leave this team? This is permanent.',
         onAsyncConfirm: async () => {
-          const response = await post(`${API_URL}/organizations/${slug}/members/leave`, {})
+          const response = await delete_(
+            `${API_URL}/organizations/${slug}/members/${profile!.gotrue_id}`
+          )
           if (response.error) {
             throw response.error
           } else {
@@ -73,10 +83,10 @@ const TeamSettings = () => {
             placeholder="Filter members"
           />
           <div className="flex items-center space-x-4">
-            {canAddMembers && user !== undefined && (
+            {canAddMembers && profile !== undefined && (
               <div>
                 <InviteMemberButton
-                  user={user}
+                  userId={profile.id}
                   members={members}
                   roles={roles}
                   rolesAddable={rolesAddable}
@@ -96,19 +106,21 @@ const TeamSettings = () => {
                   </Button>
                 </Tooltip.Trigger>
                 {!canLeave && (
-                  <Tooltip.Content side="bottom">
-                    <Tooltip.Arrow className="radix-tooltip-arrow" />
-                    <div
-                      className={[
-                        'rounded bg-scale-100 py-1 px-2 leading-none shadow',
-                        'border border-scale-200',
-                      ].join(' ')}
-                    >
-                      <span className="text-xs text-scale-1200">
-                        An organization requires at least 1 owner
-                      </span>
-                    </div>
-                  </Tooltip.Content>
+                  <Tooltip.Portal>
+                    <Tooltip.Content side="bottom">
+                      <Tooltip.Arrow className="radix-tooltip-arrow" />
+                      <div
+                        className={[
+                          'rounded bg-scale-100 py-1 px-2 leading-none shadow',
+                          'border border-scale-200',
+                        ].join(' ')}
+                      >
+                        <span className="text-xs text-scale-1200">
+                          An organization requires at least 1 owner
+                        </span>
+                      </div>
+                    </Tooltip.Content>
+                  </Tooltip.Portal>
                 )}
               </Tooltip.Root>
             </div>
@@ -116,10 +128,10 @@ const TeamSettings = () => {
         </div>
       </div>
       <div className="container my-4 max-w-4xl space-y-8">
-        <MembersView searchString={searchString} roles={roles} members={members} />
+        <MembersView searchString={searchString} />
       </div>
     </>
   )
 }
 
-export default observer(TeamSettings)
+export default TeamSettings

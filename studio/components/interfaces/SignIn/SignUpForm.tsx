@@ -5,8 +5,9 @@ import { Alert, Button, Form, IconEye, IconEyeOff, Input } from 'ui'
 
 import { useStore } from 'hooks'
 import { post } from 'lib/common/fetch'
-import { API_URL } from 'lib/constants'
+import { API_URL, BASE_PATH } from 'lib/constants'
 import { passwordSchema } from 'lib/schemas'
+import { resetSignInClicks } from 'lib/local-storage'
 import PasswordConditionsHelper from './PasswordConditionsHelper'
 
 const signUpSchema = passwordSchema.shape({
@@ -33,15 +34,17 @@ const SignUpForm = () => {
       token = captchaResponse?.response ?? null
     }
 
+    resetSignInClicks()
+
     const response = await post(`${API_URL}/signup`, {
       email,
       password,
       hcaptchaToken: token ?? null,
       redirectTo: `${
         process.env.NEXT_PUBLIC_VERCEL_ENV === 'preview'
-          ? process.env.NEXT_PUBLIC_VERCEL_URL
+          ? `https://${process.env.NEXT_PUBLIC_VERCEL_URL}`
           : process.env.NEXT_PUBLIC_SITE_URL
-      }/sign-in`,
+      }${BASE_PATH}/sign-in`,
     })
     const error = response.error
 

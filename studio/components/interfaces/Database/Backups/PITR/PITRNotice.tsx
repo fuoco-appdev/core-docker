@@ -2,17 +2,18 @@ import Link from 'next/link'
 import { Button, IconCalendar } from 'ui'
 import { FormPanel } from 'components/ui/Forms'
 import * as Tooltip from '@radix-ui/react-tooltip'
-import { checkPermissions, useParams } from 'hooks'
-import { useProjectSubscriptionQuery } from 'data/subscriptions/project-subscription-query'
+import { useCheckPermissions } from 'hooks'
+import { useParams } from 'common/hooks'
 import { getPITRRetentionDuration } from './PITR.utils'
 import { PermissionAction } from '@supabase/shared-types/out/constants'
+import { useProjectAddonsQuery } from 'data/subscriptions/project-addons-query'
 
 const PITRNotice = ({}) => {
   const { ref: projectRef } = useParams()
-  const { data: subscription } = useProjectSubscriptionQuery({ projectRef })
-  const retentionPeriod = getPITRRetentionDuration(subscription?.addons ?? [])
+  const { data: addonsResponse } = useProjectAddonsQuery({ projectRef })
+  const retentionPeriod = getPITRRetentionDuration(addonsResponse?.selected_addons ?? [])
 
-  const canUpdateSubscription = checkPermissions(
+  const canUpdateSubscription = useCheckPermissions(
     PermissionAction.BILLING_WRITE,
     'stripe.subscriptions'
   )
@@ -27,26 +28,31 @@ const PITRNotice = ({}) => {
           </span>
           <Tooltip.Root delayDuration={0}>
             <Tooltip.Trigger>
-              <Button disabled={canUpdateSubscription} as="span" type="default">
-                <Link href={`/project/${projectRef}/settings/billing/update/pro`}>
+              <Link
+                href={`/project/${projectRef}/settings/billing/subscription?panel=pitr`}
+                passHref
+              >
+                <Button disabled={canUpdateSubscription} type="default" asChild>
                   <a>Increase retention period</a>
-                </Link>
-              </Button>
+                </Button>
+              </Link>
             </Tooltip.Trigger>
             {!canUpdateSubscription && (
-              <Tooltip.Content side="left">
-                <Tooltip.Arrow className="radix-tooltip-arrow" />
-                <div
-                  className={[
-                    'rounded bg-scale-100 py-1 px-2 leading-none shadow',
-                    'border border-scale-200',
-                  ].join(' ')}
-                >
-                  <span className="text-xs text-scale-1200">
-                    You need additional permissions to amend subscriptions
-                  </span>
-                </div>
-              </Tooltip.Content>
+              <Tooltip.Portal>
+                <Tooltip.Content side="left">
+                  <Tooltip.Arrow className="radix-tooltip-arrow" />
+                  <div
+                    className={[
+                      'rounded bg-scale-100 py-1 px-2 leading-none shadow',
+                      'border border-scale-200',
+                    ].join(' ')}
+                  >
+                    <span className="text-xs text-scale-1200">
+                      You need additional permissions to amend subscriptions
+                    </span>
+                  </div>
+                </Tooltip.Content>
+              </Tooltip.Portal>
             )}
           </Tooltip.Root>
         </div>

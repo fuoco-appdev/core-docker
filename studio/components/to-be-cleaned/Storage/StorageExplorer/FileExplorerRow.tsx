@@ -1,5 +1,4 @@
-import { FC, useState, useRef, useEffect } from 'react'
-import { find, has, isEmpty, isEqual } from 'lodash'
+import { find, isEmpty, isEqual } from 'lodash'
 import {
   Checkbox,
   Dropdown,
@@ -22,7 +21,7 @@ import * as Tooltip from '@radix-ui/react-tooltip'
 import { useContextMenu } from 'react-contexify'
 import { PermissionAction } from '@supabase/shared-types/out/constants'
 
-import { checkPermissions } from 'hooks'
+import { useCheckPermissions } from 'hooks'
 import {
   STORAGE_VIEWS,
   STORAGE_ROW_TYPES,
@@ -31,9 +30,11 @@ import {
   URL_EXPIRY_DURATION,
 } from '../Storage.constants'
 import { formatBytes } from 'lib/helpers'
+import { BASE_PATH } from 'lib/constants'
 import { useStorageStore } from 'localStores/storageExplorer/StorageExplorerStore'
+import FileExplorerRowEditing from './FileExplorerRowEditing'
 
-const RowIcon = ({ view, status, fileType, mimeType }: any) => {
+export const RowIcon = ({ view, status, fileType, mimeType }: any) => {
   if (view === STORAGE_VIEWS.LIST && status === STORAGE_ROW_STATUS.LOADING) {
     return <IconLoader size={16} strokeWidth={2} className="animate-spin" />
   }
@@ -41,10 +42,10 @@ const RowIcon = ({ view, status, fileType, mimeType }: any) => {
   if (fileType === STORAGE_ROW_TYPES.BUCKET || fileType === STORAGE_ROW_TYPES.FOLDER) {
     const iconSrc =
       fileType === STORAGE_ROW_TYPES.BUCKET
-        ? '/img/bucket-filled.svg'
+        ? `${BASE_PATH}/img/bucket-filled.svg`
         : fileType === STORAGE_ROW_TYPES.FOLDER
-        ? '/img/folder-filled.svg'
-        : '/img/file-filled.svg'
+        ? `${BASE_PATH}/img/folder-filled.svg`
+        : `${BASE_PATH}/img/file-filled.svg`
     return (
       <SVG
         src={iconSrc}
@@ -70,7 +71,7 @@ const RowIcon = ({ view, status, fileType, mimeType }: any) => {
   return <IconFile size={16} strokeWidth={2} />
 }
 
-interface Props {
+export interface FileExplorerRowProps {
   index: number
   item: any
   view: string
@@ -78,9 +79,10 @@ interface Props {
   selectedItems: any[]
   openedFolders: any[]
   selectedFilePreview: any
+  onCopyUrl: (name: string, url: string) => void
 }
 
-const FileExplorerRow: FC<Props> = ({
+const FileExplorerRow = ({
   index: itemIndex,
   item = {},
   view = STORAGE_VIEWS.COLUMNS,
@@ -88,18 +90,17 @@ const FileExplorerRow: FC<Props> = ({
   selectedItems = [],
   openedFolders = [],
   selectedFilePreview = {},
-}) => {
+  onCopyUrl,
+}: FileExplorerRowProps) => {
   const storageExplorerStore = useStorageStore()
   const {
+    getFileUrl,
     popColumnAtIndex,
     pushOpenedFolderAtIndex,
     popOpenedFoldersAtIndex,
     setFilePreview,
     closeFilePreview,
     clearSelectedItems,
-    addNewFolder,
-    renameFolder,
-    renameFile,
     selectedBucket,
     setSelectedItems,
     setSelectedItemsToDelete,
@@ -109,7 +110,6 @@ const FileExplorerRow: FC<Props> = ({
     fetchFolderContents,
     downloadFile,
     downloadFolder,
-    copyFileURLToClipboard,
     selectRangeItems,
   } = storageExplorerStore
 
@@ -119,7 +119,9 @@ const FileExplorerRow: FC<Props> = ({
   const isOpened =
     openedFolders.length > columnIndex ? isEqual(openedFolders[columnIndex], item) : false
   const isPreviewed = !isEmpty(selectedFilePreview) && isEqual(selectedFilePreview.id, item.id)
-  const canUpdateFiles = checkPermissions(PermissionAction.STORAGE_ADMIN_WRITE, '*')
+  const canUpdateFiles = useCheckPermissions(PermissionAction.STORAGE_ADMIN_WRITE, '*')
+
+  const { show } = useContextMenu()
 
   const onSelectFile = async (columnIndex: number, file: any) => {
     popColumnAtIndex(columnIndex)
@@ -150,54 +152,6 @@ const FileExplorerRow: FC<Props> = ({
       setSelectedItems([...selectedItems, itemWithColumnIndex])
     }
     closeFilePreview()
-  }
-
-  if (item.status === STORAGE_ROW_STATUS.EDITING) {
-    const inputRef = useRef<any>(null)
-    const [itemName, setItemName] = useState(item.name)
-
-    useEffect(() => {
-      if (inputRef.current) inputRef.current.select()
-    }, [])
-
-    const onSetItemName = async (event: any) => {
-      event.preventDefault()
-      event.stopPropagation()
-      if (item.type === STORAGE_ROW_TYPES.FILE) {
-        await renameFile(item, itemName, columnIndex)
-      } else if (has(item, 'id')) {
-        renameFolder(itemWithColumnIndex, itemName, columnIndex)
-      } else {
-        addNewFolder(itemName, columnIndex)
-      }
-    }
-
-    return (
-      <div className="storage-row flex items-center justify-between rounded bg-gray-500">
-        <div className="flex h-full flex-grow items-center px-2.5">
-          <div className="">
-            <RowIcon
-              view={view}
-              status={item.status}
-              fileType={item.type}
-              mimeType={item.metadata?.mimetype}
-            />
-          </div>
-          <form className="h-9" onSubmit={onSetItemName}>
-            <input
-              autoFocus
-              ref={inputRef}
-              className="storage-row-input ml-3 h-full bg-inherit p-0 px-1 text-sm"
-              type="text"
-              value={itemName}
-              onChange={(event) => setItemName(event.target.value)}
-              onBlur={onSetItemName}
-            />
-            <button className="hidden" type="submit" onClick={onSetItemName} />
-          </form>
-        </div>
-      </div>
-    )
   }
 
   const rowOptions =
@@ -236,7 +190,11 @@ const FileExplorerRow: FC<Props> = ({
                       {
                         name: 'Get URL',
                         icon: <IconClipboard size="tiny" />,
-                        onClick: async () => await copyFileURLToClipboard(itemWithColumnIndex),
+                        onClick: async () =>
+                          onCopyUrl(
+                            itemWithColumnIndex.name,
+                            await getFileUrl(itemWithColumnIndex)
+                          ),
                       },
                     ]
                   : [
@@ -247,25 +205,25 @@ const FileExplorerRow: FC<Props> = ({
                           {
                             name: 'Expire in 1 week',
                             onClick: async () =>
-                              await copyFileURLToClipboard(
-                                itemWithColumnIndex,
-                                URL_EXPIRY_DURATION.WEEK
+                              onCopyUrl(
+                                itemWithColumnIndex.name,
+                                await getFileUrl(itemWithColumnIndex, URL_EXPIRY_DURATION.WEEK)
                               ),
                           },
                           {
                             name: 'Expire in 1 month',
                             onClick: async () =>
-                              await copyFileURLToClipboard(
-                                itemWithColumnIndex,
-                                URL_EXPIRY_DURATION.MONTH
+                              onCopyUrl(
+                                itemWithColumnIndex.name,
+                                await getFileUrl(itemWithColumnIndex, URL_EXPIRY_DURATION.MONTH)
                               ),
                           },
                           {
                             name: 'Expire in 1 year',
                             onClick: async () =>
-                              await copyFileURLToClipboard(
-                                itemWithColumnIndex,
-                                URL_EXPIRY_DURATION.YEAR
+                              onCopyUrl(
+                                itemWithColumnIndex.name,
+                                await getFileUrl(itemWithColumnIndex, URL_EXPIRY_DURATION.YEAR)
                               ),
                           },
                           {
@@ -313,7 +271,6 @@ const FileExplorerRow: FC<Props> = ({
   const createdAt = item.created_at ? new Date(item.created_at).toLocaleString() : '-'
   const updatedAt = item.updated_at ? new Date(item.updated_at).toLocaleString() : '-'
 
-  const { show } = useContextMenu()
   const displayMenu = (event: any, rowType: any) => {
     show(event, {
       id:
@@ -332,6 +289,10 @@ const FileExplorerRow: FC<Props> = ({
       : view === STORAGE_VIEWS.LIST && !item.isCorrupted
       ? `calc(100% - 50px)`
       : '100%'
+
+  if (item.status === STORAGE_ROW_STATUS.EDITING) {
+    return <FileExplorerRowEditing view={view} item={item} columnIndex={columnIndex} />
+  }
 
   return (
     <div
@@ -403,19 +364,21 @@ const FileExplorerRow: FC<Props> = ({
               <Tooltip.Trigger>
                 <IconAlertCircle size={18} strokeWidth={2} className="text-scale-1000" />
               </Tooltip.Trigger>
-              <Tooltip.Content side="bottom">
-                <Tooltip.Arrow className="radix-tooltip-arrow" />
-                <div
-                  className={[
-                    'rounded bg-scale-100 py-1 px-2 leading-none shadow',
-                    'border border-scale-200',
-                  ].join(' ')}
-                >
-                  <span className="text-xs text-scale-1200">
-                    File is corrupted, please delete and reupload again.
-                  </span>
-                </div>
-              </Tooltip.Content>
+              <Tooltip.Portal>
+                <Tooltip.Content side="bottom">
+                  <Tooltip.Arrow className="radix-tooltip-arrow" />
+                  <div
+                    className={[
+                      'rounded bg-scale-100 py-1 px-2 leading-none shadow',
+                      'border border-scale-200',
+                    ].join(' ')}
+                  >
+                    <span className="text-xs text-scale-1200">
+                      File is corrupted, please delete and reupload again.
+                    </span>
+                  </div>
+                </Tooltip.Content>
+              </Tooltip.Portal>
             </Tooltip.Root>
           )}
         </div>

@@ -1,23 +1,17 @@
+import { useTheme } from 'common/Providers'
 import Image from 'next/image'
 import Link from 'next/link'
 import { useRouter } from 'next/router'
 import { FC, useEffect, useState } from 'react'
-import { Button, IconCommand, IconGitHub, IconMoon, IconSearch, IconSun } from 'ui'
-import { SearchButton } from '~/components/DocSearch'
-import { REFERENCES } from '~/components/Navigation/Navigation.constants'
-import { useTheme } from 'common/Providers'
-import clippyImageDark from '../../../public/img/clippy-dark.png'
-import clippyImage from '../../../public/img/clippy.png'
+import { Button, IconCommand, IconGitHub, IconMoon, IconSearch, IconSun, SearchButton } from 'ui'
 
 import { getPageType } from '~/lib/helpers'
-import { useClippy } from '~/components/Clippy/ClippyProvider'
-import { IS_PLATFORM } from '~/lib/constants'
+import { REFERENCES } from './NavigationMenu.constants'
 
 const TopNavBarRef: FC = () => {
   const { isDarkMode, toggleTheme } = useTheme()
   const [mounted, setMounted] = useState(false)
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false)
-  const { open: openClippy } = useClippy()
 
   const { asPath, push } = useRouter()
   const pathSegments = asPath.split('/')
@@ -41,15 +35,6 @@ const TopNavBarRef: FC = () => {
     { text: 'Reference', key: 'reference', link: '/reference' },
   ]
 
-  const toggleDarkMode = () => {
-    localStorage.setItem('supabaseDarkMode', (!isDarkMode).toString())
-    toggleTheme()
-
-    const key = localStorage.getItem('supabaseDarkMode')
-    document.documentElement.className = key === 'true' ? 'dark' : ''
-    document.documentElement.style.colorScheme = key === 'true' ? 'dark' : ''
-  }
-
   const onSelectVersion = (version: string) => {
     // [Joshen] Ideally we use <Link> but this works for now
     if (!library) return
@@ -71,7 +56,7 @@ const TopNavBarRef: FC = () => {
   }
 
   return (
-    <nav className="h-[60px] border-b backdrop-blur backdrop-filter bg-white-1200 dark:bg-blackA-300">
+    <nav className="h-[60px] border-b backdrop-blur backdrop-filter bg-white-1200 dark:bg-scale-200/90">
       <div className="px-5 max-w-7xl mx-auto flex gap-3 justify-between items-center h-full">
         <div className={['lg:hidden'].join(' ')}>
           <Link href="/">
@@ -118,71 +103,42 @@ const TopNavBarRef: FC = () => {
               </div>
             </div>
           </SearchButton>
-
-          {IS_PLATFORM && (
-            <div className="flex cursor-pointer order-1 lg:order-2">
-              <Image
-                onClick={openClippy}
-                width={26}
-                height={29}
-                src={isDarkMode ? clippyImageDark : clippyImage}
-                alt="Clippy"
-              />
-            </div>
-          )}
         </div>
         <div className="hidden lg:flex grow items-center justify-end gap-3">
-          <Button
-            type="text"
-            as="a"
-            // @ts-ignore
-            href="https://supabase.com"
+          <Button type="text" asChild>
+            <a href="https://supabase.com" target="_blank" rel="noreferrer noopener">
+              Supabase.com
+            </a>
+          </Button>
+          <Button type="text" asChild>
+            <a href="https://supabase.com/dashboard" target="_blank" rel="noreferrer noopener">
+              Dashboard
+            </a>
+          </Button>
+          <Link
+            href="https://github.com/supabase/supabase"
             target="_blank"
             rel="noreferrer noopener"
           >
-            Supabase.com
-          </Button>
-          <Button
-            type="text"
-            as="a"
-            // @ts-ignore
-            href="https://app.supabase.com"
-            target="_blank"
-            rel="noreferrer noopener"
-          >
-            Dashboard
-          </Button>
-          <ul className="flex items-center">
-            <Button
-              type="text"
-              as="a"
-              // @ts-ignore
-              href="https://github.com/supabase/supabase"
-              target="_blank"
-              rel="noreferrer noopener"
-            >
-              <IconGitHub size={16} />
-            </Button>
-          </ul>
-          <ul className="flex items-center">
-            <li className="px-4">
-              <div className="cursor-pointer" onClick={toggleDarkMode}>
-                {isDarkMode ? (
-                  <IconMoon
-                    size={16}
-                    strokeWidth={1}
-                    className="text-scale-1100 hover:text-scale-1200 transition"
-                  />
-                ) : (
-                  <IconSun
-                    size={16}
-                    strokeWidth={1}
-                    className="text-scale-1100 hover:text-scale-1200 transition"
-                  />
-                )}
-              </div>
-            </li>
-          </ul>
+            <a className="px-2.5 py-1" target="_blank">
+              <IconGitHub size={16} className="text-scale-1100 hover:text-scale-1200 transition" />
+            </a>
+          </Link>
+          <div className="cursor-pointer px-2.5 py-1" onClick={() => toggleTheme()}>
+            {isDarkMode ? (
+              <IconMoon
+                size={16}
+                strokeWidth={1}
+                className="text-scale-1100 hover:text-scale-1200 transition"
+              />
+            ) : (
+              <IconSun
+                size={16}
+                strokeWidth={1}
+                className="text-scale-1100 hover:text-scale-1200 transition"
+              />
+            )}
+          </div>
         </div>
       </div>
     </nav>

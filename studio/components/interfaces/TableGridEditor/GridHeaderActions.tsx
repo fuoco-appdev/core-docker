@@ -1,32 +1,33 @@
-import { FC } from 'react'
-import Link from 'next/link'
-import { Button, IconAlertCircle, IconCode, IconLock } from 'ui'
 import * as Tooltip from '@radix-ui/react-tooltip'
 import type { PostgresPolicy, PostgresTable } from '@supabase/postgres-meta'
-
-import { useStore, checkPermissions } from 'hooks'
 import { PermissionAction } from '@supabase/shared-types/out/constants'
+import Link from 'next/link'
 
-interface Props {
+import { useProjectContext } from 'components/layouts/ProjectLayout/ProjectContext'
+import { useCheckPermissions, useStore } from 'hooks'
+import { Button, IconAlertCircle, IconCode, IconLock } from 'ui'
+
+export interface GridHeaderActionsProps {
   table: PostgresTable
   apiPreviewPanelOpen: boolean
   setApiPreviewPanelOpen: (apiPreviewPanelOpen: boolean) => void
   refreshDocs: () => void
 }
 
-const GridHeaderActions: FC<Props> = ({
+const GridHeaderActions = ({
   table,
   apiPreviewPanelOpen,
   setApiPreviewPanelOpen,
   refreshDocs,
-}) => {
-  const { ui, meta } = useStore()
-  const projectRef = ui.selectedProject?.ref
+}: GridHeaderActionsProps) => {
+  const { meta } = useStore()
+  const { project } = useProjectContext()
+  const projectRef = project?.ref
   const policies = meta.policies.list((policy: PostgresPolicy) => policy.table_id === table.id)
 
-  const isReadOnly =
-    !checkPermissions(PermissionAction.TENANT_SQL_ADMIN_WRITE, 'tables') &&
-    !checkPermissions(PermissionAction.TENANT_SQL_ADMIN_WRITE, 'columns')
+  const canSqlWriteTables = useCheckPermissions(PermissionAction.TENANT_SQL_ADMIN_WRITE, 'tables')
+  const canSqlWriteColumns = useCheckPermissions(PermissionAction.TENANT_SQL_ADMIN_WRITE, 'columns')
+  const isReadOnly = !canSqlWriteTables && !canSqlWriteColumns
 
   function handlePreviewToggle() {
     setApiPreviewPanelOpen(!apiPreviewPanelOpen)
@@ -41,7 +42,7 @@ const GridHeaderActions: FC<Props> = ({
         icon={<IconCode size={14} strokeWidth={2} />}
         onClick={handlePreviewToggle}
       >
-        API Quickstart
+        API
       </Button>
     )
   }
@@ -55,25 +56,25 @@ const GridHeaderActions: FC<Props> = ({
               Viewing as read-only
             </div>
           </Tooltip.Trigger>
-          <Tooltip.Content side="bottom">
-            <Tooltip.Arrow className="radix-tooltip-arrow" />
-            <div
-              className={[
-                'rounded bg-scale-100 py-1 px-2 leading-none shadow',
-                'border border-scale-200',
-              ].join(' ')}
-            >
-              <span className="text-xs text-scale-1200">
-                You need additional permissions to manage your project's data
-              </span>
-            </div>
-          </Tooltip.Content>
+          <Tooltip.Portal>
+            <Tooltip.Content side="bottom">
+              <Tooltip.Arrow className="radix-tooltip-arrow" />
+              <div
+                className={[
+                  'rounded bg-scale-100 py-1 px-2 leading-none shadow',
+                  'border border-scale-200',
+                ].join(' ')}
+              >
+                <span className="text-xs text-scale-1200">
+                  You need additional permissions to manage your project's data
+                </span>
+              </div>
+            </Tooltip.Content>
+          </Tooltip.Portal>
         </Tooltip.Root>
       )}
-      <div className="mt-[1px]">
-        <RenderAPIPreviewToggle />
-      </div>
-      <Link href={`/project/${projectRef}/auth/policies#${table.id}`}>
+
+      <Link href={`/project/${projectRef}/auth/policies?search=${table.id}`}>
         <a>
           <Button
             type={table.rls_enabled ? 'link' : 'warning'}
@@ -85,7 +86,6 @@ const GridHeaderActions: FC<Props> = ({
               )
             }
           >
-            {/* RLS {table.rls_enabled ? 'is' : 'not'} enabled */}
             {!table.rls_enabled
               ? 'RLS is not enabled'
               : `${policies.length == 0 ? 'No' : policies.length} active RLS polic${
@@ -94,6 +94,9 @@ const GridHeaderActions: FC<Props> = ({
           </Button>
         </a>
       </Link>
+      <div className="mt-[1px]">
+        <RenderAPIPreviewToggle />
+      </div>
     </div>
   )
 }

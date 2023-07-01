@@ -5,7 +5,7 @@ import * as Tooltip from '@radix-ui/react-tooltip'
 import { Button, Input, IconSearch, IconLoader } from 'ui'
 import { PermissionAction } from '@supabase/shared-types/out/constants'
 
-import { checkPermissions, useStore } from 'hooks'
+import { useCheckPermissions, useStore } from 'hooks'
 import SchemaTable from './SchemaTable'
 import AlphaPreview from 'components/to-be-cleaned/AlphaPreview'
 import ProductEmptyState from 'components/to-be-cleaned/ProductEmptyState'
@@ -23,7 +23,7 @@ const TriggersList: FC<any> = ({
     includes(x.name.toLowerCase(), filterString.toLowerCase())
   )
   const filteredTriggerSchemas = lodashMap(uniqBy(filteredTriggers, 'schema'), 'schema')
-  const canCreateTriggers = checkPermissions(PermissionAction.TENANT_SQL_ADMIN_WRITE, 'triggers')
+  const canCreateTriggers = useCheckPermissions(PermissionAction.TENANT_SQL_ADMIN_WRITE, 'triggers')
 
   if (meta.triggers.isLoading) {
     return (
@@ -80,19 +80,21 @@ const TriggersList: FC<any> = ({
                 </Button>
               </Tooltip.Trigger>
               {!canCreateTriggers && (
-                <Tooltip.Content side="bottom">
-                  <Tooltip.Arrow className="radix-tooltip-arrow" />
-                  <div
-                    className={[
-                      'rounded bg-scale-100 py-1 px-2 leading-none shadow',
-                      'border border-scale-200',
-                    ].join(' ')}
-                  >
-                    <span className="text-xs text-scale-1200">
-                      You need additional permissions to create triggers
-                    </span>
-                  </div>
-                </Tooltip.Content>
+                <Tooltip.Portal>
+                  <Tooltip.Content side="bottom">
+                    <Tooltip.Arrow className="radix-tooltip-arrow" />
+                    <div
+                      className={[
+                        'rounded bg-scale-100 py-1 px-2 leading-none shadow',
+                        'border border-scale-200',
+                      ].join(' ')}
+                    >
+                      <span className="text-xs text-scale-1200">
+                        You need additional permissions to create triggers
+                      </span>
+                    </div>
+                  </Tooltip.Content>
+                </Tooltip.Portal>
               )}
             </Tooltip.Root>
           </div>

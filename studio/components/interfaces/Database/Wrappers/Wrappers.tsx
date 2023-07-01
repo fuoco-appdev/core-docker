@@ -45,8 +45,8 @@ const Wrappers = () => {
           </div>
         </div>
         <div className="flex items-center space-x-2">
-          <Link href="">
-            <a target="_blank">
+          <Link href="https://supabase.com/docs/guides/database/extensions/wrappers">
+            <a target="_blank" rel="noreferrer">
               <Button type="default" icon={<IconExternalLink strokeWidth={1.5} />}>
                 Documentation
               </Button>

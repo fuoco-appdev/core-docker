@@ -4,13 +4,10 @@ import Link from 'next/link'
 import NavigationMenu from '~/components/Navigation/NavigationMenu/NavigationMenu'
 import TopNavBarRef from '~/components/Navigation/NavigationMenu/TopNavBarRef'
 
-import FooterHelpCallout from '~/components/FooterHelpCallout'
-
-import { memo, useEffect } from 'react'
-import Clippy from '~/components/Clippy/Clippy'
+import Head from 'next/head'
+import { PropsWithChildren, memo } from 'react'
 import Footer from '~/components/Navigation/Footer'
 import { menuState, useMenuLevelId, useMenuMobileOpen } from '~/hooks/useMenuState'
-import { IS_PLATFORM } from '~/lib/constants'
 
 const levelsData = {
   home: {
@@ -25,6 +22,10 @@ const levelsData = {
     icon: '/docs/img/icons/menu/database',
     name: 'Database',
   },
+  api: {
+    icon: '/docs/img/icons/menu/database',
+    name: 'Serverless APIs',
+  },
   auth: {
     icon: '/docs/img/icons/menu/auth',
     name: 'Auth',
@@ -37,9 +38,17 @@ const levelsData = {
     icon: '/docs/img/icons/menu/realtime',
     name: 'Realtime',
   },
+  analytics: {
+    icon: '/docs/img/icons/menu/analytics',
+    name: 'Analytics',
+  },
   storage: {
     icon: '/docs/img/icons/menu/storage',
     name: 'Storage',
+  },
+  ai: {
+    icon: '/docs/img/icons/menu/ai',
+    name: 'AI & Vectors',
   },
   supabase_cli: {
     icon: '/docs/img/icons/menu/reference-cli',
@@ -85,6 +94,14 @@ const levelsData = {
     icon: '/docs/img/icons/menu/reference-python',
     name: 'Python Reference v2.0',
   },
+  reference_swift_v0: {
+    icon: '/docs/img/icons/menu/reference-swift',
+    name: 'Swift Reference v1.0',
+  },
+  reference_kotlin_v0: {
+    icon: '/docs/img/icons/menu/reference-kotlin',
+    name: 'Kotlin Reference v0.0',
+  },
   reference_cli: {
     icon: '/docs/img/icons/menu/reference-cli',
     name: 'CLI Reference',
@@ -104,6 +121,14 @@ const levelsData = {
   reference_self_hosting_realtime: {
     icon: '/docs/img/icons/menu/reference-realtime',
     name: 'Realtime Server Reference',
+  },
+  reference_self_hosting_analytics: {
+    icon: '/docs/img/icons/menu/reference-analytics',
+    name: 'Analytics Server Reference',
+  },
+  reference_self_hosting_functions: {
+    icon: '/docs/img/icons/menu/reference-functions',
+    name: 'Functions Server Reference',
   },
 }
 
@@ -180,32 +205,13 @@ const MobileMenuBackdrop = memo(function MobileMenuBackdrop() {
         'left-0',
         'right-0',
         'z-10',
-        'backdrop-blur-sm backdrop-filter bg-white-1200 dark:bg-blackA-600',
+        'backdrop-blur-sm backdrop-filter bg-white-1200 dark:bg-scale-200/90',
         mobileMenuOpen ? 'absolute h-full w-full top-0 left-0' : 'hidden h-0',
         // always hide on desktop
         'lg:hidden',
       ].join(' ')}
       onClick={() => menuState.setMenuMobileOpen(!mobileMenuOpen)}
     ></div>
-  )
-})
-
-const SideMenu = memo(function SideMenu() {
-  return (
-    <div
-      className={[
-        'transition-all ease-out duration-200',
-        'absolute left-0 right-0 h-screen',
-        'px-5 pl-5 py-16',
-        'top-[0px]',
-        'bg-scale-200',
-        // desktop styles
-        'lg:relative lg:top-0 lg:left-0 lg:pb-10 lg:px-10 lg:pt-0 lg:flex',
-        'lg:opacity-100 lg:visible',
-      ].join(' ')}
-    >
-      <NavigationMenu />
-    </div>
   )
 })
 
@@ -274,7 +280,7 @@ const NavContainer = memo(function NavContainer() {
           'relative',
           'w-auto',
           'border-r overflow-auto h-screen',
-          'backdrop-blur backdrop-filter bg-white-1200 dark:bg-blackA-300',
+          'backdrop-blur backdrop-filter bg-white-1200 dark:bg-scale-200',
           'flex flex-col',
         ].join(' ')}
       >
@@ -294,57 +300,58 @@ const NavContainer = memo(function NavContainer() {
             </div>
           </div>
         </div>
-        <SideMenu />
+        <div
+          className={[
+            'transition-all ease-out duration-200',
+            'absolute left-0 right-0 h-screen',
+            'px-5 pl-5 py-16',
+            'top-[0px]',
+            'bg-scale-200',
+            // desktop styles
+            'lg:relative lg:top-0 lg:left-0 lg:pb-10 lg:px-10 lg:pt-0 lg:flex',
+            'lg:opacity-100 lg:visible',
+          ].join(' ')}
+        >
+          <NavigationMenu />
+        </div>
       </div>
     </div>
   )
 })
 
-const SiteLayout = ({ children }) => {
-  // const mobileMenuOpen = useMenuMobileOpen()
-
-  useEffect(() => {
-    const key = localStorage.getItem('supabaseDarkMode')
-    if (!key) {
-      // Default to dark mode if no preference config
-      document.documentElement.className = 'dark'
-      document.documentElement.style.colorScheme = 'dark'
-    } else {
-      document.documentElement.className = key === 'true' ? 'dark' : ''
-      document.documentElement.style.colorScheme = key === 'true' ? 'dark' : ''
-    }
-  }, [])
-
+const SiteLayout = ({ children }: PropsWithChildren<{}>) => {
   return (
-    <main>
-      <div className="flex flex-row h-screen">
-        <NavContainer />
-        <Container>
-          <div className={['lg:sticky top-0 z-10 overflow-hidden'].join(' ')}>
-            <TopNavBarRef />
-          </div>
-          <div
-            className={[
-              'sticky transition-all top-0',
-              'z-10',
-              'backdrop-blur backdrop-filter bg-white-1200 dark:bg-blackA-300',
-            ].join(' ')}
-          >
-            <div className={['lg:hidden', 'px-5 ', 'border-b z-10'].join(' ')}>
-              <MobileHeader />
+    <>
+      <Head>
+        <title>Supabase Docs</title>
+      </Head>
+      <main>
+        <div className="flex flex-row h-screen">
+          <NavContainer />
+          <Container>
+            <div className={['lg:sticky top-0 z-10 overflow-hidden'].join(' ')}>
+              <TopNavBarRef />
             </div>
-          </div>
-          <div className="grow px-5 max-w-7xl mx-auto py-16">
-            {children}
-            <Footer />
-          </div>
-          <MobileMenuBackdrop />
-        </Container>
-        <div className=" absolute right-4 md:right-12 bottom-8 z-[300]">
-          {IS_PLATFORM && <Clippy />}
+            <div
+              className={[
+                'sticky transition-all top-0',
+                'z-10',
+                'backdrop-blur backdrop-filter bg-white-1200 dark:bg-scale-200',
+              ].join(' ')}
+            >
+              <div className={['lg:hidden', 'px-5 ', 'border-b z-10'].join(' ')}>
+                <MobileHeader />
+              </div>
+            </div>
+            <div className="grow">
+              {children}
+              <Footer />
+            </div>
+            <MobileMenuBackdrop />
+          </Container>
         </div>
-      </div>
-    </main>
+      </main>
+    </>
   )
 }
 

@@ -1,19 +1,21 @@
-import { ReactElement, useEffect } from 'react'
 import { observer } from 'mobx-react-lite'
 import { useRouter } from 'next/router'
+import { ReactElement, useEffect } from 'react'
 
-import { useFlag, useStore, withAuth } from 'hooks'
 import Error from 'components/ui/Error'
 import ProductMenu from 'components/ui/ProductMenu'
-import ProjectLayout from 'components/layouts/ProjectLayout/ProjectLayout'
+import { useSelectedProject, useStore, withAuth } from 'hooks'
+import { PROJECT_STATUS } from 'lib/constants'
+import ProjectLayout from '../'
 import { generateDocsMenu } from './DocsLayout.utils'
 
 function DocsLayout({ title, children }: { title: string; children: ReactElement }) {
   const router = useRouter()
-  const { meta, ui } = useStore()
+  const { meta } = useStore()
   const { data, isLoading, error } = meta.openApi
+  const selectedProject = useSelectedProject()
 
-  const graphiql = useFlag('graphiql')
+  const isPaused = selectedProject?.status === PROJECT_STATUS.INACTIVE
 
   const getPage = () => {
     if (router.pathname.endsWith('graphiql')) return 'graphiql'
@@ -24,20 +26,20 @@ function DocsLayout({ title, children }: { title: string; children: ReactElement
   }
 
   useEffect(() => {
-    if (ui.selectedProject?.ref) {
+    if (selectedProject?.ref && !isPaused) {
       meta.openApi.load()
     }
-  }, [ui.selectedProject?.ref])
+  }, [selectedProject?.ref])
 
   if (error) {
     return (
-      <ProjectLayout>
+      <ProjectLayout product="API Docs">
         <Error error={error} />
       </ProjectLayout>
     )
   }
 
-  const projectRef = ui.selectedProject?.ref ?? 'default'
+  const projectRef = selectedProject?.ref ?? 'default'
   const tableNames = (data?.tables ?? []).map((table: any) => table.name)
   const functionNames = (data?.functions ?? []).map((fn: any) => fn.name)
 
@@ -49,7 +51,7 @@ function DocsLayout({ title, children }: { title: string; children: ReactElement
       productMenu={
         <ProductMenu
           page={getPage()}
-          menu={generateDocsMenu(projectRef, tableNames, functionNames, graphiql)}
+          menu={generateDocsMenu(projectRef, tableNames, functionNames)}
         />
       }
     >

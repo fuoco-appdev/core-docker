@@ -1,12 +1,8 @@
-import { GoTrueClient, User } from '@supabase/gotrue-js'
+import { User } from '@supabase/gotrue-js'
+import { gotrueClient } from 'common'
+export { STORAGE_KEY } from 'common'
 
-export const STORAGE_KEY = process.env.NEXT_PUBLIC_STORAGE_KEY || 'supabase.dashboard.auth.token'
-
-export const auth = new GoTrueClient({
-  url: process.env.NEXT_PUBLIC_GOTRUE_URL,
-  storageKey: STORAGE_KEY,
-  detectSessionInUrl: true,
-})
+export const auth = gotrueClient
 
 export const getAuthUser = async (token: String): Promise<any> => {
   try {
@@ -38,11 +34,15 @@ export const getIdentity = (gotrueUser: User) => {
   }
 }
 
-// NOTE: do not use any imports in this function,
-// as it is used standalone in the documents head
+// NOTE: do not use any imports in this function as it is used standalone in the documents head
+// [Joshen] Potentially can remove after full move over to /dashboard
 export const getReturnToPath = (fallback = '/projects') => {
   const searchParams = new URLSearchParams(location.search)
-  let returnTo = searchParams.get('returnTo') ?? fallback
+
+  // [Joshen] Remove base path value ("/dashboard") from returnTo
+  // because we're having this in the document's head, we won't have access
+  // to process.env, hardcoding the value as a workaround
+  const returnTo = (searchParams.get('returnTo') ?? fallback).replace('/dashboard', '')
 
   searchParams.delete('returnTo')
 

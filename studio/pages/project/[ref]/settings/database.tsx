@@ -1,6 +1,7 @@
 import { observer } from 'mobx-react-lite'
 import { NextPageWithLayout } from 'types'
-import { useFlag, useParams } from 'hooks'
+import { useFlag } from 'hooks'
+import { useParams } from 'common/hooks'
 import { SettingsLayout } from 'components/layouts'
 import {
   ConnectionPooling,
@@ -9,6 +10,7 @@ import {
 } from 'components/interfaces/Settings/Database'
 
 import SSLConfiguration from 'components/interfaces/Settings/Database/SSLConfiguration'
+import DiskSizeConfiguration from 'components/interfaces/Settings/Database/DiskSizeConfiguration'
 
 const ProjectSettings: NextPageWithLayout = () => {
   const { ref: projectRef } = useParams()
@@ -20,6 +22,7 @@ const ProjectSettings: NextPageWithLayout = () => {
         <DatabaseSettings projectRef={projectRef} />
         <ConnectionPooling />
         <SSLConfiguration />
+        <DiskSizeConfiguration />
         {networkRestrictions && <NetworkRestrictions />}
       </div>
     </div>

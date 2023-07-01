@@ -24,7 +24,7 @@ For more information about how the SQL schema is reflected into a GraphQL schema
 >
 <TabPanel id="dashboard" label="Dashboard">
 
-1. Go to the [Database](https://app.supabase.com/project/_/database/tables) page in the Dashboard.
+1. Go to the [Database](https://supabase.com/dashboard/project/_/database/tables) page in the Dashboard.
 2. Click on **Extensions** in the sidebar.
 3. Search for "pg_graphql" and enable the extension.
 
@@ -54,8 +54,8 @@ Given a table
 ```sql
 create table "Blog"(
   id serial primary key,
-  name varchar(255) not null,
-  description varchar(255),
+  name text not null,
+  description text,
 );
 
 insert into "Blog"(name)

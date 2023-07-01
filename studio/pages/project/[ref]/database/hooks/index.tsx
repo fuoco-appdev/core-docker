@@ -1,51 +1,55 @@
-import { useEffect, useState } from 'react'
-import { useRouter } from 'next/router'
-import { observer } from 'mobx-react-lite'
 import { PermissionAction } from '@supabase/shared-types/out/constants'
+import clsx from 'clsx'
+import { observer } from 'mobx-react-lite'
+import { useEffect, useState } from 'react'
 
-import { NextPageWithLayout } from 'types'
-import { checkPermissions, useStore } from 'hooks'
-import { API_URL } from 'lib/constants'
-import { post } from 'lib/common/fetch'
-import { DatabaseLayout } from 'components/layouts'
-import NoPermission from 'components/ui/NoPermission'
-import CreateHook from 'components/interfaces/Database/Hooks/CreateHook'
-import DeleteHook from 'components/interfaces/Database/Hooks/DeleteHook'
+import { useParams } from 'common'
+import DeleteHookModal from 'components/interfaces/Database/Hooks/DeleteHookModal'
+import EditHookPanel from 'components/interfaces/Database/Hooks/EditHookPanel'
 import HooksList from 'components/interfaces/Database/Hooks/HooksList/HooksList'
+import { DatabaseLayout } from 'components/layouts'
+import { useProjectContext } from 'components/layouts/ProjectLayout/ProjectContext'
+import ProductEmptyState from 'components/to-be-cleaned/ProductEmptyState'
+import NoPermission from 'components/ui/NoPermission'
+import { useCheckPermissions, useStore } from 'hooks'
+import { post } from 'lib/common/fetch'
+import { API_URL } from 'lib/constants'
+import { NextPageWithLayout } from 'types'
+import { IconLoader } from 'ui'
 
 const HooksPage: NextPageWithLayout = () => {
   const { meta, ui } = useStore()
+  const { project } = useProjectContext()
 
-  const router = useRouter()
-  const { ref } = router.query
+  const { ref } = useParams()
+  const schemas = meta.schemas.list()
+  const { isLoading: isLoadingSchemas } = meta.schemas
 
-  const [hooksEnabled, setHooksEnabled] = useState<any>(false)
-  const [filterString, setFilterString] = useState<string>('')
   const [selectedHook, setSelectedHook] = useState<any>()
   const [showCreateHookForm, setShowCreateHookForm] = useState<boolean>(false)
   const [showDeleteHookForm, setShowDeleteHookForm] = useState<boolean>(false)
 
-  const canReadWebhooks = checkPermissions(PermissionAction.TENANT_SQL_ADMIN_READ, 'triggers')
+  const isHooksEnabled = schemas.some((schema: any) => schema.name === 'supabase_functions')
+  const canReadWebhooks = useCheckPermissions(PermissionAction.TENANT_SQL_ADMIN_READ, 'triggers')
+  const canCreateWebhooks = useCheckPermissions(PermissionAction.TENANT_SQL_ADMIN_WRITE, 'triggers')
 
   useEffect(() => {
-    if (ui.selectedProject?.ref) {
-      fetchHooks()
-    }
-  }, [ui.selectedProject?.ref])
-
-  const fetchHooks = async () => {
-    meta.hooks.load()
-  }
+    if (project?.ref) meta.hooks.load()
+  }, [project?.ref])
 
   const enableHooksForProject = async () => {
-    const headers: any = {}
-    const connectionString = ui.selectedProject?.connectionString
-    if (connectionString) headers['x-connection-encrypted'] = connectionString
-    try {
-      await post(`${API_URL}/database/${ref}/hook-enable`, {})
-      setHooksEnabled(true)
-    } catch (error) {
-      console.error(error)
+    const res = await post(`${API_URL}/database/${ref}/hook-enable`, {})
+    if (res.error) {
+      ui.setNotification({
+        category: 'error',
+        message: `Failed to enable webhooks: ${res.error.message}`,
+      })
+    } else {
+      meta.schemas.load()
+      ui.setNotification({
+        category: 'success',
+        message: `Successfully enabled webhooks`,
+      })
     }
   }
 
@@ -68,28 +72,55 @@ const HooksPage: NextPageWithLayout = () => {
     return <NoPermission isFullPage resourceText="view database webhooks" />
   }
 
+  if (isLoadingSchemas) {
+    return (
+      <div className="w-full h-full flex items-center justify-center space-x-2">
+        <IconLoader className="animate-spin" size="tiny" strokeWidth={1.5} />
+        <p className="text-sm text-scale-1100">Checking if hooks are enabled</p>
+      </div>
+    )
+  }
+
+  if (!isHooksEnabled) {
+    return (
+      <div className="w-full h-full flex items-center justify-center">
+        <ProductEmptyState
+          size="large"
+          title="Database Webhooks"
+          ctaButtonLabel="Enable webhooks"
+          onClickCta={() => enableHooksForProject()}
+          disabled={!canCreateWebhooks}
+          disabledMessage="You need additional permissions to enable webhooks"
+        >
+          <p className="text-sm text-scale-1100">
+            Database Webhooks can be used to trigger serverless functions or send requests to an
+            HTTP endpoint.
+          </p>
+          <p className="text-sm text-scale-1100">Enable database webhooks on your project.</p>
+        </ProductEmptyState>
+      </div>
+    )
+  }
+
   return (
-    <>
-      <HooksList
-        hooksEnabled={hooksEnabled}
-        filterString={filterString}
-        setFilterString={setFilterString}
-        createHook={createHook}
-        editHook={editHook}
-        deleteHook={deleteHook}
-        enableHooks={enableHooksForProject}
-      />
-      <CreateHook
-        hook={selectedHook}
+    <div
+      className={clsx(
+        'mx-auto flex flex-col px-5 pt-6 pb-14',
+        'lg:pt-8 lg:px-14 1xl:px-28 2xl:px-32 h-full'
+      )}
+    >
+      <HooksList createHook={createHook} editHook={editHook} deleteHook={deleteHook} />
+      <EditHookPanel
         visible={showCreateHookForm}
-        setVisible={setShowCreateHookForm}
+        selectedHook={selectedHook}
+        onClose={() => setShowCreateHookForm(false)}
       />
-      <DeleteHook
-        hook={selectedHook}
+      <DeleteHookModal
         visible={showDeleteHookForm}
-        setVisible={setShowDeleteHookForm}
+        selectedHook={selectedHook}
+        onClose={() => setShowDeleteHookForm(false)}
       />
-    </>
+    </div>
   )
 }
 

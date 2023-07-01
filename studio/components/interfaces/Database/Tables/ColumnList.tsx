@@ -5,7 +5,7 @@ import { Input, Button, IconSearch, IconPlus, IconChevronLeft, IconEdit3, IconTr
 import type { PostgresTable } from '@supabase/postgres-meta'
 import { PermissionAction } from '@supabase/shared-types/out/constants'
 
-import { useStore, checkPermissions } from 'hooks'
+import { useStore, useCheckPermissions } from 'hooks'
 import Table from 'components/to-be-cleaned/Table'
 import NoSearchResults from 'components/to-be-cleaned/NoSearchResults'
 
@@ -32,7 +32,7 @@ const ColumnList: FC<Props> = ({
       : selectedTable.columns?.filter((column: any) => column.name.includes(filterString))) ?? []
 
   const isLocked = meta.excludedSchemas.includes(selectedTable.schema ?? '')
-  const canUpdateColumns = checkPermissions(PermissionAction.TENANT_SQL_ADMIN_WRITE, 'columns')
+  const canUpdateColumns = useCheckPermissions(PermissionAction.TENANT_SQL_ADMIN_WRITE, 'columns')
 
   return (
     <>
@@ -72,19 +72,21 @@ const ColumnList: FC<Props> = ({
                   </Button>
                 </Tooltip.Trigger>
                 {!canUpdateColumns && (
-                  <Tooltip.Content side="bottom">
-                    <Tooltip.Arrow className="radix-tooltip-arrow" />
-                    <div
-                      className={[
-                        'rounded bg-scale-100 py-1 px-2 leading-none shadow',
-                        'border border-scale-200',
-                      ].join(' ')}
-                    >
-                      <span className="text-xs text-scale-1200">
-                        You need additional permissions to create columns
-                      </span>
-                    </div>
-                  </Tooltip.Content>
+                  <Tooltip.Portal>
+                    <Tooltip.Content side="bottom">
+                      <Tooltip.Arrow className="radix-tooltip-arrow" />
+                      <div
+                        className={[
+                          'rounded bg-scale-100 py-1 px-2 leading-none shadow',
+                          'border border-scale-200',
+                        ].join(' ')}
+                      >
+                        <span className="text-xs text-scale-1200">
+                          You need additional permissions to create columns
+                        </span>
+                      </div>
+                    </Tooltip.Content>
+                  </Tooltip.Portal>
                 )}
               </Tooltip.Root>
             </div>
@@ -140,19 +142,21 @@ const ColumnList: FC<Props> = ({
                         />
                       </Tooltip.Trigger>
                       {!canUpdateColumns && (
-                        <Tooltip.Content side="bottom">
-                          <Tooltip.Arrow className="radix-tooltip-arrow" />
-                          <div
-                            className={[
-                              'rounded bg-scale-100 py-1 px-2 leading-none shadow',
-                              'border border-scale-200',
-                            ].join(' ')}
-                          >
-                            <span className="text-xs text-scale-1200">
-                              You need additional permissions to edit columns
-                            </span>
-                          </div>
-                        </Tooltip.Content>
+                        <Tooltip.Portal>
+                          <Tooltip.Content side="bottom">
+                            <Tooltip.Arrow className="radix-tooltip-arrow" />
+                            <div
+                              className={[
+                                'rounded bg-scale-100 py-1 px-2 leading-none shadow',
+                                'border border-scale-200',
+                              ].join(' ')}
+                            >
+                              <span className="text-xs text-scale-1200">
+                                You need additional permissions to edit columns
+                              </span>
+                            </div>
+                          </Tooltip.Content>
+                        </Tooltip.Portal>
                       )}
                     </Tooltip.Root>
 
@@ -167,19 +171,21 @@ const ColumnList: FC<Props> = ({
                         />
                       </Tooltip.Trigger>
                       {!canUpdateColumns && (
-                        <Tooltip.Content side="bottom">
-                          <Tooltip.Arrow className="radix-tooltip-arrow" />
-                          <div
-                            className={[
-                              'rounded bg-scale-100 py-1 px-2 leading-none shadow',
-                              'border border-scale-200',
-                            ].join(' ')}
-                          >
-                            <span className="text-xs text-scale-1200">
-                              You need additional permissions to delete columns
-                            </span>
-                          </div>
-                        </Tooltip.Content>
+                        <Tooltip.Portal>
+                          <Tooltip.Content side="bottom">
+                            <Tooltip.Arrow className="radix-tooltip-arrow" />
+                            <div
+                              className={[
+                                'rounded bg-scale-100 py-1 px-2 leading-none shadow',
+                                'border border-scale-200',
+                              ].join(' ')}
+                            >
+                              <span className="text-xs text-scale-1200">
+                                You need additional permissions to delete columns
+                              </span>
+                            </div>
+                          </Tooltip.Content>
+                        </Tooltip.Portal>
                       )}
                     </Tooltip.Root>
                   </div>

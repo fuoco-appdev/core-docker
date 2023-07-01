@@ -6,6 +6,7 @@ import { EditorProps } from '@supabase/react-data-grid'
 import { useTrackedState } from 'components/grid/store'
 import { BlockKeys, MonacoEditor, NullValue } from 'components/grid/components/common'
 import { tryParseJson } from 'lib/helpers'
+import { isNil } from 'lodash'
 
 interface JsonEditorProps<TRow, TSummaryRow = unknown> extends EditorProps<TRow, TSummaryRow> {
   onExpandEditor: (column: string, row: TRow) => void
@@ -21,7 +22,7 @@ export function JsonEditor<TRow, TSummaryRow = unknown>({
 
   const gridColumn = state.gridColumns.find((x) => x.name == column.key)
   const initialValue = row[column.key as keyof TRow] as unknown
-  const jsonString = prettifyJSON(initialValue ? JSON.stringify(initialValue) : '')
+  const jsonString = prettifyJSON(!isNil(initialValue) ? JSON.stringify(initialValue) : '')
 
   const [isPopoverOpen, setIsPopoverOpen] = useState(true)
   const [value, setValue] = useState<string | null>(jsonString)
@@ -104,17 +105,19 @@ export function JsonEditor<TRow, TSummaryRow = unknown>({
                   <IconMaximize size={12} strokeWidth={2} />
                 </div>
               </Tooltip.Trigger>
-              <Tooltip.Content side="bottom">
-                <Tooltip.Arrow className="radix-tooltip-arrow" />
-                <div
-                  className={[
-                    'rounded bg-scale-100 py-1 px-2 leading-none shadow',
-                    'border border-scale-200',
-                  ].join(' ')}
-                >
-                  <span className="text-xs text-scale-1200">Expand editor</span>
-                </div>
-              </Tooltip.Content>
+              <Tooltip.Portal>
+                <Tooltip.Content side="bottom">
+                  <Tooltip.Arrow className="radix-tooltip-arrow" />
+                  <div
+                    className={[
+                      'rounded bg-scale-100 py-1 px-2 leading-none shadow',
+                      'border border-scale-200',
+                    ].join(' ')}
+                  >
+                    <span className="text-xs text-scale-1200">Expand editor</span>
+                  </div>
+                </Tooltip.Content>
+              </Tooltip.Portal>
             </Tooltip.Root>
           </div>
         </BlockKeys>

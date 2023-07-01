@@ -6,7 +6,8 @@ import { PostgresTable, PostgresPolicy } from '@supabase/postgres-meta'
 import { PermissionAction } from '@supabase/shared-types/out/constants'
 
 import { NextPageWithLayout } from 'types'
-import { checkPermissions, useParams, useStore } from 'hooks'
+import { useCheckPermissions, useStore } from 'hooks'
+import { useParams } from 'common/hooks'
 import { AuthLayout } from 'components/layouts'
 import { Policies } from 'components/interfaces/Auth/Policies'
 import NoPermission from 'components/ui/NoPermission'
@@ -69,7 +70,7 @@ const AuthPoliciesPage: NextPageWithLayout = () => {
   const tables = meta.tables.list((table: { schema: string }) => table.schema === selectedSchema)
   const filteredTables = onFilterTables(tables, policies, searchString)
 
-  const canReadPolicies = checkPermissions(PermissionAction.TENANT_SQL_ADMIN_READ, 'policies')
+  const canReadPolicies = useCheckPermissions(PermissionAction.TENANT_SQL_ADMIN_READ, 'policies')
 
   if (!canReadPolicies) {
     return <NoPermission isFullPage resourceText="view this project's RLS policies" />
@@ -140,6 +141,7 @@ const AuthPoliciesPage: NextPageWithLayout = () => {
           </div>
           <a
             target="_blank"
+            rel="noreferrer"
             href="https://supabase.com/docs/learn/auth-deep-dive/auth-row-level-security"
           >
             <Button type="link" icon={<IconExternalLink size={14} strokeWidth={1.5} />}>

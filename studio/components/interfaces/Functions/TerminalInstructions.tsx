@@ -1,7 +1,7 @@
 import CommandRender from 'components/interfaces/Functions/CommandRender'
 import { useAccessTokensQuery } from 'data/access-tokens/access-tokens-query'
 import { useProjectApiQuery } from 'data/config/project-api-query'
-import { useParams } from 'hooks'
+import { useParams } from 'common/hooks'
 import Link from 'next/link'
 import { useRouter } from 'next/router'
 import { FC, useState } from 'react'
@@ -26,12 +26,7 @@ const TerminalInstructions: FC<Props> = ({ closable = false, removeBorder = fals
     : '[YOUR ANON KEY]'
   const endpoint = settings?.autoApiService.app_config.endpoint ?? ''
 
-  const endpointSections = endpoint.split('.')
-  const functionsEndpoint = [
-    ...endpointSections.slice(0, 1),
-    'functions',
-    ...endpointSections.slice(1),
-  ].join('.')
+  const functionsEndpoint = `${endpoint}/functions/v1`
 
   // get the .co or .net TLD from the restUrl
   const restUrl = settings?.autoApiService.restUrl
@@ -64,7 +59,7 @@ const TerminalInstructions: FC<Props> = ({ closable = false, removeBorder = fals
       comment: 'Deploy your function',
     },
     {
-      command: `curl -L -X POST 'https://${projectRef}.functions.supabase.${restUrlTld}/hello-world' -H 'Authorization: Bearer ${
+      command: `curl -L -X POST 'https://${projectRef}.supabase.${restUrlTld}/functions/v1/hello-world' -H 'Authorization: Bearer ${
         anonKey ?? '[YOUR ANON KEY]'
       }' --data '{"name":"Functions"}'`,
       description: 'Invokes the hello-world function',
@@ -143,7 +138,7 @@ const TerminalInstructions: FC<Props> = ({ closable = false, removeBorder = fals
               href="https://github.com/supabase/supabase/tree/master/examples/edge-functions/supabase/functions"
             >
               <a target="_blank" rel="noreferrer">
-                <Button as="a" type="default" iconRight={<IconCode />}>
+                <Button type="default" iconRight={<IconCode />}>
                   Examples
                 </Button>
               </a>

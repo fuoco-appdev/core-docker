@@ -158,6 +158,7 @@ const FeedbackWidget: FC<Props> = ({
                 size="small"
                 overlay={[
                   <Dropdown.Item
+                    key="upload-screenshot"
                     icon={<IconUpload size={14} />}
                     onClick={() => {
                       if (uploadButtonRef.current) (uploadButtonRef.current as any).click()
@@ -166,6 +167,7 @@ const FeedbackWidget: FC<Props> = ({
                     Upload screenshot
                   </Dropdown.Item>,
                   <Dropdown.Item
+                    key="capture-screenshot"
                     icon={<IconCamera size={14} />}
                     onClick={() => captureScreenshot()}
                   >
@@ -174,13 +176,15 @@ const FeedbackWidget: FC<Props> = ({
                 ]}
               >
                 <Button
-                  as="span"
+                  asChild
                   type="default"
                   disabled={isSavingScreenshot}
                   loading={isSavingScreenshot}
                   className="px-2 py-1.5"
                   icon={<IconImage size={14} />}
-                />
+                >
+                  <span></span>
+                </Button>
               </Dropdown>
             )}
             <input
@@ -206,7 +210,7 @@ const FeedbackWidget: FC<Props> = ({
             </a>
           </Link>{' '}
           or{' '}
-          <a href="https://supabase.com/docs" target="_blank">
+          <a href="https://supabase.com/docs" target="_blank" rel="noreferrer">
             <span className="cursor-pointer text-brand-900 transition-colors hover:text-brand-1200">
               browse our docs
             </span>

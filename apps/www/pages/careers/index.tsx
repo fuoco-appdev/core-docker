@@ -48,7 +48,7 @@ export async function getStaticProps() {
       html_url: 'https://github.com/marijanasimag',
     },
     {
-      login: 'estee_tey',
+      login: 'lyqht',
       avatar_url: 'https://pbs.twimg.com/profile_images/1589662526941253632/s1cu3vuD_400x400.jpg',
       html_url: 'https://twitter.com/estee_tey',
     },
@@ -110,14 +110,9 @@ const CareerPage: NextPage = ({ jobs, contributors }: any) => {
             <p className="text-sm md:text-base text-scale-1000 max-w-sm sm:max-w-md md:max-w-lg mx-auto">
               Explore remote possibilities and join our team to help us achieve it.
             </p>
-            <Button
-              as="a"
-              // @ts-ignore
-              href="#positions"
-              className="text-white xl:text-sm"
-            >
-              Open positions
-            </Button>
+            <a href="#positions">
+              <Button className="text-white xl:text-sm mt-4">Open positions</Button>
+            </a>
           </div>
 
           <SectionContainer>
@@ -189,25 +184,29 @@ const CareerPage: NextPage = ({ jobs, contributors }: any) => {
                           alt="team photo"
                           layout="fill"
                           objectFit="cover"
+                          placeholder="blur"
+                          blurDataURL="/images/blur.png"
                           className="rounded-md"
                         />
                       </div>
                     </div>
                     <div className="grid justify-items-end">
-                      <div className="w-5/6 rounded-md mt-6">
+                      <div className="w-full md:w-5/6 rounded-md mt-6">
                         <div className="relative w-full aspect-[29/22]">
                           <Image
                             src="/images/career/2.jpg"
                             alt="team photo"
                             layout="fill"
                             objectFit="cover"
+                            placeholder="blur"
+                            blurDataURL="/images/blur.png"
                             className="rounded-md"
                           />
                         </div>
                       </div>
                     </div>
                   </div>
-                  <div className="mt-6 md:mt-0 md:w-1/2">
+                  <div className="mt-6 md:mt-0 w-full md:w-1/2">
                     <div className="w-full rounded-md">
                       <div className="relative w-full aspect-[137/110]">
                         <Image
@@ -215,6 +214,8 @@ const CareerPage: NextPage = ({ jobs, contributors }: any) => {
                           alt="team photo"
                           layout="fill"
                           objectFit="cover"
+                          placeholder="blur"
+                          blurDataURL="/images/blur.png"
                           className="rounded-md"
                         />
                       </div>
@@ -227,6 +228,8 @@ const CareerPage: NextPage = ({ jobs, contributors }: any) => {
                             alt="team photo"
                             layout="fill"
                             objectFit="cover"
+                            placeholder="blur"
+                            blurDataURL="/images/blur.png"
                             className="rounded-md"
                           />
                         </div>
@@ -238,18 +241,22 @@ const CareerPage: NextPage = ({ jobs, contributors }: any) => {
                             alt="team photo"
                             layout="fill"
                             objectFit="cover"
+                            placeholder="blur"
+                            blurDataURL="/images/blur.png"
                             className="rounded-md"
                           />
                         </div>
                       </div>
                     </div>
-                    <div className="w-5/6 rounded-md mt-6">
-                      <div className="relative w-full aspect-[41/43]">
+                    <div className="w-full rounded-md mt-6">
+                      <div className="relative w-full aspect-[16/9]">
                         <Image
                           src="/images/career/6.jpg"
                           alt="team photo"
                           layout="fill"
                           objectFit="cover"
+                          placeholder="blur"
+                          blurDataURL="/images/blur.png"
                           className="rounded-md"
                         />
                       </div>

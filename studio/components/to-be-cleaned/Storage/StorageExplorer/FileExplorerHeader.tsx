@@ -21,7 +21,7 @@ import {
 import * as Tooltip from '@radix-ui/react-tooltip'
 import { PermissionAction } from '@supabase/shared-types/out/constants'
 
-import { checkPermissions } from 'hooks'
+import { useCheckPermissions } from 'hooks'
 import { useStorageStore } from 'localStores/storageExplorer/StorageExplorerStore'
 import { STORAGE_VIEWS, STORAGE_SORT_BY, STORAGE_SORT_BY_ORDER } from '../Storage.constants'
 
@@ -141,7 +141,7 @@ const FileExplorerHeader: FC<Props> = ({
 
   const breadcrumbs = columns.map((column: any) => column.name)
   const backDisabled = columns.length <= 1
-  const canUpdateStorage = checkPermissions(PermissionAction.STORAGE_ADMIN_WRITE, '*')
+  const canUpdateStorage = useCheckPermissions(PermissionAction.STORAGE_ADMIN_WRITE, '*')
 
   useEffect(() => {
     if (itemSearchString) setSearchString(itemSearchString)
@@ -327,7 +327,7 @@ const FileExplorerHeader: FC<Props> = ({
             ]}
           >
             <Button
-              as="span"
+              asChild
               icon={
                 view === 'LIST' ? (
                   <IconList size={16} strokeWidth={2} />
@@ -339,7 +339,7 @@ const FileExplorerHeader: FC<Props> = ({
               disabled={breadcrumbs.length === 0}
               onChange={setView}
             >
-              View as
+              <span>View as</span>
             </Button>
           </Dropdown>
           <Dropdown
@@ -355,12 +355,12 @@ const FileExplorerHeader: FC<Props> = ({
             ]}
           >
             <Button
-              as="span"
+              asChild
               icon={<IconChevronsDown size={16} strokeWidth={2} />}
               type="text"
               disabled={breadcrumbs.length === 0}
             >
-              Sort by
+              <span>Sort by</span>
             </Button>
           </Dropdown>
           <Dropdown
@@ -376,7 +376,7 @@ const FileExplorerHeader: FC<Props> = ({
             ]}
           >
             <Button
-              as="span"
+              asChild
               icon={
                 sortByOrder === STORAGE_SORT_BY_ORDER.DESC ? (
                   <IconChevronsDown size={16} strokeWidth={2} />
@@ -387,7 +387,7 @@ const FileExplorerHeader: FC<Props> = ({
               type="text"
               disabled={breadcrumbs.length === 0}
             >
-              Sort Order
+              <span>Sort Order</span>
             </Button>
           </Dropdown>
         </div>
@@ -409,19 +409,21 @@ const FileExplorerHeader: FC<Props> = ({
               </Button>
             </Tooltip.Trigger>
             {!canUpdateStorage && (
-              <Tooltip.Content side="bottom">
-                <Tooltip.Arrow className="radix-tooltip-arrow" />
-                <div
-                  className={[
-                    'rounded bg-scale-100 py-1 px-2 leading-none shadow',
-                    'border border-scale-200',
-                  ].join(' ')}
-                >
-                  <span className="text-xs text-scale-1200">
-                    You need additional permissions to upload files
-                  </span>
-                </div>
-              </Tooltip.Content>
+              <Tooltip.Portal>
+                <Tooltip.Content side="bottom">
+                  <Tooltip.Arrow className="radix-tooltip-arrow" />
+                  <div
+                    className={[
+                      'rounded bg-scale-100 py-1 px-2 leading-none shadow',
+                      'border border-scale-200',
+                    ].join(' ')}
+                  >
+                    <span className="text-xs text-scale-1200">
+                      You need additional permissions to upload files
+                    </span>
+                  </div>
+                </Tooltip.Content>
+              </Tooltip.Portal>
             )}
           </Tooltip.Root>
           <Tooltip.Root delayDuration={0}>
@@ -436,19 +438,21 @@ const FileExplorerHeader: FC<Props> = ({
               </Button>
             </Tooltip.Trigger>
             {!canUpdateStorage && (
-              <Tooltip.Content side="bottom">
-                <Tooltip.Arrow className="radix-tooltip-arrow" />
-                <div
-                  className={[
-                    'rounded bg-scale-100 py-1 px-2 leading-none shadow',
-                    'border border-scale-200',
-                  ].join(' ')}
-                >
-                  <span className="text-xs text-scale-1200">
-                    You need additional permissions to create folders
-                  </span>
-                </div>
-              </Tooltip.Content>
+              <Tooltip.Portal>
+                <Tooltip.Content side="bottom">
+                  <Tooltip.Arrow className="radix-tooltip-arrow" />
+                  <div
+                    className={[
+                      'rounded bg-scale-100 py-1 px-2 leading-none shadow',
+                      'border border-scale-200',
+                    ].join(' ')}
+                  >
+                    <span className="text-xs text-scale-1200">
+                      You need additional permissions to create folders
+                    </span>
+                  </div>
+                </Tooltip.Content>
+              </Tooltip.Portal>
             )}
           </Tooltip.Root>
         </div>

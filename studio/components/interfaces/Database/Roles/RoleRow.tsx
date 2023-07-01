@@ -147,12 +147,9 @@ const RoleRow: FC<Props> = ({ role, disabled = false, onSelectDelete }) => {
                         </>
                       }
                     >
-                      <Button
-                        as="span"
-                        type="default"
-                        className="px-1"
-                        icon={<IconMoreVertical />}
-                      />
+                      <Button asChild type="default" className="px-1" icon={<IconMoreVertical />}>
+                        <span></span>
+                      </Button>
                     </Dropdown>
                   )}
                 </div>
@@ -184,19 +181,21 @@ const RoleRow: FC<Props> = ({ role, disabled = false, onSelectDelete }) => {
                                 className="ml-2 relative top-[3px]"
                               />
                             </Tooltip.Trigger>
-                            <Tooltip.Content align="center" side="bottom">
-                              <Tooltip.Arrow className="radix-tooltip-arrow" />
-                              <div
-                                className={[
-                                  'rounded bg-scale-100 py-1 px-2 leading-none shadow',
-                                  'border border-scale-200 space-y-1',
-                                ].join(' ')}
-                              >
-                                <span className="text-xs">
-                                  This privilege cannot be updated via the dashboard
-                                </span>
-                              </div>
-                            </Tooltip.Content>
+                            <Tooltip.Portal>
+                              <Tooltip.Content align="center" side="bottom">
+                                <Tooltip.Arrow className="radix-tooltip-arrow" />
+                                <div
+                                  className={[
+                                    'rounded bg-scale-100 py-1 px-2 leading-none shadow',
+                                    'border border-scale-200 space-y-1',
+                                  ].join(' ')}
+                                >
+                                  <span className="text-xs">
+                                    This privilege cannot be updated via the dashboard
+                                  </span>
+                                </div>
+                              </Tooltip.Content>
+                            </Tooltip.Portal>
                           </Tooltip.Root>
                         )
                       }

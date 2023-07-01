@@ -13,7 +13,7 @@ import ChartHeader from './ChartHeader'
 import { Datum, CommonChartProps } from './Charts.types'
 import utc from 'dayjs/plugin/utc'
 import ChartNoData from './NoDataPlaceholder'
-import { numberFormatter } from './Charts.utils'
+import { numberFormatter, useChartSize } from './Charts.utils'
 dayjs.extend(utc)
 
 export interface AreaChartProps<D = Datum> extends CommonChartProps<D> {
@@ -24,7 +24,7 @@ export interface AreaChartProps<D = Datum> extends CommonChartProps<D> {
   displayDateInUtc?: boolean
 }
 
-const AreaChart: React.FC<AreaChartProps> = ({
+const AreaChart = ({
   data,
   yAxisKey,
   xAxisKey,
@@ -36,24 +36,24 @@ const AreaChart: React.FC<AreaChartProps> = ({
   displayDateInUtc,
   minimalHeader,
   className = '',
-}) => {
+  valuePrecision,
+  size = 'normal',
+}: AreaChartProps) => {
+  const { Container } = useChartSize(size)
   const [focusDataIndex, setFocusDataIndex] = useState<number | null>(null)
 
-  // For future reference: https://github.com/supabase/supabase/pull/5311#discussion_r800852828
-  const chartHeight = 160
-
-  if (data.length === 0) return <ChartNoData />
+  if (data.length === 0) return <ChartNoData size={size} className={className} />
 
   const day = (value: number | string) => (displayDateInUtc ? dayjs(value).utc() : dayjs(value))
   const resolvedHighlightedLabel =
     (focusDataIndex !== null &&
       data &&
-      data[focusDataIndex] &&
+      data[focusDataIndex] !== undefined &&
       day(data[focusDataIndex][xAxisKey]).format(customDateFormat)) ||
     highlightedLabel
 
   const resolvedHighlightedValue =
-    (focusDataIndex !== null ? data[focusDataIndex]?.[yAxisKey] : null) || highlightedValue
+    focusDataIndex !== null ? data[focusDataIndex]?.[yAxisKey] : highlightedValue
 
   return (
     <div className={['flex flex-col gap-3', className].join(' ')}>
@@ -63,13 +63,13 @@ const AreaChart: React.FC<AreaChartProps> = ({
         customDateFormat={customDateFormat}
         highlightedValue={
           typeof resolvedHighlightedValue === 'number'
-            ? numberFormatter(resolvedHighlightedValue)
+            ? numberFormatter(resolvedHighlightedValue, valuePrecision)
             : resolvedHighlightedValue
         }
         highlightedLabel={resolvedHighlightedLabel}
         minimalHeader={minimalHeader}
       />
-      <ResponsiveContainer width="100%" height={chartHeight}>
+      <Container>
         <RechartAreaChart
           data={data}
           margin={{
@@ -98,7 +98,7 @@ const AreaChart: React.FC<AreaChartProps> = ({
             interval={data.length - 2}
             angle={0}
             // hide the tick
-            tick={{ fontSize: '0px' }}
+            tick={false}
             // color the axis
             axisLine={{ stroke: CHART_COLORS.AXIS }}
             tickLine={{ stroke: CHART_COLORS.AXIS }}
@@ -112,9 +112,9 @@ const AreaChart: React.FC<AreaChartProps> = ({
             fill="url(#colorUv)"
           />
         </RechartAreaChart>
-      </ResponsiveContainer>
+      </Container>
       {data && (
-        <div className="text-scale-900 -mt-5 flex items-center justify-between text-xs">
+        <div className="text-scale-900 -mt-2 flex items-center justify-between text-xs">
           <span>{dayjs(data[0][xAxisKey]).format(customDateFormat)}</span>
           <span>{dayjs(data[data?.length - 1]?.[xAxisKey]).format(customDateFormat)}</span>
         </div>

@@ -1,26 +1,29 @@
-import dayjs from 'dayjs'
-import { FC, Fragment, useState } from 'react'
-import { useRouter } from 'next/router'
-import { Alert, Button, IconBell, Popover, IconArrowRight } from 'ui'
+import * as Tooltip from '@radix-ui/react-tooltip'
 import {
+  ActionType,
   Notification,
   NotificationStatus,
-  ActionType,
 } from '@supabase/shared-types/out/notifications'
+import { useQueryClient } from '@tanstack/react-query'
+import dayjs from 'dayjs'
+import { useRouter } from 'next/router'
+import { Fragment, useState } from 'react'
 
-import { Project } from 'types'
+import ConfirmModal from 'components/ui/Dialogs/ConfirmDialog'
+import { useNotificationsQuery } from 'data/notifications/notifications-query'
+import { getProjectDetail } from 'data/projects/project-detail-query'
+import { invalidateProjectsQuery, setProjectPostgrestStatus } from 'data/projects/projects-query'
 import { useStore } from 'hooks'
 import { delete_, patch, post } from 'lib/common/fetch'
 import { API_URL } from 'lib/constants'
+import { Project } from 'types'
+import { Alert, Button, IconArrowRight, IconBell, Popover } from 'ui'
 import NotificationRow from './NotificationRow'
-import ConfirmModal from 'components/ui/Dialogs/ConfirmDialog'
-import { useNotificationsQuery } from 'data/notifications/notifications-query'
 
-interface Props {}
-
-const NotificationsPopover: FC<Props> = () => {
+const NotificationsPopover = () => {
+  const queryClient = useQueryClient()
   const router = useRouter()
-  const { app, meta, ui } = useStore()
+  const { meta, ui } = useStore()
   const { data: notifications, refetch } = useNotificationsQuery()
 
   const [projectToRestart, setProjectToRestart] = useState<Project>()
@@ -56,7 +59,7 @@ const NotificationsPopover: FC<Props> = () => {
 
     const { id } = targetNotification
 
-    const { id: projectId, ref, region } = projectToRestart
+    const { ref, region } = projectToRestart
     const serviceNamesByActionName: Record<string, string> = {
       [ActionType.PgBouncerRestart]: 'pgbouncer',
       [ActionType.SchedulePostgresRestart]: 'postgresql',
@@ -81,7 +84,7 @@ const NotificationsPopover: FC<Props> = () => {
         error,
       })
     } else {
-      app.onProjectPostgrestStatusUpdated(projectId, 'OFFLINE')
+      setProjectPostgrestStatus(queryClient, ref, 'OFFLINE')
       ui.setNotification({ category: 'success', message: `Restarting services` })
       router.push(`/project/${ref}`)
     }
@@ -101,9 +104,11 @@ const NotificationsPopover: FC<Props> = () => {
     if (!projectToApplyMigration) return
     const res = await post(`${API_URL}/database/${projectToApplyMigration.ref}/owner-reassign`, {})
     if (!res.error) {
-      await app.projects.fetchDetail(projectToApplyMigration.ref, (project) =>
+      const project = await getProjectDetail({ ref: projectToApplyMigration.ref })
+      if (project) {
         meta.setProjectDetails(project)
-      )
+      }
+
       ui.setNotification({
         category: 'success',
         message: `Successfully applied migration for project "${projectToApplyMigration.name}"`,
@@ -125,9 +130,11 @@ const NotificationsPopover: FC<Props> = () => {
       {}
     )
     if (!res.error) {
-      await app.projects.fetchDetail(projectToRollbackMigration.ref, (project) =>
+      const project = await getProjectDetail({ ref: projectToRollbackMigration.ref })
+      if (project) {
         meta.setProjectDetails(project)
-      )
+      }
+
       ui.setNotification({
         category: 'success',
         message: `Successfully rolled back migration for project "${projectToRollbackMigration.name}"`,
@@ -149,9 +156,11 @@ const NotificationsPopover: FC<Props> = () => {
       {}
     )
     if (!res.error) {
-      await app.projects.fetchDetail(projectToFinalizeMigration.ref, (project) =>
+      const project = await getProjectDetail({ ref: projectToFinalizeMigration.ref })
+      if (project) {
         meta.setProjectDetails(project)
-      )
+      }
+
       ui.setNotification({
         category: 'success',
         message: `Successfully finalized migration for project "${projectToFinalizeMigration.name}"`,
@@ -221,20 +230,39 @@ const NotificationsPopover: FC<Props> = () => {
           </div>
         }
       >
-        <div className="relative flex">
-          <Button
-            as="span"
-            id="notification-button"
-            type="default"
-            icon={<IconBell size={16} strokeWidth={1.5} className="text-scale-1200" />}
-          />
-          {hasNewNotifications && (
-            <div className="absolute -top-1 -right-1 z-50 flex h-3 w-3 items-center justify-center">
-              <div className="h-full w-full animate-ping rounded-full bg-green-800 opacity-60"></div>
-              <div className="z-60 absolute top-0 right-0 h-full w-full rounded-full bg-green-900 opacity-80"></div>
+        <Tooltip.Root delayDuration={0}>
+          <Tooltip.Trigger asChild>
+            <div className="relative flex">
+              <Button
+                asChild
+                id="notification-button"
+                type="default"
+                icon={<IconBell size={16} strokeWidth={1.5} className="text-scale-1200" />}
+              >
+                <span></span>
+              </Button>
+              {hasNewNotifications && (
+                <div className="absolute -top-1 -right-1 z-50 flex h-3 w-3 items-center justify-center">
+                  <div className="h-full w-full animate-ping rounded-full bg-green-800 opacity-60"></div>
+                  <div className="z-60 absolute top-0 right-0 h-full w-full rounded-full bg-green-900 opacity-80"></div>
+                </div>
+              )}
             </div>
-          )}
-        </div>
+          </Tooltip.Trigger>
+          <Tooltip.Portal>
+            <Tooltip.Content side="bottom">
+              <Tooltip.Arrow className="radix-tooltip-arrow" />
+              <div
+                className={[
+                  'rounded bg-scale-100 py-1 px-2 leading-none shadow',
+                  'border border-scale-200 flex items-center space-x-1',
+                ].join(' ')}
+              >
+                <span className="text-xs text-scale-1200">Notifications</span>
+              </div>
+            </Tooltip.Content>
+          </Tooltip.Portal>
+        </Tooltip.Root>
       </Popover>
 
       <ConfirmModal

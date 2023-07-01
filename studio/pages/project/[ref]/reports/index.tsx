@@ -1,31 +1,34 @@
-import { useEffect, useState } from 'react'
-import { observer } from 'mobx-react-lite'
-import { useRouter } from 'next/router'
 import { PermissionAction } from '@supabase/shared-types/out/constants'
+import { useRouter } from 'next/router'
+import { useEffect, useState } from 'react'
 
-import { NextPageWithLayout } from 'types'
-import { checkPermissions, useFlag, useStore } from 'hooks'
-import { post } from 'lib/common/fetch'
-import { API_URL, PROJECT_STATUS } from 'lib/constants'
-import { useProjectContentStore } from 'stores/projectContentStore'
-import Loading from 'components/ui/Loading'
+import { useParams } from 'common/hooks'
+import { ReportsLayout } from 'components/layouts'
+import { useProjectContext } from 'components/layouts/ProjectLayout/ProjectContext'
 import ProductEmptyState from 'components/to-be-cleaned/ProductEmptyState'
 import { createReport } from 'components/to-be-cleaned/Reports/Reports.utils'
-import { ReportsLayout } from 'components/layouts'
+import Loading from 'components/ui/Loading'
+import { useCheckPermissions, useFlag, useStore } from 'hooks'
+import { post } from 'lib/common/fetch'
+import { API_URL, PROJECT_STATUS } from 'lib/constants'
+import { useProfile } from 'lib/profile'
+import { useProjectContentStore } from 'stores/projectContentStore'
+import { NextPageWithLayout } from 'types'
 
 export const UserReportPage: NextPageWithLayout = () => {
   const [loading, setLoading] = useState(true)
 
   const router = useRouter()
-  const { ref } = router.query
+  const { ref } = useParams()
 
+  const { profile } = useProfile()
   const { ui } = useStore()
-  const project = ui.selectedProject
+  const { project } = useProjectContext()
 
   const contentStore = useProjectContentStore(ref)
-  const canCreateReport = checkPermissions(PermissionAction.CREATE, 'user_content', {
-    resource: { type: 'report', owner_id: ui.profile?.id },
-    subject: { id: ui.profile?.id },
+  const canCreateReport = useCheckPermissions(PermissionAction.CREATE, 'user_content', {
+    resource: { type: 'report', owner_id: profile?.id },
+    subject: { id: profile?.id },
   })
 
   const kpsEnabled = useFlag('initWithKps')
@@ -85,4 +88,4 @@ export const UserReportPage: NextPageWithLayout = () => {
 
 UserReportPage.getLayout = (page) => <ReportsLayout>{page}</ReportsLayout>
 
-export default observer(UserReportPage)
+export default UserReportPage

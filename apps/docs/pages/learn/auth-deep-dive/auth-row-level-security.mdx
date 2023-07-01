@@ -45,12 +45,16 @@ Let's say we create a leaderboard table. We want people on our website to be abl
 
 ```sql
 create table leaderboard (
-    name text,
-    score int
+  name text,
+  score int
 );
 
-insert into leaderboard(name, score)
-values ('Paul', 100), ('Leto', 50), ('Chani', 200);
+insert into leaderboard
+  (name, score)
+values
+  ('Paul', 100),
+  ('Leto', 50),
+  ('Chani', 200);
 ```
 
 Now let's set up a client to read the data, I've created a repl here to show a living example: [https://replit.com/@awalias/supabase-leaderboard-demo#index.js](https://replit.com/@awalias/supabase-leaderboard-demo#index.js). If you copy the snippet you can plug in your own Supabase URL and anon key.
@@ -124,7 +128,7 @@ In the next guide we will look at using Policies in combination with User Accoun
 - Watch [Part Three: Policies](../../learn/auth-deep-dive/auth-policies)
 - Watch [Part Four: GoTrue](../../learn/auth-deep-dive/auth-gotrue)
 - Watch [Part Five: Google Oauth](../../learn/auth-deep-dive/auth-google-oauth)
-- Sign up for Supabase: [app.supabase.com](https://app.supabase.com)
+- Sign up for Supabase: [supabase.com/dashboard](https://supabase.com/dashboard)
 
 export const Page = ({ children }) => <Layout meta={meta} children={children} />
 

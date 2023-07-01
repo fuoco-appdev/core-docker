@@ -28,7 +28,7 @@ const HelpPopover: FC<Props> = () => {
       side="bottom"
       sideOffset={8}
       overlay={
-        <div className="my-4 w-96 space-y-4">
+        <div className="my-4 w-[400px] space-y-4">
           <div className="my-5 space-y-4 px-5">
             <h5 className="text-scale-1200">Need help with your project?</h5>
             <p className="text-sm text-scale-900">
@@ -37,9 +37,11 @@ const HelpPopover: FC<Props> = () => {
             </p>
             <div className="space-x-1">
               <Link passHref href={supportUrl}>
-                <Button type="default" icon={<IconMail />} as="a">
-                  Contact Support
-                </Button>
+                <a>
+                  <Button type="default" icon={<IconMail />}>
+                    Contact Support
+                  </Button>
+                </a>
               </Link>
               <Link passHref href="https://supabase.com/docs/">
                 <a target="_blank" rel="noreferrer">
@@ -57,8 +59,8 @@ const HelpPopover: FC<Props> = () => {
               </Link>
             </div>
             <p className="text-sm text-scale-900">
-              Expected response time is based on your billing tier. Pro and Pay as You Go plans are
-              prioritised.
+              Expected response time is based on your billing plan. Pro and Pay as You Go plans are
+              prioritized.
             </p>
           </div>
           <Popover.Separator />
@@ -79,18 +81,21 @@ const HelpPopover: FC<Props> = () => {
                 <a
                   href="https://discord.supabase.com"
                   target="_blank"
+                  rel="noreferrer"
                   className="dark block cursor-pointer"
                 >
                   <Image
                     className="absolute left-0 top-0 opacity-50"
-                    src={'/img/support/discord-bg-small.jpg'}
+                    src={`${router.basePath}/img/support/discord-bg-small.jpg`}
                     layout="fill"
                     objectFit="cover"
                     alt="discord illustration header"
                   />
                   <Button
                     type="secondary"
-                    icon={<SVG src={`/img/discord-icon.svg`} className="h-4 w-4" />}
+                    icon={
+                      <SVG src={`${router.basePath}/img/discord-icon.svg`} className="h-4 w-4" />
+                    }
                   >
                     <span style={{ color: '#404EED' }}>Join Discord server</span>
                   </Button>
@@ -102,11 +107,12 @@ const HelpPopover: FC<Props> = () => {
                 <a
                   href="https://github.com/supabase/supabase/discussions"
                   target="_blank"
+                  rel="noreferrer"
                   className="block cursor-pointer"
                 >
                   <Image
                     className="absolute left-0 top-0 opacity-50"
-                    src={'/img/support/github-bg.jpg?v-1'}
+                    src={`${router.basePath}/img/support/github-bg.jpg?v-1`}
                     layout="fill"
                     objectFit="cover"
                     alt="discord illustration header"
@@ -122,11 +128,11 @@ const HelpPopover: FC<Props> = () => {
       }
     >
       <Button
-        as="span"
+        asChild
         type="default"
         icon={<IconHelpCircle size={16} strokeWidth={1.5} className="text-scale-900" />}
       >
-        Help
+        <span>Help</span>
       </Button>
     </Popover>
   )

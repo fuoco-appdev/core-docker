@@ -4,7 +4,7 @@ import { observer } from 'mobx-react-lite'
 import { Button, IconAlertCircle } from 'ui'
 import * as Tooltip from '@radix-ui/react-tooltip'
 
-import { checkPermissions, useStore } from 'hooks'
+import { useCheckPermissions, useStore } from 'hooks'
 import { Timezone } from './PITR.types'
 import { FormPanel } from 'components/ui/Forms'
 import TimezoneSelection from './TimezoneSelection'
@@ -31,7 +31,7 @@ const PITRStatus: FC<Props> = ({ selectedTimezone, onUpdateTimezone, onSetConfig
     .tz(selectedTimezone?.utc[0])
     .format('DD MMM YYYY, HH:mm:ss')
 
-  const canTriggerPhysicalBackup = checkPermissions(
+  const canTriggerPhysicalBackup = useCheckPermissions(
     PermissionAction.INFRA_EXECUTE,
     'queue_job.walg.prepare_restore'
   )
@@ -55,19 +55,21 @@ const PITRStatus: FC<Props> = ({ selectedTimezone, onUpdateTimezone, onSetConfig
                 </Button>
               </Tooltip.Trigger>
               {!canTriggerPhysicalBackup && (
-                <Tooltip.Content side="left">
-                  <Tooltip.Arrow className="radix-tooltip-arrow" />
-                  <div
-                    className={[
-                      'rounded bg-scale-100 py-1 px-2 leading-none shadow',
-                      'border border-scale-200',
-                    ].join(' ')}
-                  >
-                    <span className="text-xs text-scale-1200">
-                      You need additional permissions to trigger a PITR recovery
-                    </span>
-                  </div>
-                </Tooltip.Content>
+                <Tooltip.Portal>
+                  <Tooltip.Content side="left">
+                    <Tooltip.Arrow className="radix-tooltip-arrow" />
+                    <div
+                      className={[
+                        'rounded bg-scale-100 py-1 px-2 leading-none shadow',
+                        'border border-scale-200',
+                      ].join(' ')}
+                    >
+                      <span className="text-xs text-scale-1200">
+                        You need additional permissions to trigger a PITR recovery
+                      </span>
+                    </div>
+                  </Tooltip.Content>
+                </Tooltip.Portal>
               )}
             </Tooltip.Root>
           </div>

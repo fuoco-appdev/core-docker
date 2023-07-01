@@ -8,7 +8,7 @@ import { createClient } from '@supabase/supabase-js'
 import { useStore } from 'hooks'
 import { copyToClipboard } from 'lib/helpers'
 import { API_URL, IS_PLATFORM } from 'lib/constants'
-import { get, patch, post, delete_ } from 'lib/common/fetch'
+import { post, delete_ } from 'lib/common/fetch'
 import { PROJECT_ENDPOINT_PROTOCOL } from 'pages/api/constants'
 import {
   STORAGE_VIEWS,
@@ -76,9 +76,7 @@ class StorageExplorerStore {
   endpoint = ''
 
   /* FE to toggle page level modals */
-  showCreateBucketModal = false
   showDeleteBucketModal = false
-  showToggleBucketPublicModal = false
 
   /* FE Cacheing for file previews */
   filePreviewCache = []
@@ -184,14 +182,6 @@ class StorageExplorerStore {
     this.loaded = val
   }
 
-  openCreateBucketModal = () => {
-    this.showCreateBucketModal = true
-  }
-
-  closeCreateBucketModal = () => {
-    this.showCreateBucketModal = false
-  }
-
   openDeleteBucketModal = (bucket) => {
     this.selectedBucketToEdit = bucket
     this.showDeleteBucketModal = true
@@ -199,15 +189,6 @@ class StorageExplorerStore {
 
   closeDeleteBucketModal = () => {
     this.showDeleteBucketModal = false
-  }
-
-  openToggleBucketPublicModal = (bucket) => {
-    this.selectedBucketToEdit = bucket
-    this.showToggleBucketPublicModal = true
-  }
-
-  closeToggleBucketPublicModal = () => {
-    this.showToggleBucketPublicModal = false
   }
 
   setSelectedBucket = (bucket) => {
@@ -321,7 +302,7 @@ class StorageExplorerStore {
     const formattedName = this.sanitizeNameForDuplicateInColumn(folderName, autofix, columnIndex)
     if (formattedName === null) return
 
-    if (!/^[a-zA-Z0-9_-]*$/.test(formattedName)) {
+    if (!/^[a-zA-Z0-9_-\s]*$/.test(formattedName)) {
       return this.ui.setNotification({
         message: 'Folder name contains invalid special characters',
         category: 'error',
@@ -366,7 +347,8 @@ class StorageExplorerStore {
   setFilePreview = async (file) => {
     const size = file.metadata?.size
     const mimeType = file.metadata?.mimetype
-    if (mimeType && size && this.selectedFilePreview.id !== file.id) {
+
+    if (mimeType && size) {
       // Skip fetching of file preview if file is too big
       if (size > PREVIEW_SIZE_LIMIT) {
         this.selectedFilePreview = { ...file, previewUrl: 'skipped' }
@@ -412,64 +394,31 @@ class StorageExplorerStore {
     this.selectedFilePreview = {}
   }
 
-  copyFileURLToClipboard = async (file, expiresIn = 0) => {
+  getFileUrl = async (file, expiresIn = 0) => {
     const filePreview = find(this.filePreviewCache, { id: file.id })
-    if (filePreview && expiresIn === 0) {
-      // Already generated signed URL
-      copyToClipboard(filePreview.url, () => {
-        this.ui.setNotification({
-          category: 'success',
-          message: `Copied URL for ${file.name} to clipboard.`,
-          duration: 4000,
-        })
-      })
+    if (filePreview !== undefined && expiresIn === 0) {
+      return filePreview.url
     } else {
-      // Need to generate signed URL, and might as well save it to cache as well
       const signedUrl = await this.fetchFilePreview(file.name, expiresIn)
+      const formattedUrl = new URL(signedUrl)
+      formattedUrl.searchParams.set('t', new Date().toISOString())
+      const fileUrl = formattedUrl.toString()
 
-      try {
-        let formattedUrl = new URL(signedUrl)
-        formattedUrl.searchParams.set('t', new Date().toISOString())
-
-        copyToClipboard(formattedUrl.toString(), () => {
-          this.ui.setNotification({
-            category: 'success',
-            message: `Copied URL for ${file.name} to clipboard.`,
-            duration: 4000,
-          })
-        })
-        const fileCache = {
-          id: file.id,
-          url: formattedUrl.toString(),
-          expiresIn: DEFAULT_EXPIRY,
-          fetchedAt: Date.now(),
-        }
-        this.addFileToPreviewCache(fileCache)
-      } catch (error) {
-        this.ui.setNotification({
-          category: 'error',
-          message: `Failed to copy URL: ${error}`,
-        })
+      // Also save it to cache
+      const fileCache = {
+        id: file.id,
+        url: fileUrl,
+        expiresIn: DEFAULT_EXPIRY,
+        fetchedAt: Date.now(),
       }
+      this.addFileToPreviewCache(fileCache)
+
+      return fileUrl
     }
   }
 
   /* Methods that involve the storage client library */
   /* Bucket CRUD */
-
-  createBucket = async (bucketName, isPublic = false) => {
-    const res = await post(`${this.endpoint}/buckets`, { id: bucketName, public: isPublic })
-    if (res.error) {
-      this.ui.setNotification({ category: 'error', message: res.error.message })
-      this.closeCreateBucketModal()
-      return undefined
-    } else {
-      await this.fetchBuckets()
-      this.closeCreateBucketModal()
-      return res
-    }
-  }
-
   openBucket = async (bucket) => {
     const { id, name } = bucket
     const columnIndex = -1
@@ -477,59 +426,6 @@ class StorageExplorerStore {
       this.setSelectedBucket(bucket)
       await this.fetchFolderContents(id, name, columnIndex)
     }
-  }
-
-  fetchBuckets = async () => {
-    const res = await get(`${this.endpoint}/buckets`)
-    if (res.error) return this.ui.setNotification({ category: 'error', message: res.error.message })
-
-    const formattedBuckets = res.map((bucket) => {
-      return { ...bucket, type: STORAGE_ROW_TYPES.BUCKET, status: STORAGE_ROW_STATUS.READY }
-    })
-    this.buckets = formattedBuckets
-    return formattedBuckets
-  }
-
-  deleteBucket = async (bucket) => {
-    // Deleting a bucket requires the bucket to be empty first
-    // hence delete bucket and empty bucket are coupled tightly here
-    const { id, name: bucketName } = bucket
-
-    const emptyBucketRes = await post(`${this.endpoint}/buckets/${id}/empty`, {})
-    if (emptyBucketRes.error) {
-      this.ui.setNotification({ category: 'error', message: emptyBucketRes.error.message })
-      return false
-    }
-
-    const deleteBucketRes = await delete_(`${this.endpoint}/buckets/${id}`)
-    if (deleteBucketRes.error) {
-      this.ui.setNotification({ category: 'error', message: deleteBucketRes.error.message })
-      return false
-    }
-
-    await this.fetchBuckets()
-    if (bucketName === this.selectedBucket.name) {
-      this.setSelectedBucket({})
-      this.clearColumns()
-      this.clearOpenedFolders()
-    }
-    this.clearSelectedItemsToDelete()
-    this.closeDeleteBucketModal()
-    return true
-  }
-
-  toggleBucketPublic = async (bucket) => {
-    const res = await patch(`${this.endpoint}/buckets/${bucket.id}`, { public: !bucket.public })
-    if (res.error) {
-      this.ui.setNotification({ category: 'error', message: res.error.message })
-      return this.closeToggleBucketPublicModal()
-    }
-
-    await this.fetchBuckets()
-    this.clearFilePreviewCache()
-    this.closeToggleBucketPublicModal()
-
-    await this.openBucket({ ...bucket, public: !bucket.public })
   }
 
   /* Files CRUD */
@@ -783,7 +679,7 @@ class StorageExplorerStore {
     let numberOfFilesMovedFail = 0
     this.clearSelectedItems()
 
-    const infoToastId = toast('Please do not close the browser until the delete is completed', {
+    const infoToastId = toast('Please do not close the browser until the move is completed', {
       duration: Infinity,
     })
 
@@ -945,6 +841,7 @@ class StorageExplorerStore {
     })
 
     const files = await this.getAllItemsAlongFolder(folder)
+
     this.ui.setNotification({
       id: toastId,
       category: 'loading',
@@ -971,6 +868,7 @@ class StorageExplorerStore {
               blob: new Blob([blob], { type: fileMimeType }),
             })
           } else {
+            console.error('Failed to download file', `${file.prefix}/${file.name}`)
             resolve(false)
           }
         })
@@ -993,8 +891,17 @@ class StorageExplorerStore {
 
     const zipFileWriter = new BlobWriter('application/zip')
     const zipWriter = new ZipWriter(zipFileWriter, { bufferedWrite: true })
+
+    if (downloadedFiles.length === 0) {
+      return this.ui.setNotification({
+        id: toastId,
+        category: 'error',
+        message: `Failed to download files from the ${folder.name}`,
+      })
+    }
+
     downloadedFiles.forEach((file) => {
-      zipWriter.add(`${file.prefix}/${file.name}`, new BlobReader(file.blob))
+      if (file.blob) zipWriter.add(`${file.prefix}/${file.name}`, new BlobReader(file.blob))
     })
 
     const blobURL = URL.createObjectURL(await zipWriter.close())
@@ -1120,7 +1027,7 @@ class StorageExplorerStore {
     } else {
       if (toastId) {
         this.ui.setNotification({
-          error: error,
+          error: res.error,
           id: toastId,
           category: 'error',
           message: `Failed to download ${fileName}`,
@@ -1132,7 +1039,7 @@ class StorageExplorerStore {
 
   renameFile = async (file, newName, columnIndex) => {
     const originalName = file.name
-    if (originalName === newName) {
+    if (originalName === newName || newName.length === 0) {
       this.updateRowStatus(originalName, STORAGE_ROW_STATUS.READY, columnIndex)
     } else {
       this.updateRowStatus(originalName, STORAGE_ROW_STATUS.LOADING, columnIndex, newName)
@@ -1149,14 +1056,25 @@ class StorageExplorerStore {
 
       if (res.error) {
         this.ui.setNotification({ category: 'error', message: res.error.message })
-      }
-      await this.refetchAllOpenedFolders()
+      } else {
+        this.ui.setNotification({
+          category: 'success',
+          message: `Successfully renamed "${originalName}" to "${newName}"`,
+        })
 
-      // Clear file preview cache if the renamed file exists in the cache
-      const updatedFilePreviewCache = this.filePreviewCache.filter(
-        (fileCache) => fileCache.id !== file.id
-      )
-      this.filePreviewCache = updatedFilePreviewCache
+        // Clear file preview cache if the renamed file exists in the cache
+        const updatedFilePreviewCache = this.filePreviewCache.filter(
+          (fileCache) => fileCache.id !== file.id
+        )
+        this.filePreviewCache = updatedFilePreviewCache
+
+        if (this.selectedFilePreview.name === originalName) {
+          const { previewUrl, ...fileData } = file
+          this.setFilePreview({ ...fileData, name: newName })
+        }
+
+        await this.refetchAllOpenedFolders()
+      }
     }
   }
 
@@ -1256,7 +1174,10 @@ class StorageExplorerStore {
           path: prefix,
           options,
         })
-        if (res.error) console.error('Error at fetchFoldersByPath:', error)
+        if (res.error) {
+          console.error('Error at fetchFoldersByPath:', res.error)
+          return []
+        }
         return res
       })
     )
@@ -1465,8 +1386,11 @@ class StorageExplorerStore {
       formattedPathToFolder = `${prefix}/${name}`
     }
 
+    // [Joshen] limit is set to 10k to optimize reduction of requests, we've done some experiments
+    // that prove that the time to fetch all files in a folder reduces as the batch size increases
+    // 10k however, is the hard limit at the API level.
     const options = {
-      limit: LIMIT,
+      limit: 10000,
       offset: OFFSET,
       sortBy: { column: this.sortBy, order: this.sortByOrder },
     }
@@ -1541,7 +1465,7 @@ class StorageExplorerStore {
 
   formatFolderItems = (items = []) => {
     const formattedItems =
-      items
+      (items ?? [])
         ?.filter((item) => item.name !== EMPTY_FOLDER_PLACEHOLDER_FILE_NAME)
         .map((item) => {
           const type = item.id ? STORAGE_ROW_TYPES.FILE : STORAGE_ROW_TYPES.FOLDER
@@ -1664,8 +1588,8 @@ class StorageExplorerStore {
 
   loadExplorerPreferences = () => {
     const localStorageKey = this.getLocalStorageKey()
-    const preferences = localStorage.getItem(localStorageKey)
-    if (preferences) {
+    const preferences = localStorage?.getItem(localStorageKey) ?? undefined
+    if (preferences !== undefined) {
       const { view, sortBy, sortByOrder } = JSON.parse(preferences)
       this.view = view
       this.sortBy = sortBy

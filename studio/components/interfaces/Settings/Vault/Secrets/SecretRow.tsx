@@ -16,7 +16,8 @@ import {
 import * as Tooltip from '@radix-ui/react-tooltip'
 import { PermissionAction } from '@supabase/shared-types/out/constants'
 import { VaultSecret } from 'types'
-import { useParams, useStore, checkPermissions } from 'hooks'
+import { useStore, useCheckPermissions } from 'hooks'
+import { useParams } from 'common/hooks'
 
 interface Props {
   secret: VaultSecret
@@ -32,7 +33,7 @@ const SecretRow: FC<Props> = ({ secret, onSelectEdit, onSelectRemove }) => {
   const [revealedValue, setRevealedValue] = useState<string>()
   const name = secret?.name ?? 'No name provided'
 
-  const canManageSecrets = checkPermissions(PermissionAction.TENANT_SQL_ADMIN_WRITE, 'tables')
+  const canManageSecrets = useCheckPermissions(PermissionAction.TENANT_SQL_ADMIN_WRITE, 'tables')
 
   const revealSecret = async () => {
     setIsLoading(true)
@@ -121,19 +122,21 @@ const SecretRow: FC<Props> = ({ secret, onSelectEdit, onSelectRemove }) => {
                   </Dropdown.Item>
                 </Tooltip.Trigger>
                 {!canManageSecrets && (
-                  <Tooltip.Content side="bottom">
-                    <Tooltip.Arrow className="radix-tooltip-arrow" />
-                    <div
-                      className={[
-                        'rounded bg-scale-100 py-1 px-2 leading-none shadow',
-                        'border border-scale-200',
-                      ].join(' ')}
-                    >
-                      <span className="text-xs text-scale-1200">
-                        You need additional permissions to edit secrets
-                      </span>
-                    </div>
-                  </Tooltip.Content>
+                  <Tooltip.Portal>
+                    <Tooltip.Content side="bottom">
+                      <Tooltip.Arrow className="radix-tooltip-arrow" />
+                      <div
+                        className={[
+                          'rounded bg-scale-100 py-1 px-2 leading-none shadow',
+                          'border border-scale-200',
+                        ].join(' ')}
+                      >
+                        <span className="text-xs text-scale-1200">
+                          You need additional permissions to edit secrets
+                        </span>
+                      </div>
+                    </Tooltip.Content>
+                  </Tooltip.Portal>
                 )}
               </Tooltip.Root>
               <Tooltip.Root delayDuration={0}>
@@ -147,25 +150,29 @@ const SecretRow: FC<Props> = ({ secret, onSelectEdit, onSelectRemove }) => {
                   </Dropdown.Item>
                 </Tooltip.Trigger>
                 {!canManageSecrets && (
-                  <Tooltip.Content side="bottom">
-                    <Tooltip.Arrow className="radix-tooltip-arrow" />
-                    <div
-                      className={[
-                        'rounded bg-scale-100 py-1 px-2 leading-none shadow',
-                        'border border-scale-200',
-                      ].join(' ')}
-                    >
-                      <span className="text-xs text-scale-1200">
-                        You need additional permissions to delete secrets
-                      </span>
-                    </div>
-                  </Tooltip.Content>
+                  <Tooltip.Portal>
+                    <Tooltip.Content side="bottom">
+                      <Tooltip.Arrow className="radix-tooltip-arrow" />
+                      <div
+                        className={[
+                          'rounded bg-scale-100 py-1 px-2 leading-none shadow',
+                          'border border-scale-200',
+                        ].join(' ')}
+                      >
+                        <span className="text-xs text-scale-1200">
+                          You need additional permissions to delete secrets
+                        </span>
+                      </div>
+                    </Tooltip.Content>
+                  </Tooltip.Portal>
                 )}
               </Tooltip.Root>
             </>
           }
         >
-          <Button as="span" type="text" className="px-1" icon={<IconMoreVertical />} />
+          <Button asChild type="text" className="px-1" icon={<IconMoreVertical />}>
+            <span></span>
+          </Button>
         </Dropdown>
       </div>
     </div>

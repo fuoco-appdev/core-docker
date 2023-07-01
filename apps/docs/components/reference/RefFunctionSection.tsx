@@ -1,7 +1,6 @@
 import ReactMarkdown from 'react-markdown'
 
-import { IconDatabase, Tabs } from 'ui'
-import CodeBlock from '~/components/CodeBlock/CodeBlock'
+import { CodeBlock, IconDatabase, Tabs } from 'ui'
 
 import Options from '~/components/Options'
 import Param from '~/components/Params'
@@ -11,6 +10,7 @@ import { extractTsDocNode, generateParameters } from '~/lib/refGenerator/helpers
 import RefDetailCollapse from '~/components/reference/RefDetailCollapse'
 import { Fragment } from 'react'
 import { IRefFunctionSection } from './Reference.types'
+import components from '~/components'
 
 const RefFunctionSection: React.FC<IRefFunctionSection> = (props) => {
   const item = props.spec.functions.find((x: any) => x.id === props.funcData.id)
@@ -39,16 +39,16 @@ const RefFunctionSection: React.FC<IRefFunctionSection> = (props) => {
             <header className={['prose'].join(' ')}>
               {shortText && <ReactMarkdown className="text-sm">{shortText}</ReactMarkdown>}
             </header>
-
             {item.description && (
               <div className="prose">
                 <ReactMarkdown className="text-sm">{item.description}</ReactMarkdown>
               </div>
             )}
-
             {item.notes && (
               <div className="prose">
-                <ReactMarkdown className="text-sm">{item.notes}</ReactMarkdown>
+                <ReactMarkdown className="text-sm" components={components}>
+                  {item.notes}
+                </ReactMarkdown>
               </div>
             )}
             {/* // parameters */}
@@ -114,7 +114,13 @@ const RefFunctionSection: React.FC<IRefFunctionSection> = (props) => {
                 >
                   {item.examples &&
                     item.examples.map((example, exampleIndex) => {
-                      const exampleString = ''
+                      const exampleString =
+                        '' +
+                        (example.code &&
+                          example.code
+                            .trim()
+                            .replace(/^```.*/, '')
+                            .replace(/```$/, ''))
 
                       const codeBlockLang = example?.code?.startsWith('```js')
                         ? 'js'
@@ -124,6 +130,8 @@ const RefFunctionSection: React.FC<IRefFunctionSection> = (props) => {
                         ? 'dart'
                         : example?.code?.startsWith('```c#')
                         ? 'csharp'
+                        : example?.code?.startsWith('```kotlin')
+                        ? 'kotlin'
                         : 'js'
                       //                     `
                       // import { createClient } from '@supabase/supabase-js'
@@ -131,7 +139,6 @@ const RefFunctionSection: React.FC<IRefFunctionSection> = (props) => {
                       // // Create a single supabase client for interacting with your database
                       // const supabase = createClient('https://xyzcompany.supabase.co', 'public-anon-key')
                       // `
-                      const currentExampleId = example.id
                       const staticExample = item.examples[exampleIndex]
 
                       const response = staticExample.response
@@ -150,14 +157,7 @@ const RefFunctionSection: React.FC<IRefFunctionSection> = (props) => {
                             language={codeBlockLang}
                             hideLineNumbers={true}
                           >
-                            {exampleString +
-                              (example.code &&
-                                example.code
-                                  .replace(/```/g, '')
-                                  .replace('js', '')
-                                  .replace('ts', '')
-                                  .replace('dart', '')
-                                  .replace('c#', ''))}
+                            {exampleString}
                           </CodeBlock>
 
                           {((tables && tables.length > 0) || sql) && (

@@ -4,7 +4,8 @@ import { observer } from 'mobx-react-lite'
 import { Button, Form, IconExternalLink, Input } from 'ui'
 import { PermissionAction } from '@supabase/shared-types/out/constants'
 
-import { checkPermissions, useParams, useStore } from 'hooks'
+import { useCheckPermissions, useStore } from 'hooks'
+import { useParams } from 'common/hooks'
 import {
   FormActions,
   FormPanel,
@@ -27,7 +28,7 @@ const CustomDomainsConfigureHostname = () => {
 
   const FORM_ID = 'custom-domains-form'
   const endpoint = settings?.autoApiService.endpoint
-  const canConfigureCustomDomain = checkPermissions(PermissionAction.UPDATE, 'projects')
+  const canConfigureCustomDomain = useCheckPermissions(PermissionAction.UPDATE, 'projects')
 
   const verifyCNAME = async (domain: string): Promise<boolean> => {
     const res = await fetch(`https://1.1.1.1/dns-query?name=${domain}`, {
@@ -56,6 +57,7 @@ const CustomDomainsConfigureHostname = () => {
       })
     } catch (error: any) {
       ui.setNotification({
+        error,
         category: 'error',
         message: error.message,
       })
@@ -90,7 +92,7 @@ const CustomDomainsConfigureHostname = () => {
                         "You need additional permissions to update your project's custom domain settings"
                       ) : (
                         <Link href="https://supabase.com/docs/guides/platform/custom-domains">
-                          <a target="_blank">
+                          <a target="_blank" rel="noreferrer">
                             <Button type="default" icon={<IconExternalLink />}>
                               Documentation
                             </Button>

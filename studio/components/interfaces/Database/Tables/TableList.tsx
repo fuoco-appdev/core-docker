@@ -16,10 +16,11 @@ import { partition } from 'lodash'
 import * as Tooltip from '@radix-ui/react-tooltip'
 import { PermissionAction } from '@supabase/shared-types/out/constants'
 
-import { useStore, checkPermissions } from 'hooks'
+import { useStore, useCheckPermissions } from 'hooks'
 import Table from 'components/to-be-cleaned/Table'
 import NoSearchResults from 'components/to-be-cleaned/NoSearchResults'
 import type { PostgresTable, PostgresSchema } from '@supabase/postgres-meta'
+import ShimmeringLoader from 'components/ui/ShimmeringLoader'
 
 interface Props {
   selectedSchema: string
@@ -39,8 +40,9 @@ const TableList: FC<Props> = ({
   onOpenTable = () => {},
 }) => {
   const { meta } = useStore()
+  const { isLoading } = meta.tables
   const [filterString, setFilterString] = useState<string>('')
-  const canUpdateTables = checkPermissions(PermissionAction.TENANT_SQL_ADMIN_WRITE, 'tables')
+  const canUpdateTables = useCheckPermissions(PermissionAction.TENANT_SQL_ADMIN_WRITE, 'tables')
 
   const schemas: PostgresSchema[] = meta.schemas.list()
   const [protectedSchemas, openSchemas] = partition(schemas, (schema) =>
@@ -68,7 +70,7 @@ const TableList: FC<Props> = ({
     <>
       <div className="flex items-center justify-between">
         <div className="flex items-center space-x-4">
-          <div className="w-[230px]">
+          <div className="w-[260px]">
             <Listbox
               size="small"
               value={selectedSchema}
@@ -132,25 +134,34 @@ const TableList: FC<Props> = ({
                 </Button>
               </Tooltip.Trigger>
               {!canUpdateTables && (
-                <Tooltip.Content side="bottom">
-                  <Tooltip.Arrow className="radix-tooltip-arrow" />
-                  <div
-                    className={[
-                      'rounded bg-scale-100 py-1 px-2 leading-none shadow',
-                      'border border-scale-200',
-                    ].join(' ')}
-                  >
-                    <span className="text-xs text-scale-1200">
-                      You need additional permissions to create tables
-                    </span>
-                  </div>
-                </Tooltip.Content>
+                <Tooltip.Portal>
+                  <Tooltip.Content side="bottom">
+                    <Tooltip.Arrow className="radix-tooltip-arrow" />
+                    <div
+                      className={[
+                        'rounded bg-scale-100 py-1 px-2 leading-none shadow',
+                        'border border-scale-200',
+                      ].join(' ')}
+                    >
+                      <span className="text-xs text-scale-1200">
+                        You need additional permissions to create tables
+                      </span>
+                    </div>
+                  </Tooltip.Content>
+                </Tooltip.Portal>
               )}
             </Tooltip.Root>
           </div>
         )}
       </div>
-      {tables.length === 0 ? (
+
+      {isLoading ? (
+        <div className="py-4 space-y-2">
+          <ShimmeringLoader />
+          <ShimmeringLoader className="w-3/4" />
+          <ShimmeringLoader className="w-1/2" />
+        </div>
+      ) : tables.length === 0 ? (
         <NoSearchResults />
       ) : (
         <div className="my-4 w-full">
@@ -205,7 +216,7 @@ const TableList: FC<Props> = ({
                       style={{ paddingTop: 3, paddingBottom: 3 }}
                       onClick={() => onOpenTable(x)}
                     >
-                      {x.columns.length} columns
+                      {x.columns?.length} columns
                     </Button>
 
                     <Tooltip.Root delayDuration={0}>
@@ -219,19 +230,21 @@ const TableList: FC<Props> = ({
                         />
                       </Tooltip.Trigger>
                       {!canUpdateTables && (
-                        <Tooltip.Content side="bottom">
-                          <Tooltip.Arrow className="radix-tooltip-arrow" />
-                          <div
-                            className={[
-                              'rounded bg-scale-100 py-1 px-2 leading-none shadow',
-                              'border border-scale-200',
-                            ].join(' ')}
-                          >
-                            <span className="text-xs text-scale-1200">
-                              You need additional permissions to edit tables
-                            </span>
-                          </div>
-                        </Tooltip.Content>
+                        <Tooltip.Portal>
+                          <Tooltip.Content side="bottom">
+                            <Tooltip.Arrow className="radix-tooltip-arrow" />
+                            <div
+                              className={[
+                                'rounded bg-scale-100 py-1 px-2 leading-none shadow',
+                                'border border-scale-200',
+                              ].join(' ')}
+                            >
+                              <span className="text-xs text-scale-1200">
+                                You need additional permissions to edit tables
+                              </span>
+                            </div>
+                          </Tooltip.Content>
+                        </Tooltip.Portal>
                       )}
                     </Tooltip.Root>
 
@@ -246,19 +259,21 @@ const TableList: FC<Props> = ({
                         />
                       </Tooltip.Trigger>
                       {!canUpdateTables && (
-                        <Tooltip.Content side="bottom">
-                          <Tooltip.Arrow className="radix-tooltip-arrow" />
-                          <div
-                            className={[
-                              'rounded bg-scale-100 py-1 px-2 leading-none shadow',
-                              'border border-scale-200',
-                            ].join(' ')}
-                          >
-                            <span className="text-xs text-scale-1200">
-                              You need additional permissions to delete tables
-                            </span>
-                          </div>
-                        </Tooltip.Content>
+                        <Tooltip.Portal>
+                          <Tooltip.Content side="bottom">
+                            <Tooltip.Arrow className="radix-tooltip-arrow" />
+                            <div
+                              className={[
+                                'rounded bg-scale-100 py-1 px-2 leading-none shadow',
+                                'border border-scale-200',
+                              ].join(' ')}
+                            >
+                              <span className="text-xs text-scale-1200">
+                                You need additional permissions to delete tables
+                              </span>
+                            </div>
+                          </Tooltip.Content>
+                        </Tooltip.Portal>
                       )}
                     </Tooltip.Root>
 
