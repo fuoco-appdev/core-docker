@@ -2,14 +2,15 @@ import { PermissionAction } from '@supabase/shared-types/out/constants'
 import Link from 'next/link'
 import { useEffect, useState } from 'react'
 
-import InvoiceStatusBadge from 'components/interfaces/Billing/InvoiceStatusBadge'
-import { Invoice, InvoiceStatus } from 'components/interfaces/Billing/Invoices.types'
+import { InvoiceStatusBadge } from 'components/interfaces/BillingV2'
+import { Invoice, InvoiceStatus } from 'components/interfaces/BillingV2/Invoices.types'
 import Table from 'components/to-be-cleaned/Table'
 import NoPermission from 'components/ui/NoPermission'
 import { useCheckPermissions, useSelectedOrganization, useStore } from 'hooks'
 import { get, head } from 'lib/common/fetch'
 import { API_URL } from 'lib/constants'
 import { Button, IconChevronLeft, IconChevronRight, IconDownload, IconFileText, Loading } from 'ui'
+import { ScaffoldContainerLegacy } from 'components/layouts/Scaffold'
 
 const PAGE_LIMIT = 10
 
@@ -93,7 +94,7 @@ const InvoicesSettings = () => {
   }
 
   return (
-    <div className="container my-4 max-w-4xl space-y-1">
+    <ScaffoldContainerLegacy>
       <Loading active={loading}>
         <Table
           head={[
@@ -185,7 +186,7 @@ const InvoicesSettings = () => {
           }
         />
       </Loading>
-    </div>
+    </ScaffoldContainerLegacy>
   )
 }
 
