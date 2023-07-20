@@ -2,6 +2,10 @@
   "name": "studio",
   "version": "0.0.9",
   "private": true,
+  "packageManager": "npm@8.19.4",
+  "workspaces": [
+    "studio"
+  ],
   "scripts": {
     "dev": "next dev -p 8082",
     "dev:secrets:pull": "AWS_PROFILE=supabase-dev node internals/getSecrets.js",

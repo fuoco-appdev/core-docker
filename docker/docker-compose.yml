@@ -9,7 +9,7 @@ version: "3.8"
 services:
   studio:
     container_name: supabase-studio
-    image: supabase/studio:v0.23.06
+    image: supabase/studio:20230712-32f559d
     restart: unless-stopped
     healthcheck:
       test:
@@ -274,7 +274,7 @@ services:
 
   storage:
     container_name: supabase-storage
-    image: supabase/storage-api:v0.40.4
+    image: supabase/storage-api:v0.41.2
     depends_on:
       db:
         # Disable this if you are using an external Postgres database
@@ -304,12 +304,12 @@ services:
       PGRST_JWT_SECRET: ${JWT_SECRET}
       DATABASE_URL: postgres://supabase_storage_admin:${POSTGRES_PASSWORD}@${POSTGRES_HOST}:${POSTGRES_PORT}/${POSTGRES_DB}
       FILE_SIZE_LIMIT: 52428800
-      STORAGE_BACKEND: file
+      STORAGE_BACKEND: s3
       FILE_STORAGE_BACKEND_PATH: /var/lib/storage
-      TENANT_ID: stub
+      TENANT_ID: digitaloceanspaces
       # TODO: https://github.com/supabase/storage-api/issues/55
-      REGION: stub
-      GLOBAL_S3_BUCKET: stub
+      REGION: nyc3
+      GLOBAL_S3_BUCKET: medusa
       ENABLE_IMAGE_TRANSFORMATION: "true"
       IMGPROXY_URL: http://imgproxy:5001
     volumes:
@@ -444,8 +444,8 @@ services:
       MEILI_DISPLAYED_ATTRIBUTES: ${MEILI_DISPLAYED_ATTRIBUTES}
       MEILI_FILTERABLE_ATTRIBUTES: ${MEILI_FILTERABLE_ATTRIBUTES}
       MEILI_PRIMARY_KEY: ${MEILI_PRIMARY_KEY}
-      AUTHORIZE_NET_API_KEY: ${AUTHORIZE_NET_API_KEY}
-      AUTHORIZE_NET_TRANSACTION_KEY: ${AUTHORIZE_NET_TRANSACTION_KEY}
+      STRIPE_API_KEY: ${STRIPE_API_KEY}
+      STRIPE_WEBHOOK_SECRET: ${STRIPE_WEBHOOK_SECRET}
       SPACE_URL: ${SPACE_URL}
       SPACE_BUCKET: ${SPACE_BUCKET}
       SPACE_ENDPOINT: ${SPACE_ENDPOINT}
