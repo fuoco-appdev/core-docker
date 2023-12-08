@@ -384,7 +384,7 @@ services:
     restart: unless-stopped
     ports:
       # Pass down internal port because it's set dynamically by other services
-      - 127.0.0.1:${POSTGRES_PORT}:${POSTGRES_PORT}
+      - ${POSTGRES_PORT}:${POSTGRES_PORT}
     environment:
       POSTGRES_HOST: /var/run/postgresql
       PGPORT: ${POSTGRES_PORT}
@@ -480,7 +480,7 @@ services:
       - MEILI_LOG_LEVEL
       - MEILI_DB_PATH=${MEILI_DB_PATH}
     ports:
-      - 127.0.0.1:${MEILI_PORT}:7700
+      - ${MEILI_PORT}:7700
     volumes:
       - ./data.ms:/data.ms
     restart: unless-stopped
