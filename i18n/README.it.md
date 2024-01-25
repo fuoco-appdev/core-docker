@@ -55,12 +55,12 @@ Supabase è una combinazione di strumenti open source. Stiamo costruendo le funz
 
 **Architettura**
 
-Supabase è una [piattaforma ospitata](https://supabase.com/dashboard). È possibile registrarsi e iniziare a usare Supabase senza installare nulla.
-È anche possibile [auto-ospitare](https://supabase.com/docs/guides/hosting/overview) e [sviluppare localmente](https://supabase.com/docs/guides/local-development).
+Supabase è una [piattaforma hosted](https://supabase.com/dashboard). È possibile registrarsi e iniziare a usare Supabase senza installare nulla.
+È anche possibile fare [self-hosting](https://supabase.com/docs/guides/hosting/overview) e [sviluppare localmente](https://supabase.com/docs/guides/local-development).
 
 ![Architettura](https://github.com/supabase/supabase/blob/master/apps/docs/public/img/supabase-architecture.png)
 
-- [PostgreSQL](https://www.postgresql.org/) è un sistema di database relazionale a oggetti con oltre 30 anni di sviluppo attivo che gli ha fatto guadagnare una solida reputazione in termini di affidabilità, robustezza e prestazioni.
+- [PostgreSQL](https://www.postgresql.org/) è un sistema di database relazionale a oggetti con oltre 30 anni di sviluppo attivo con una solida reputazione in termini di affidabilità, robustezza e prestazioni.
 - [Realtime](https://github.com/supabase/realtime) è un server Elixir che consente di ascoltare gli inserimenti, gli aggiornamenti e le cancellazioni di PostgreSQL tramite websocket. Realtime controlla la funzionalità di replica integrata di Postgres per le modifiche al database, converte le modifiche in JSON e trasmette il JSON tramite websocket ai client autorizzati.
 - [PostgREST](http://postgrest.org/) è un server web che trasforma il database PostgreSQL direttamente in un'API REST
 - [pg_graphql](http://github.com/supabase/pg_graphql/) un'estensione di PostgreSQL che espone un'API GraphQL
@@ -247,7 +247,7 @@ Il nostro approccio alle librerie client è modulare. Ogni sotto-libreria è un'
 - [Cinese semplificato / 简体中文](/i18n/README.zh-cn.md)
 - [Svedese / Svenska](/i18n/README.sv.md)
 - [Thai / ไทย](/i18n/README.th.md)
-- [Cinese tradizionale / 繁体中文](/i18n/README.zh-tw.md)
+- [Cinese tradizionale / 繁體中文](/i18n/README.zh-tw.md)
 - [Turco / Türkçe](/i18n/README.tr.md)
 - [Ucraino / Українська](/i18n/README.uk.md)
 - [Vietnamita / Tiếng Việt](/i18n/README.vi-vn.md)

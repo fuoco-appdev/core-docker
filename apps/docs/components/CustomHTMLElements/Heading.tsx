@@ -26,9 +26,9 @@ interface Props {
  *
  * In tsx files, we can generate this tocList directly. For these files, we don't
  * need to parse the <a> and generate anchors. Custom anchors are used in tsx files.
- * (see: /pages/reference/cli/config.tsx)
+ * (see: /pages/guides/cli/config.tsx)
  */
-const Heading: React.FC<Props> = ({ tag, customAnchor, children }) => {
+const Heading: React.FC<React.PropsWithChildren<Props>> = ({ tag, customAnchor, children }) => {
   const HeadingTag = `${tag}` as any
   const anchor = customAnchor ? customAnchor : getAnchor(children)
   const link = `#${anchor}`
@@ -46,8 +46,12 @@ const Heading: React.FC<Props> = ({ tag, customAnchor, children }) => {
     <HeadingTag id={anchor} ref={ref} className="group scroll-mt-24">
       {removeAnchor(children)}
       {anchor && (
-        <a href={link} className="ml-2 opacity-0 group-hover:opacity-100 transition">
-          #
+        <a
+          href={link}
+          aria-hidden="true"
+          className="ml-2 opacity-0 group-hover:opacity-100 transition"
+        >
+          <span aria-hidden="true">#</span>
         </a>
       )}
     </HeadingTag>

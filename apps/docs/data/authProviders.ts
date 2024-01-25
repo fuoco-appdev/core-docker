@@ -50,6 +50,16 @@ const authProviders = [
     authType: 'social',
   },
   {
+    name: 'Figma',
+    logo: '/docs/img/icons/figma-icon',
+    href: '/guides/auth/social-login/auth-figma',
+    official: true,
+    supporter: 'Supabase',
+    platform: true,
+    selfHosted: true,
+    authType: 'social',
+  },
+  {
     name: 'GitHub',
     logo: '/docs/img/icons/github-icon',
     href: '/guides/auth/social-login/auth-github',
@@ -58,6 +68,7 @@ const authProviders = [
     platform: true,
     selfHosted: true,
     authType: 'social',
+    hasLightIcon: true,
   },
   {
     name: 'GitLab',
@@ -158,11 +169,22 @@ const authProviders = [
     platform: true,
     selfHosted: true,
     authType: 'social',
+    hasLightIcon: true,
   },
   {
     name: 'Twitch',
     logo: '/docs/img/icons/twitch-icon',
     href: '/guides/auth/social-login/auth-twitch',
+    official: true,
+    supporter: 'Supabase',
+    platform: true,
+    selfHosted: true,
+    authType: 'social',
+  },
+  {
+    name: 'WorkOS',
+    logo: '/docs/img/icons/workos-icon',
+    href: '/guides/auth/social-login/auth-workos',
     official: true,
     supporter: 'Supabase',
     platform: true,
@@ -198,6 +220,7 @@ const authProviders = [
     platform: true,
     selfHosted: true,
     authType: 'phone',
+    hasLightIcon: true,
   },
 ]
 

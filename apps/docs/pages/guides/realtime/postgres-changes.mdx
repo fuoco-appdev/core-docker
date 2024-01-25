@@ -1,21 +1,19 @@
 import Layout from '~/layouts/DefaultGuideLayout'
 import StepHikeCompact from '~/components/StepHikeCompact'
+import RealtimeLimitsEstimater from '~/components/RealtimeLimitsEstimater'
 
 export const meta = {
   title: 'Postgres Changes',
-  subtitle: "Get up and running with Realtime's Postgres Changes feature",
-  breadcrumb: 'Realtime Postgres Changes Quickstart',
+  subtitle: 'Listen to Postgres changes using Supabase Realtime.',
+  description: 'Listen to Postgres changes using Supabase Realtime.',
+  // breadcrumb: 'Realtime Postgres Changes Quickstart',
 }
 
-Realtime's Postgres Changes feature listens for database changes and sends them to clients. Clients are required to subscribe with a JWT dictating which changes they are allowed to receive based on the database's [Row Level Security](/docs/guides/auth/row-level-security).
-
-Anyone with access to a valid JWT signed with the project's JWT secret is able to listen to your database's changes, unless tables have [Row Level Security](/docs/guides/auth/row-level-security) enabled and policies in place.
-
-Clients can choose to receive `INSERT`, `UPDATE`, `DELETE`, or `*` (all) changes for all changes in a schema, a table in a schema, or a column's value in a table. Your clients should only listen to tables in the `public` schema and you must first enable the tables you want your clients to listen to.
+Let's explore how to use Realtime's Postgres Changes feature to listen to database events.
 
 ## Quick start
 
-Let's explore how to implement Realtime Postgres Changes so you can integrate it into your use case.
+In this example we'll set up a database table, secure it with Row Level Security, and subscribe to all changes using the Supabase client libraries.
 
 <StepHikeCompact>
 
@@ -35,6 +33,7 @@ Let's explore how to implement Realtime Postgres Changes so you can integrate it
         size="small"
         type="underlined"
         defaultActiveId="sql"
+        queryGroup="database-method"
       >
       <TabPanel id="sql" label="SQL">
 
@@ -81,10 +80,10 @@ Let's explore how to implement Realtime Postgres Changes so you can integrate it
 
       -- Allow anonymous access
       create policy "Allow anonymous access"
-        on todos
-        for select
-        to anon
-        using (true);
+      on todos
+      for select
+      to anon
+      using (true);
       ```
 
     </StepHikeCompact.Code>
@@ -130,9 +129,7 @@ Let's explore how to implement Realtime Postgres Changes so you can integrate it
     <StepHikeCompact.Code>
 
       ```js
-        import {
-          createClient
-        } from '@supabase/supabase-js'
+        import { createClient } from '@supabase/supabase-js'
 
         const client = createClient(
           'https://<project>.supabase.co',
@@ -175,69 +172,12 @@ Let's explore how to implement Realtime Postgres Changes so you can integrate it
 
     </StepHikeCompact.Code>
 
-    <StepHikeCompact.Details title="Listen to changes by table">
-
-    Listen to just inserts in the `todos` table by setting the `table` property to 'todos' and event name to `INSERT`.
-
-    </StepHikeCompact.Details>
-
-    <StepHikeCompact.Code>
-
-      ```js
-      const channelB = client
-        .channel('table-db-changes')
-        .on(
-          'postgres_changes',
-          {
-            event: 'INSERT',
-            schema: 'public',
-            table: 'todos',
-          },
-          (payload) => console.log(payload)
-        )
-        .subscribe()
-      ```
-
-    </StepHikeCompact.Code>
-
-    <StepHikeCompact.Details title="Listen to changes by filter">
-
-    Listen to changes in the `todos` table when a column's value equals a specified value. In this example, we only listen to inserts on `todos` where the row `id` is 1.
-
-    </StepHikeCompact.Details>
-
-    <StepHikeCompact.Code>
-
-      ```js
-      const channelC = client
-        .channel('table-filter-changes')
-        .on(
-          'postgres_changes',
-          {
-            event: 'INSERT',
-            schema: 'public',
-            table: 'todos',
-            filter: 'id=eq.1',
-          },
-          (payload) => console.log(payload)
-        )
-        .subscribe()
-      ```
-
-    </StepHikeCompact.Code>
-
-    <StepHikeCompact.Details title="More filters">
-
-    Check out the [full list of available filters](/docs/guides/realtime/postgres-changes#available-filters).
-
-    </StepHikeCompact.Details>
-
   </StepHikeCompact.Step>
 
     <StepHikeCompact.Step step={7}>
     <StepHikeCompact.Details title="Insert dummy data">
 
-    Now we can add some data to our table which will trigger `channelA`, `channelB`, and `channelC` event handlers.
+    Now we can add some data to our table which will trigger the `channelA` event handler.
 
     </StepHikeCompact.Details>
 
@@ -255,13 +195,496 @@ Let's explore how to implement Realtime Postgres Changes so you can integrate it
 
 </StepHikeCompact>
 
+## Usage
+
+You can use the Supabase client libraries to subscribe to database changes.
+
+### Listening to specific schemas
+
+Subscribe to specific schema events using the `schema` parameter:
+
+<Tabs
+  scrollable
+  size="small"
+  type="underlined"
+  defaultActiveId="js"
+  queryGroup="language"
+>
+<TabPanel id="js" label="JavaScript">
+
+{/* prettier-ignore */}
+```js
+const changes = client
+  .channel('schema-db-changes')
+  .on(
+    'postgres_changes',
+    {
+      schema: 'public', // Subscribes to the "public" schema in Postgres
+      event: '*',       // Listen to all changes
+    },
+    (payload) => console.log(payload)
+  )
+  .subscribe()
+```
+
+</TabPanel>
+<TabPanel id="dart" label="Dart">
+
+```dart
+supabase
+    .channel('schema-db-changes')
+    .onPostgresChanges(
+        schema: 'public', // Subscribes to the "public" schema in Postgres
+        event: PostgresChangeEvent.all, // Listen to all changes
+
+        callback: (payload) => print(payload))
+    .subscribe();
+```
+
+</TabPanel>
+<TabPanel id="kotlin" label="Kotlin">
+
+```kotlin
+val myChannel = supabase.channel("schema-db-changes")
+
+val changes = myChannel.postgresChangeFlow<PostgresAction>(schema = "public")
+
+changes
+    .onEach {
+        when(it) { //You can also check for <is PostgresAction.Insert>, etc.. manually
+            is HasRecord -> println(it.record)
+            is HasOldRecord -> println(it.oldRecord)
+            else -> println(it)
+        }
+    }
+    .launchIn(yourCoroutineScope)
+
+myChannel.subscribe()
+```
+
+</TabPanel>
+</Tabs>
+
+The channel name can be any string except 'realtime'.
+
+### Listening to INSERT events
+
+<Tabs
+  scrollable
+  size="small"
+  type="underlined"
+  defaultActiveId="js"
+  queryGroup="language"
+>
+<TabPanel id="js" label="JavaScript">
+
+Use the `event` parameter to listen only to database `INSERT`s:
+
+```js
+const changes = client
+  .channel('schema-db-changes')
+  .on(
+    'postgres_changes',
+    {
+      event: 'INSERT', // Listen only to INSERTs
+      schema: 'public',
+    },
+    (payload) => console.log(payload)
+  )
+  .subscribe()
+```
+
+</TabPanel>
+<TabPanel id="dart" label="Dart">
+
+```dart
+final changes = supabase
+    .channel('schema-db-changes')
+    .onPostgresChanges(
+        event: PostgresChangeEvent.insert,
+        schema: 'public',
+        callback: (payload) => print(payload))
+    .subscribe();
+```
+
+</TabPanel>
+<TabPanel id="kotlin" label="Kotlin">
+
+Use `PostgresAction.Insert` as type to listen only to database `INSERT`s:
+
+```kotlin
+val myChannel = supabase.channel("db-changes")
+
+val changes = myChannel.postgresChangeFlow<PostgresAction.Insert>(schema = "public")
+
+changes
+    .onEach {
+        println(it.record)
+    }
+    .launchIn(yourCoroutineScope)
+
+myChannel.subscribe()
+```
+
+</TabPanel>
+</Tabs>
+
+The channel name can be any string except 'realtime'.
+
+### Listening to UPDATE events
+
+<Tabs
+  scrollable
+  size="small"
+  type="underlined"
+  defaultActiveId="js"
+  queryGroup="language"
+>
+<TabPanel id="js" label="JavaScript">
+
+Use the `event` parameter to listen only to database `UPDATE`s:
+
+```js
+const changes = client
+  .channel('schema-db-changes')
+  .on(
+    'postgres_changes',
+    {
+      event: 'UPDATE', // Listen only to UPDATEs
+      schema: 'public',
+    },
+    (payload) => console.log(payload)
+  )
+  .subscribe()
+```
+
+</TabPanel>
+<TabPanel id="dart" label="Dart">
+
+```dart
+supabase
+    .channel('schema-db-changes')
+    .onPostgresChanges(
+        event: PostgresChangeEvent.update, // Listen only to UPDATEs
+        schema: 'public',
+        callback: (payload) => print(payload))
+    .subscribe();
+```
+
+</TabPanel>
+<TabPanel id="kotlin" label="Kotlin">
+
+Use `PostgresAction.Update` as type to listen only to database `UPDATE`s:
+
+```kotlin
+val myChannel = supabase.channel("db-changes")
+
+val changes = myChannel.postgresChangeFlow<PostgresAction.Update>(schema = "public")
+
+changes
+    .onEach {
+        println(it.record)
+    }
+    .launchIn(yourCoroutineScope)
+
+myChannel.subscribe()
+```
+
+</TabPanel>
+</Tabs>
+
+The channel name can be any string except 'realtime'.
+
+### Listening to DELETE events
+
+<Tabs
+  scrollable
+  size="small"
+  type="underlined"
+  defaultActiveId="js"
+  queryGroup="language"
+>
+<TabPanel id="js" label="JavaScript">
+
+Use the `event` parameter to listen only to database `DELETE`s:
+
+```js
+const changes = client
+  .channel('schema-db-changes')
+  .on(
+    'postgres_changes',
+    {
+      event: 'DELETE', // Listen only to DELETEs
+      schema: 'public',
+    },
+    (payload) => console.log(payload)
+  )
+  .subscribe()
+```
+
+</TabPanel>
+<TabPanel id="dart" label="Dart">
+
+```dart
+supabase
+    .channel('schema-db-changes')
+    .onPostgresChanges(
+        event: PostgresChangeEvent.delete, // Listen only to DELETEs
+        schema: 'public',
+        callback: (payload) => print(payload))
+    .subscribe();
+```
+
+</TabPanel>
+<TabPanel id="kotlin" label="Kotlin">
+
+Use `PostgresAction.Delete` as type to listen only to database `DELETE`s:
+
+```kotlin
+val myChannel = supabase.channel("db-changes")
+
+val changes = myChannel.postgresChangeFlow<PostgresAction.Delete>(schema = "public")
+
+changes
+    .onEach {
+        println(it.oldRecord)
+    }
+    .launchIn(yourCoroutineScope)
+
+myChannel.subscribe()
+```
+
+</TabPanel>
+</Tabs>
+
+The channel name can be any string except 'realtime'.
+
+### Listening to specific tables
+
+Subscribe to specific table events using the `table` parameter:
+
+<Tabs
+  scrollable
+  size="small"
+  type="underlined"
+  defaultActiveId="js"
+  queryGroup="language"
+>
+<TabPanel id="js" label="JavaScript">
+
+```js
+const changes = client
+  .channel('table-db-changes')
+  .on(
+    'postgres_changes',
+    {
+      event: '*',
+      schema: 'public',
+      table: 'todos',
+    },
+    (payload) => console.log(payload)
+  )
+  .subscribe()
+```
+
+</TabPanel>
+<TabPanel id="dart" label="Dart">
+
+```dart
+supabase
+    .channel('table-db-changes')
+    .onPostgresChanges(
+        event: PostgresChangeEvent.all,
+        schema: 'public',
+        table: 'todos',
+        callback: (payload) => print(payload))
+    .subscribe();
+```
+
+</TabPanel>
+<TabPanel id="kotlin" label="Kotlin">
+
+```kotlin
+val myChannel = supabase.channel("db-changes")
+
+val changes = myChannel.postgresChangeFlow<PostgresAction>(schema = "public") {
+    table = "todos"
+}
+
+changes
+    .onEach {
+        println(it.record)
+    }
+    .launchIn(yourCoroutineScope)
+
+myChannel.subscribe()
+```
+
+</TabPanel>
+</Tabs>
+
+The channel name can be any string except 'realtime'.
+
+### Listening to multiple changes
+
+To listen to different events and schema/tables/filters combinations with the same channel:
+
+<Tabs
+  scrollable
+  size="small"
+  type="underlined"
+  defaultActiveId="js"
+  queryGroup="language"
+>
+<TabPanel id="js" label="JavaScript">
+
+```js
+const channel = supabase
+  .channel('db-changes')
+  .on(
+    'postgres_changes',
+    {
+      event: '*',
+      schema: 'public',
+      table: 'messages',
+    },
+    (payload) => console.log(payload)
+  )
+  .on(
+    'postgres_changes',
+    {
+      event: 'INSERT',
+      schema: 'public',
+      table: 'users',
+    },
+    (payload) => console.log(payload)
+  )
+  .subscribe()
+```
+
+</TabPanel>
+<TabPanel id="dart" label="Dart">
+
+```dart
+supabase
+    .channel('db-changes')
+    .onPostgresChanges(
+        event: PostgresChangeEvent.all,
+        schema: 'public',
+        table: 'messages',
+        callback: (payload) => print(payload))
+    .onPostgresChanges(
+        event: PostgresChangeEvent.insert,
+        schema: 'public',
+        table: 'users',
+        callback: (payload) => print(payload))
+    .subscribe();
+```
+
+</TabPanel>
+<TabPanel id="kotlin" label="Kotlin">
+
+```kotlin
+val myChannel = supabase.channel("db-changes")
+val messageChanges = myChannel.postgresChangeFlow<PostgresAction>(schema = "public") {
+    table = "messages"
+}
+val userChanges = myChannel.postgresChangeFlow<PostgresAction.Insert>(schema = "public") {
+    table = "users"
+}
+myChannel.subscribe()
+```
+
+</TabPanel>
+</Tabs>
+
+### Filtering for specific changes
+
+Use the `filter` parameter for granular changes:
+
+<Tabs
+  scrollable
+  size="small"
+  type="underlined"
+  defaultActiveId="js"
+  queryGroup="language"
+>
+<TabPanel id="js" label="JavaScript">
+
+```js
+const changes = client
+  .channel('table-filter-changes')
+  .on(
+    'postgres_changes',
+    {
+      event: 'INSERT',
+      schema: 'public',
+      table: 'todos',
+      filter: 'id=eq.1',
+    },
+    (payload) => console.log(payload)
+  )
+  .subscribe()
+```
+
+</TabPanel>
+<TabPanel id="dart" label="Dart">
+
+```dart
+  supabase
+      .channel('table-filter-changes')
+      .onPostgresChanges(
+          event: PostgresChangeEvent.insert,
+          schema: 'public',
+          table: 'todos',
+          filter: PostgresChangeFilter(
+            type: PostgresChangeFilterType.eq,
+            column: 'id',
+            value: 1,
+          ),
+          callback: (payload) => print(payload))
+      .subscribe();
+```
+
+</TabPanel>
+<TabPanel id="kotlin" label="Kotlin">
+
+```kotlin
+val myChannel = supabase.channel("db-changes")
+
+val changes = myChannel.postgresChangeFlow<PostgresAction.Insert>(schema = "public") {
+    table = "todos"
+    filter = "id=eq.1"
+}
+
+changes
+    .onEach {
+        println(it.record)
+    }
+    .launchIn(yourCoroutineScope)
+
+myChannel.subscribe()
+```
+
+</TabPanel>
+</Tabs>
+
 ## Available filters
 
 Realtime offers filters so you can specify the data your client receives at a more granular level.
 
-### eq
+### Equal to (eq)
 
 To listen to changes when a column's value in a table equals a client-specified value:
+
+<Tabs
+  scrollable
+  size="small"
+  type="underlined"
+  defaultActiveId="js"
+  queryGroup="language"
+>
+<TabPanel id="js" label="JavaScript">
 
 ```js
 const channel = supabase
@@ -279,11 +702,62 @@ const channel = supabase
   .subscribe()
 ```
 
-<Admonition type="note">This filter uses Postgres' `=`.</Admonition>
+</TabPanel>
+<TabPanel id="dart" label="Dart">
 
-### neq
+```dart
+supabase
+    .channel('changes')
+    .onPostgresChanges(
+        event: PostgresChangeEvent.update,
+        schema: 'public',
+        table: 'messages',
+        filter: PostgresChangeFilter(
+          type: PostgresChangeFilterType.eq,
+          column: 'body',
+          value: 'hey',
+        ),
+        callback: (payload) => print(payload))
+    .subscribe();
+```
+
+</TabPanel>
+<TabPanel id="kotlin" label="Kotlin">
+
+```kotlin
+val myChannel = supabase.channel("db-changes")
+
+val changes = myChannel.postgresChangeFlow<PostgresAction.Update>(schema = "public") {
+    table = "messages"
+    filter = "body=eq.hey"
+}
+
+changes
+    .onEach {
+        println(it.record)
+    }
+    .launchIn(yourCoroutineScope)
+
+myChannel.subscribe()
+```
+
+</TabPanel>
+</Tabs>
+
+This filter uses Postgres's `=` filter.
+
+### Not equal to (neq)
 
 To listen to changes when a column's value in a table does not equal a client-specified value:
+
+<Tabs
+  scrollable
+  size="small"
+  type="underlined"
+  defaultActiveId="js"
+  queryGroup="language"
+>
+<TabPanel id="js" label="JavaScript">
 
 ```js
 const channel = supabase
@@ -301,11 +775,63 @@ const channel = supabase
   .subscribe()
 ```
 
-<Admonition type="note">This filter uses Postgres' `!=`.</Admonition>
+</TabPanel>
+<TabPanel id="dart" label="Dart">
 
-### lt
+```dart
+supabase
+    .channel('changes')
+    .onPostgresChanges(
+        event: PostgresChangeEvent.insert,
+        schema: 'public',
+        table: 'messages',
+        filter: PostgresChangeFilter(
+          type: PostgresChangeFilterType.neq,
+          column: 'body',
+          value: 'bye',
+        ),
+        callback: (payload) => print(payload))
+    .subscribe();
+```
+
+</TabPanel>
+<TabPanel id="kotlin" label="Kotlin">
+
+```kotlin
+val myChannel = supabase.realtime.createChannel("db-changes")
+
+val changes = myChannel.postgresChangeFlow<PostgresAction.Update>(schema = "public") {
+    table = "messages"
+    filter = "body=neq.bye"
+}
+
+changes
+    .onEach {
+        println(it.record)
+    }
+    .launchIn(yourCoroutineScope)
+
+supabase.realtime.connect()
+myChannel.join()
+```
+
+</TabPanel>
+</Tabs>
+
+This filter uses Postgres's `!=` filter.
+
+### Less than (lt)
 
 To listen to changes when a column's value in a table is less than a client-specified value:
+
+<Tabs
+  scrollable
+  size="small"
+  type="underlined"
+  defaultActiveId="js"
+  queryGroup="language"
+>
+<TabPanel id="js" label="JavaScript">
 
 ```js
 const channel = supabase
@@ -315,21 +841,70 @@ const channel = supabase
     {
       event: 'INSERT',
       schema: 'public',
-      table: 'messages',
-      filter: 'id=lt.100',
+      table: 'profiles',
+      filter: 'age=lt.65',
     },
     (payload) => console.log(payload)
   )
   .subscribe()
 ```
 
-<Admonition type="note">
-  This filter uses Postgres' `<` so it works for non-numeric types but make sure to check the expected behavior of the compared data's type.
-</Admonition>
+</TabPanel>
+<TabPanel id="dart" label="Dart">
 
-### lte
+```dart
+supabase
+    .channel('changes')
+    .onPostgresChanges(
+        event: PostgresChangeEvent.insert,
+        schema: 'public',
+        table: 'profiles',
+        filter: PostgresChangeFilter(
+          type: PostgresChangeFilterType.lt,
+          column: 'age',
+          value: 65,
+        ),
+        callback: (payload) => print(payload))
+    .subscribe();
+```
+
+</TabPanel>
+<TabPanel id="kotlin" label="Kotlin">
+
+```kotlin
+val myChannel = supabase.channel("db-changes")
+
+val changes = myChannel.postgresChangeFlow<PostgresAction.Insert>(schema = "public") {
+    table = "profiles"
+    filter = "age=lt.65"
+}
+
+changes
+    .onEach {
+        println(it.record)
+    }
+    .launchIn(yourCoroutineScope)
+
+myChannel.subscribe()
+```
+
+</TabPanel>
+</Tabs>
+
+This filter uses Postgres's `<` filter, so it works for non-numeric types. Make sure to check the expected behavior of the compared data's type.
+
+### Less than or equal to (lte)
 
 To listen to changes when a column's value in a table is less than or equal to a client-specified value:
+
+<Tabs
+  scrollable
+  size="small"
+  type="underlined"
+  defaultActiveId="js"
+  queryGroup="language"
+>
+<TabPanel id="js" label="JavaScript">
 
 ```js
 const channel = supabase
@@ -347,13 +922,62 @@ const channel = supabase
   .subscribe()
 ```
 
-<Admonition type="note">
-  This filter uses Postgres' `<=` so it works for non-numeric types but make sure to check the expected behavior of the compared data's type.
-</Admonition>
+</TabPanel>
+<TabPanel id="dart" label="Dart">
 
-### gt
+```dart
+supabase
+    .channel('changes')
+    .onPostgresChanges(
+        event: PostgresChangeEvent.insert,
+        schema: 'public',
+        table: 'profiles',
+        filter: PostgresChangeFilter(
+          type: PostgresChangeFilterType.lte,
+          column: 'age',
+          value: 65,
+        ),
+        callback: (payload) => print(payload))
+    .subscribe();
+```
+
+</TabPanel>
+<TabPanel id="kotlin" label="Kotlin">
+
+```kotlin
+val myChannel = supabase.channel("db-changes")
+
+val changes = myChannel.postgresChangeFlow<PostgresAction.Update>(schema = "public") {
+    table = "profiles"
+    filter = "age=lte.65"
+}
+
+changes
+    .onEach {
+        println(it.record)
+    }
+    .launchIn(yourCoroutineScope)
+
+myChannel.subscribe()
+```
+
+</TabPanel>
+</Tabs>
+
+This filter uses Postgres' `<=` filter, so it works for non-numeric types. Make sure to check the expected behavior of the compared data's type.
+
+### Greater than (gt)
 
 To listen to changes when a column's value in a table is greater than a client-specified value:
+
+<Tabs
+  scrollable
+  size="small"
+  type="underlined"
+  defaultActiveId="js"
+  queryGroup="language"
+>
+<TabPanel id="js" label="JavaScript">
 
 ```js
 const channel = supabase
@@ -371,14 +995,62 @@ const channel = supabase
   .subscribe()
 ```
 
-<Admonition type="note">
-  This filter uses Postgres' `>` so it works for non-numeric types but make sure to check the
-  expected behavior of the compared data's type.
-</Admonition>
+</TabPanel>
+<TabPanel id="dart" label="Dart">
 
-### gte
+```dart
+supabase
+    .channel('changes')
+    .onPostgresChanges(
+        event: PostgresChangeEvent.insert,
+        schema: 'public',
+        table: 'products',
+        filter: PostgresChangeFilter(
+          type: PostgresChangeFilterType.gt,
+          column: 'quantity',
+          value: 10,
+        ),
+        callback: (payload) => print(payload))
+    .subscribe();
+```
+
+</TabPanel>
+<TabPanel id="kotlin" label="Kotlin">
+
+```kotlin
+val myChannel = supabase.channel("db-changes")
+
+val changes = myChannel.postgresChangeFlow<PostgresAction.Update>(schema = "public") {
+    table = "products"
+    filter = "quantity=gt.10"
+}
+
+changes
+    .onEach {
+        println(it.record)
+    }
+    .launchIn(yourCoroutineScope)
+
+myChannel.subscribe()
+```
+
+</TabPanel>
+</Tabs>
+
+This filter uses Postgres's `>` filter, so it works for non-numeric types. Make sure to check the expected behavior of the compared data's type.
+
+### Greater than or equal to (gte)
 
 To listen to changes when a column's value in a table is greater than or equal to a client-specified value:
+
+<Tabs
+  scrollable
+  size="small"
+  type="underlined"
+  defaultActiveId="js"
+  queryGroup="language"
+>
+<TabPanel id="js" label="JavaScript">
 
 ```js
 const channel = supabase
@@ -396,14 +1068,62 @@ const channel = supabase
   .subscribe()
 ```
 
-<Admonition type="note">
-  This filter uses Postgres' `>=` so it works for non-numeric types but make sure to check the
-  expected behavior of the compared data's type.
-</Admonition>
+</TabPanel>
+<TabPanel id="dart" label="Dart">
 
-### in
+```dart
+supabase
+    .channel('changes')
+    .onPostgresChanges(
+        event: PostgresChangeEvent.insert,
+        schema: 'public',
+        table: 'products',
+        filter: PostgresChangeFilter(
+          type: PostgresChangeFilterType.gte,
+          column: 'quantity',
+          value: 10,
+        ),
+        callback: (payload) => print(payload))
+    .subscribe();
+```
+
+</TabPanel>
+<TabPanel id="kotlin" label="Kotlin">
+
+```kotlin
+val myChannel = supabase.channel("db-changes")
+
+val changes = myChannel.postgresChangeFlow<PostgresAction.Update>(schema = "public") {
+    table = "products"
+    filter = "quantity=gte.10"
+}
+
+changes
+    .onEach {
+        println(it.record)
+    }
+    .launchIn(yourCoroutineScope)
+
+myChannel.subscribe()
+```
+
+</TabPanel>
+</Tabs>
+
+This filter uses Postgres's `>=` filter, so it works for non-numeric types. Make sure to check the expected behavior of the compared data's type.
+
+### Contained in list (in)
 
 To listen to changes when a column's value in a table equals any client-specified values:
+
+<Tabs
+  scrollable
+  size="small"
+  type="underlined"
+  defaultActiveId="js"
+  queryGroup="language"
+>
+<TabPanel id="js" label="JavaScript">
 
 ```js
 const channel = supabase
@@ -421,40 +1141,51 @@ const channel = supabase
   .subscribe()
 ```
 
-<Admonition type="note">
-  This filter uses Postgres' `= ANY`. Realtime allows a maximum of 100 values for this filter.
-</Admonition>
+</TabPanel>
+<TabPanel id="dart" label="Dart">
 
-## Combination changes
-
-To listen to different events and schema/tables/filters combinations with the same channel:
-
-```js
-const channel = supabase
-  .channel('db-changes')
-  .on(
-    'postgres_changes',
-    {
-      event: '*',
-      schema: 'public',
-      table: 'messages',
-      filter: 'body=eq.bye',
-    },
-    (payload) => console.log(payload)
-  )
-  .on(
-    'postgres_changes',
-    {
-      event: 'INSERT',
-      schema: 'public',
-      table: 'users',
-    },
-    (payload) => console.log(payload)
-  )
-  .subscribe()
+```dart
+supabase
+    .channel('changes')
+    .onPostgresChanges(
+        event: PostgresChangeEvent.insert,
+        schema: 'public',
+        table: 'colors',
+        filter: PostgresChangeFilter(
+          type: PostgresChangeFilterType.lte,
+          column: 'name',
+          value: ['red', 'blue', 'yellow'],
+        ),
+        callback: (payload) => print(payload))
+    .subscribe();
 ```
 
-## Full `old` record
+</TabPanel>
+<TabPanel id="kotlin" label="Kotlin">
+
+```kotlin
+val myChannel = supabase.channel("db-changes")
+
+val changes = myChannel.postgresChangeFlow<PostgresAction.Update>(schema = "public") {
+    table = "products"
+    filter = "name=in.(red, blue, yellow)"
+}
+
+changes
+    .onEach {
+        println(it.record)
+    }
+    .launchIn(yourCoroutineScope)
+
+myChannel.subscribe()
+```
+
+</TabPanel>
+</Tabs>
+
+This filter uses Postgres's `= ANY`. Realtime allows a maximum of 100 values for this filter.
+
+## Receiving `old` records
 
 By default, only `new` record changes are sent but if you want to receive the `old` record (previous values) whenever you `UPDATE` or `DELETE` a record, you can set the `replica identity` of your table to `full`:
 
@@ -465,7 +1196,7 @@ alter table
 
 <Admonition type="caution">
 
-RLS policies are not applied to `DELETE` statements. When RLS is enabled and `replica identity` is set to `full` on a table, the `old` record contains only the primary key(s).
+RLS policies are not applied to `DELETE` statements, because there is no way for Postgres to verify that a user has access to a deleted record. When RLS is enabled and `replica identity` is set to `full` on a table, the `old` record contains only the primary key(s).
 
 </Admonition>
 
@@ -490,11 +1221,21 @@ You may choose to sign your own tokens to customize claims that can be checked i
 Your project JWT secret is found with your [Project API keys](https://app.supabase.com/project/_/settings/api) in your dashboard.
 
 <Admonition type="caution">
-  Do not expose the `service_role` token on the client because the role is authorized to bypass
-  row-level security.
+
+Do not expose the `service_role` token on the client because the role is authorized to bypass row-level security.
+
 </Admonition>
 
 To use your own JWT with Realtime make sure to set the token after instantiating the Supabase client and before connecting to a Channel.
+
+<Tabs
+  scrollable
+  size="small"
+  type="underlined"
+  defaultActiveId="js"
+  queryGroup="language"
+>
+<TabPanel id="js" label="JavaScript">
 
 ```js
 const { createClient } = require('@supabase/supabase-js')
@@ -519,9 +1260,68 @@ const channel = supabase
   .subscribe()
 ```
 
+</TabPanel>
+<TabPanel id="dart" label="Dart">
+
+```dart
+supabase.realtime.setAuth('your-custom-jwt');
+
+supabase
+    .channel('db-changes')
+    .onPostgresChanges(
+      event: PostgresChangeEvent.all,
+      schema: 'public',
+      table: 'messages',
+      filter: PostgresChangeFilter(
+        type: PostgresChangeFilterType.eq,
+        column: 'body',
+        value: 'bye',
+      ),
+      callback: (payload) => print(payload),
+    )
+    .subscribe();
+```
+
+</TabPanel>
+<TabPanel id="kotlin" label="Kotlin">
+
+```kotlin
+val supabase = createSupabaseClient(supabaseUrl, supabaseKey) {
+	install(Realtime) {
+		jwtToken = "your-custom-jwt"
+	}
+}
+val myChannel = supabase.channel("db-changes")
+
+val changes = myChannel.postgresChangeFlow<PostgresAction.Update>(schema = "public") {
+    table = "products"
+    filter = "name=in.(red, blue, yellow)"
+}
+
+changes
+    .onEach {
+        println(it.record)
+    }
+    .launchIn(yourCoroutineScope)
+
+myChannel.subscribe()
+```
+
+</TabPanel>
+</Tabs>
+
 ### Refreshed tokens
 
 You will need to refresh tokens on your own, but once generated, you can pass them to Realtime.
+
+<Tabs
+  scrollable
+  size="small"
+  type="underlined"
+  defaultActiveId="js"
+  queryGroup="language"
+>
+<TabPanel id="js" label="JavaScript">
 
 For example, if you're using the `supabase-js` `v2` client then you can pass your token like this:
 
@@ -531,10 +1331,48 @@ For example, if you're using the `supabase-js` `v2` client then you can pass you
 supabase.realtime.setAuth('fresh-token')
 ```
 
-## More Realtime Quickstarts
+</TabPanel>
+<TabPanel id="dart" label="Dart">
 
-- [Broadcast Quickstart](/docs/guides/realtime/broadcast)
-- [Presence Quickstart](/docs/guides/realtime/presence)
+```dart
+supabase.realtime.setAuth('fresh-token');
+```
+
+</TabPanel>
+<TabPanel id="kotlin" label="Kotlin">
+
+In Kotlin, you have to update the token manually per channel:
+
+```kotlin
+myChannel.updateAuth("fresh-token")
+```
+
+</TabPanel>
+</Tabs>
+
+## Limitations
+
+### Spaces in table names
+
+Realtime currently does not work when table names contain spaces.
+
+### Database instance and realtime performance
+
+Realtime systems usually require forethought because of their scaling dynamics. For the `Postgres Changes` feature, every change event must be checked to see if the subscribed user has access. For instance, if you have 100 users subscribed to a table where you make a single insert, it will then trigger 100 "reads": one for each user.
+
+There can be a database bottleneck which limits message throughput. If your database cannot authorize the changes rapidly enough, the changes will be delayed until you receive a timeout.
+
+Database changes are processed on a single thread to maintain the change order. That means compute upgrades don't have a large effect on the performance of Postgres change subscriptions. You can estimate the expected maximum throughput for your database below.
+
+If you are using Postgres Changes at scale, you should consider using separate "public" table without RLS and filters. Alternatively, you can use Realtime server-side only and then re-stream the changes to your clients using a Realtime Broadcast.
+
+Enter your database settings to estimate the maximum throughput for your instance:
+
+<RealtimeLimitsEstimater />
+
+Don't forget to run your own benchmarks to make sure that the performance is acceptable for your use case.
+
+We are making many improvements to Realtime's Postgres Changes. If you are uncertain about the performance of your use case, please reach out using [Support Form](https://supabase.com/dashboard/support/new) and we will be happy to help you. We have a team of engineers that can advise you on the best solution for your use-case.
 
 export const Page = ({ children }) => <Layout meta={meta} children={children} />
 
