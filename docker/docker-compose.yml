@@ -4,7 +4,7 @@
 #   Stop:           docker compose down
 #   Destroy:        docker compose -f docker-compose.yml -f ./dev/docker-compose.dev.yml down -v --remove-orphans
 
-name: supabase
+name: docker
 version: "3.8"
 services:
 
@@ -25,9 +25,6 @@ services:
       retries: 3
     ports:
       - 127.0.0.1:${STUDIO_PORT}:3000/tcp
-    depends_on:
-      analytics:
-        condition: service_healthy
     environment:
       STUDIO_PG_META_URL: http://meta:8080
       POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
@@ -55,11 +52,7 @@ services:
     ports:
       - 127.0.0.1:${KONG_HTTP_PORT}:8000/tcp
       - 127.0.0.1:${KONG_HTTPS_PORT}:8443/tcp
-      - ${KONG_HTTP_PORT}:8000/tcp
-      - ${KONG_HTTPS_PORT}:8443/tcp
-    depends_on:
-      analytics:
-        condition: service_healthy
+
     environment:
       KONG_DATABASE: "off"
       KONG_DECLARATIVE_CONFIG: /home/kong/kong.yml
@@ -82,8 +75,6 @@ services:
     depends_on:
       db:
         # Disable this if you are using an external Postgres database
-        condition: service_healthy
-      analytics:
         condition: service_healthy
     healthcheck:
       test:
@@ -246,8 +237,6 @@ services:
       db:
         # Disable this if you are using an external Postgres database
         condition: service_healthy
-      analytics:
-        condition: service_healthy
     restart: unless-stopped
     environment:
       PGRST_DB_URI: postgres://authenticator:${POSTGRES_PASSWORD}@${POSTGRES_HOST}:${POSTGRES_PORT}/${POSTGRES_DB}
@@ -266,8 +255,6 @@ services:
     depends_on:
       db:
         # Disable this if you are using an external Postgres database
-        condition: service_healthy
-      analytics:
         condition: service_healthy
     healthcheck:
       test:
@@ -367,8 +354,6 @@ services:
       db:
         # Disable this if you are using an external Postgres database
         condition: service_healthy
-      analytics:
-        condition: service_healthy
     restart: unless-stopped
     environment:
       PG_META_PORT: 8080
@@ -382,9 +367,6 @@ services:
     container_name: supabase-edge-functions
     image: supabase/edge-runtime:v1.32.0
     restart: unless-stopped
-    depends_on:
-      analytics:
-        condition: service_healthy
     environment:
       JWT_SECRET: ${JWT_SECRET}
       SUPABASE_URL: http://kong:8000
@@ -400,47 +382,6 @@ services:
       - --main-service
       - /home/deno/functions/main
 
-  analytics:
-    container_name: supabase-analytics
-    image: supabase/logflare:1.4.0
-    healthcheck:
-      test: [ "CMD", "curl", "http://localhost:4000/health" ]
-      timeout: 5s
-      interval: 5s
-      retries: 10
-    restart: unless-stopped
-    depends_on:
-      db:
-        # Disable this if you are using an external Postgres database
-        condition: service_healthy
-    # Uncomment to use Big Query backend for analytics
-    # volumes:
-    #   - type: bind
-    #     source: ${PWD}/gcloud.json
-    #     target: /opt/app/rel/logflare/bin/gcloud.json
-    #     read_only: true
-    environment:
-      LOGFLARE_NODE_HOST: 127.0.0.1
-      DB_USERNAME: supabase_admin
-      DB_DATABASE: ${POSTGRES_DB}
-      DB_HOSTNAME: ${POSTGRES_HOST}
-      DB_PORT: ${POSTGRES_PORT}
-      DB_PASSWORD: ${POSTGRES_PASSWORD}
-      DB_SCHEMA: _analytics
-      LOGFLARE_API_KEY: ${LOGFLARE_API_KEY}
-      LOGFLARE_SINGLE_TENANT: true
-      LOGFLARE_SUPABASE_MODE: true
-
-      # Comment variables to use Big Query backend for analytics
-      POSTGRES_BACKEND_URL: postgresql://supabase_admin:${POSTGRES_PASSWORD}@${POSTGRES_HOST}:${POSTGRES_PORT}/${POSTGRES_DB}
-      POSTGRES_BACKEND_SCHEMA: _analytics
-      LOGFLARE_FEATURE_FLAG_OVERRIDE: multibackend=true
-      # Uncomment to use Big Query backend for analytics
-      # GOOGLE_PROJECT_ID: ${GOOGLE_PROJECT_ID}
-      # GOOGLE_PROJECT_NUMBER: ${GOOGLE_PROJECT_NUMBER}
-    ports:
-      - 4000:4000
-
   # Comment out everything below this point if you are using an external Postgres database
   db:
     container_name: supabase-db
@@ -450,9 +391,6 @@ services:
       interval: 5s
       timeout: 5s
       retries: 10
-    depends_on:
-      vector:
-        condition: service_healthy
     command:
       - postgres
       - -c
@@ -483,8 +421,6 @@ services:
       - ./volumes/db/jwt.sql:/docker-entrypoint-initdb.d/init-scripts/99-jwt.sql:Z
       # PGDATA directory is persisted between restarts
       - ./volumes/db/data:/var/lib/postgresql/data:Z
-      # Changes required for Analytics support
-      - ./volumes/db/logs.sql:/docker-entrypoint-initdb.d/migrations/99-logs.sql:Z
 
   medusa-server:
     build:
@@ -534,6 +470,8 @@ services:
       MEILI_STOCK_LOCATIONS_FILTERABLE_ATTRIBUTES: ${MEILI_STOCK_LOCATIONS_FILTERABLE_ATTRIBUTES}
       MEILI_STOCK_LOCATIONS_SORTABLE_ATTRIBUTES: ${MEILI_STOCK_LOCATIONS_SORTABLE_ATTRIBUTES}
       MEILI_STOCK_LOCATIONS_PRIMARY_KEY: ${MEILI_STOCK_LOCATIONS_PRIMARY_KEY}
+      MEDUSA_ADMIN_BASE_URL: ${MEDUSA_ADMIN_BASE_URL}
+      NOTIFICATION_TELEGRAM_BOT_TOKEN: ${NOTIFICATION_TELEGRAM_BOT_TOKEN}
       STRIPE_API_KEY: ${STRIPE_API_KEY}
       STRIPE_WEBHOOK_SECRET: ${STRIPE_WEBHOOK_SECRET}
       SPACE_URL: ${SPACE_URL}
@@ -550,7 +488,6 @@ services:
       - "host.docker.internal:host-gateway"
     volumes:
       - .:/app/medusa
-      - node_modules:/app/medusa/node_modules
 
   meilisearch:
     container_name: meilisearch
@@ -584,8 +521,6 @@ services:
     expose:
       - 6379
 
-volumes:
-  node_modules:
   vector:
     container_name: supabase-vector
     image: timberio/vector:0.28.1-alpine
