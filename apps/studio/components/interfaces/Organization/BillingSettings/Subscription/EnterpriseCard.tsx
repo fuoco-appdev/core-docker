@@ -1,21 +1,22 @@
 import clsx from 'clsx'
 import { PricingInformation } from 'shared-data'
 import { Button, IconCheck } from 'ui'
+import { pickFeatures } from 'shared-data/plans'
 
 export interface EnterpriseCardProps {
   plan: PricingInformation
   isCurrentPlan: boolean
-  billingViaPartner: boolean
+  billingPartner: 'fly' | 'aws' | undefined
 }
 
-const EnterpriseCard = ({ plan, isCurrentPlan, billingViaPartner }: EnterpriseCardProps) => {
-  const features = billingViaPartner ? plan.featuresPartner : plan.features
+const EnterpriseCard = ({ plan, isCurrentPlan, billingPartner }: EnterpriseCardProps) => {
+  const features = pickFeatures(plan, billingPartner)
 
   return (
     <div
       key={plan.id}
       className={clsx(
-        'grid grid-cols-1 md:grid-cols-3 border rounded-md bg-background',
+        'grid grid-cols-1 md:grid-cols-3 border rounded-md bg-studio',
         'py-4 col-span-12 justify-between gap-x-8'
       )}
     >
@@ -48,9 +49,14 @@ const EnterpriseCard = ({ plan, isCurrentPlan, billingViaPartner }: EnterpriseCa
           className="text-xs text-foreground-light md:grid md:grid-cols-2 md:gap-x-10"
         >
           {features.map((feature) => (
-            <li key={feature} className="flex items-center py-2 first:mt-0">
+            <li
+              key={typeof feature === 'string' ? feature : feature[0]}
+              className="flex items-center py-2 first:mt-0"
+            >
               <IconCheck className="text-brand h-4 w-4" aria-hidden="true" strokeWidth={3} />
-              <span className="text-foreground mb-0 ml-3 ">{feature}</span>
+              <span className="text-foreground mb-0 ml-3 ">
+                {typeof feature === 'string' ? feature : feature[0]}
+              </span>
             </li>
           ))}
         </ul>

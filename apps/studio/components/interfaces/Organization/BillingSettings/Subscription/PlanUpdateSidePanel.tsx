@@ -1,10 +1,10 @@
 import * as Tooltip from '@radix-ui/react-tooltip'
 import { PermissionAction } from '@supabase/shared-types/out/constants'
-import clsx from 'clsx'
+import { isArray } from 'lodash'
 import Link from 'next/link'
 import { useRouter } from 'next/router'
-import { useEffect, useState } from 'react'
-import { plans as subscriptionsPlans } from 'shared-data/plans'
+import { useEffect, useRef, useState } from 'react'
+import toast from 'react-hot-toast'
 
 import Table from 'components/to-be-cleaned/Table'
 import AlertError from 'components/ui/AlertError'
@@ -12,13 +12,16 @@ import InformationBox from 'components/ui/InformationBox'
 import ShimmeringLoader from 'components/ui/ShimmeringLoader'
 import { useFreeProjectLimitCheckQuery } from 'data/organizations/free-project-limit-check-query'
 import { useOrganizationBillingSubscriptionPreview } from 'data/organizations/organization-billing-subscription-preview'
+import { useProjectsQuery } from 'data/projects/projects-query'
 import { useOrgPlansQuery } from 'data/subscriptions/org-plans-query'
 import { useOrgSubscriptionQuery } from 'data/subscriptions/org-subscription-query'
 import { useOrgSubscriptionUpdateMutation } from 'data/subscriptions/org-subscription-update-mutation'
-import { OrgPlan, SubscriptionTier } from 'data/subscriptions/types'
-import { useCheckPermissions, useSelectedOrganization, useStore } from 'hooks'
+import type { OrgPlan, SubscriptionTier } from 'data/subscriptions/types'
+import { useCheckPermissions, useSelectedOrganization } from 'hooks'
 import { PRICING_TIER_PRODUCT_IDS } from 'lib/constants'
+import { formatCurrency } from 'lib/helpers'
 import Telemetry from 'lib/telemetry'
+import { pickFeatures, pickFooter, plans as subscriptionsPlans } from 'shared-data/plans'
 import { useOrgSettingsPageStateSnapshot } from 'state/organization-settings'
 import {
   Button,
@@ -28,21 +31,25 @@ import {
   IconInfo,
   Modal,
   SidePanel,
+  cn,
 } from 'ui'
 import DowngradeModal from './DowngradeModal'
 import EnterpriseCard from './EnterpriseCard'
 import ExitSurveyModal from './ExitSurveyModal'
+import UpgradeSurveyModal from './UpgradeModal'
 import MembersExceedLimitModal from './MembersExceedLimitModal'
 import PaymentMethodSelection from './PaymentMethodSelection'
-import { formatCurrency } from 'lib/helpers'
+import { billingPartnerLabel } from 'components/interfaces/Billing/Subscription/Subscription.utils'
 
 const PlanUpdateSidePanel = () => {
-  const { ui } = useStore()
   const router = useRouter()
   const selectedOrganization = useSelectedOrganization()
   const slug = selectedOrganization?.slug
 
+  const originalPlanRef = useRef<string>()
+
   const [showExitSurvey, setShowExitSurvey] = useState(false)
+  const [showUpgradeSurvey, setShowUpgradeSurvey] = useState(false)
   const [selectedPaymentMethod, setSelectedPaymentMethod] = useState<string>()
   const [showDowngradeError, setShowDowngradeError] = useState(false)
   const [selectedTier, setSelectedTier] = useState<'tier_free' | 'tier_pro' | 'tier_team'>()
@@ -52,6 +59,11 @@ const PlanUpdateSidePanel = () => {
     PermissionAction.BILLING_WRITE,
     'stripe.subscriptions'
   )
+  const { data: allProjects } = useProjectsQuery()
+  const orgProjects = (allProjects || []).filter(
+    (it) => it.organization_id === selectedOrganization?.id
+  )
+
   const snap = useOrgSettingsPageStateSnapshot()
   const visible = snap.panelKey === 'subscriptionPlan'
   const onClose = () => {
@@ -62,31 +74,28 @@ const PlanUpdateSidePanel = () => {
     snap.setPanelKey(undefined)
   }
 
-  const { data: subscription } = useOrgSubscriptionQuery({ orgSlug: slug })
+  const { data: subscription, isSuccess: isSuccessSubscription } = useOrgSubscriptionQuery({
+    orgSlug: slug,
+  })
   const { data: plans, isLoading: isLoadingPlans } = useOrgPlansQuery({ orgSlug: slug })
   const { data: membersExceededLimit } = useFreeProjectLimitCheckQuery({ slug })
   const { mutate: updateOrgSubscription, isLoading: isUpdating } = useOrgSubscriptionUpdateMutation(
     {
       onSuccess: () => {
-        ui.setNotification({
-          category: 'success',
-          message: `Successfully updated subscription to ${subscriptionPlanMeta?.name}!`,
-        })
+        toast.success(`Successfully updated subscription to ${subscriptionPlanMeta?.name}!`)
         setSelectedTier(undefined)
         onClose()
         window.scrollTo({ top: 0, left: 0, behavior: 'smooth' })
+        setShowUpgradeSurvey(true)
       },
       onError: (error) => {
-        ui.setNotification({
-          error,
-          category: 'error',
-          message: `Unable to update subscription: ${error.message}`,
-        })
+        toast.error(`Unable to update subscription: ${error.message}`)
       },
     }
   )
 
   const billingViaPartner = subscription?.billing_via_partner === true
+  const billingPartner = subscription?.billing_partner
   const paymentViaInvoice = subscription?.payment_method_type === 'invoice'
 
   const {
@@ -127,6 +136,12 @@ const PlanUpdateSidePanel = () => {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [visible])
 
+  useEffect(() => {
+    if (visible && isSuccessSubscription) {
+      originalPlanRef.current = subscription.plan.id
+    }
+  }, [visible, isSuccessSubscription])
+
   const onConfirmDowngrade = () => {
     setSelectedTier(undefined)
     if (hasMembersExceedingFreeTierLimit) {
@@ -140,7 +155,7 @@ const PlanUpdateSidePanel = () => {
     if (!slug) return console.error('org slug is required')
     if (!selectedTier) return console.error('Selected plan is required')
     if (!selectedPaymentMethod && !paymentViaInvoice) {
-      return ui.setNotification({ category: 'error', message: 'Please select a payment method' })
+      return toast.error('Please select a payment method')
     }
 
     // If the user is downgrading from team, should have spend cap disabled by default
@@ -181,11 +196,8 @@ const PlanUpdateSidePanel = () => {
               const price = planMeta?.price ?? 0
               const isDowngradeOption = planMeta?.change_type === 'downgrade'
               const isCurrentPlan = planMeta?.id === subscription?.plan?.id
-              const features = billingViaPartner ? plan.featuresPartner : plan.features
-              const warning =
-                billingViaPartner && plan.warningPartner
-                  ? plan.warningPartner
-                  : plan.warning ?? null
+              const features = pickFeatures(plan, billingPartner)
+              const footer = pickFooter(plan, billingPartner)
 
               if (plan.id === 'tier_enterprise') {
                 return (
@@ -193,7 +205,7 @@ const PlanUpdateSidePanel = () => {
                     key={plan.id}
                     plan={plan}
                     isCurrentPlan={isCurrentPlan}
-                    billingViaPartner={billingViaPartner}
+                    billingPartner={billingPartner}
                   />
                 )
               }
@@ -207,20 +219,20 @@ const PlanUpdateSidePanel = () => {
                 >
                   <div className="w-full">
                     <div className="flex items-center space-x-2">
-                      <p className={clsx('text-brand text-sm uppercase')}>{plan.name}</p>
+                      <p className={cn('text-brand text-sm uppercase')}>{plan.name}</p>
                       {isCurrentPlan ? (
                         <div className="text-xs bg-surface-300 text-foreground-light rounded px-2 py-0.5">
                           Current plan
                         </div>
                       ) : plan.nameBadge ? (
-                        <div className="text-xs bg-brand-400 text-brand rounded px-2 py-0.5">
+                        <div className="text-xs bg-brand-400 text-brand-600 rounded px-2 py-0.5">
                           {plan.nameBadge}
                         </div>
                       ) : (
                         <></>
                       )}
                     </div>
-                    <div className="mt-4 flex items-center space-x-1">
+                    <div className="mt-4 flex items-center space-x-1 mb-4">
                       {(price ?? 0) > 0 && <p className="text-foreground-light text-sm">From</p>}
                       {isLoadingPlans ? (
                         <div className="h-[28px] flex items-center justify-center">
@@ -230,11 +242,6 @@ const PlanUpdateSidePanel = () => {
                         <p className="text-foreground text-lg">{formatCurrency(price)}</p>
                       )}
                       <p className="text-foreground-light text-sm">{plan.costUnit}</p>
-                    </div>
-                    <div className={clsx('flex mt-1 mb-4', !warning && 'opacity-0')}>
-                      <div className="bg-background text-brand-600 border shadow-sm rounded-md bg-opacity-30 py-0.5 px-2 text-xs">
-                        {warning}
-                      </div>
                     </div>
                     {isCurrentPlan ? (
                       <Button block disabled type="default">
@@ -293,11 +300,14 @@ const PlanUpdateSidePanel = () => {
                       </Tooltip.Root>
                     )}
 
-                    <div className="border-t my-6" />
+                    <div className="border-t my-4" />
 
                     <ul role="list">
                       {features.map((feature) => (
-                        <li key={feature} className="flex py-2">
+                        <li
+                          key={typeof feature === 'string' ? feature : feature[0]}
+                          className="flex py-2"
+                        >
                           <div className="w-[12px]">
                             <IconCheck
                               className="h-3 w-3 text-brand translate-y-[2.5px]"
@@ -305,15 +315,22 @@ const PlanUpdateSidePanel = () => {
                               strokeWidth={3}
                             />
                           </div>
-                          <p className="ml-3 text-xs text-foreground-light">{feature}</p>
+                          <div>
+                            <p className="ml-3 text-xs text-foreground-light">
+                              {typeof feature === 'string' ? feature : feature[0]}
+                            </p>
+                            {isArray(feature) && (
+                              <p className="ml-3 text-xs text-foreground-lighter">{feature[1]}</p>
+                            )}
+                          </div>
                         </li>
                       ))}
                     </ul>
                   </div>
 
-                  {plan.footer && (
+                  {footer && (
                     <div className="border-t pt-4 mt-4">
-                      <p className="text-foreground-light text-xs">{plan.footer}</p>
+                      <p className="text-foreground-light text-xs">{footer}</p>
                     </div>
                   )}
                 </div>
@@ -329,6 +346,7 @@ const PlanUpdateSidePanel = () => {
         subscription={subscription}
         onClose={() => setSelectedTier(undefined)}
         onConfirm={onConfirmDowngrade}
+        projects={orgProjects}
       />
 
       <Modal
@@ -339,9 +357,7 @@ const PlanUpdateSidePanel = () => {
         onCancel={() => setSelectedTier(undefined)}
         onConfirm={onUpdateSubscription}
         overlayClassName="pointer-events-none"
-        header={`Confirm ${planMeta?.change_type === 'downgrade' ? 'downgrade' : 'upgrade'} to ${
-          subscriptionPlanMeta?.name
-        }`}
+        header={`Confirm ${planMeta?.change_type === 'downgrade' ? 'downgrade' : 'upgrade'} to ${subscriptionPlanMeta?.name}`}
       >
         <Modal.Content className="mt-4">
           {subscriptionPreviewError && (
@@ -385,7 +401,7 @@ const PlanUpdateSidePanel = () => {
                                 className="!pl-0 !pr-1"
                                 icon={
                                   <IconChevronRight
-                                    className={clsx(
+                                    className={cn(
                                       'transition',
                                       usageFeesExpanded.includes(item.description) && 'rotate-90'
                                     )}
@@ -408,10 +424,10 @@ const PlanUpdateSidePanel = () => {
                             {item.unit_price_desc
                               ? item.unit_price_desc
                               : item.unit_price === 0
-                              ? 'FREE'
-                              : item.unit_price
-                              ? `${formatCurrency(item.unit_price)}`
-                              : ''}
+                                ? 'FREE'
+                                : item.unit_price
+                                  ? `${formatCurrency(item.unit_price)}`
+                                  : ''}
                           </Table.td>
                           <Table.td className="text-right">
                             {formatCurrency(item.total_price)}
@@ -530,8 +546,9 @@ const PlanUpdateSidePanel = () => {
           ) : (
             <div className="py-4 space-y-2">
               <p className="text-sm">
-                This organization is billed through our partner Fly.io and you will be charged by
-                them directly.
+                This organization is billed through our partner{' '}
+                {billingPartnerLabel(subscription?.billing_partner)} and you will be charged by them
+                directly.
               </p>
               {subscriptionPreview?.billed_via_partner &&
                 subscriptionPreview?.plan_change_type === 'downgrade' && (
@@ -554,6 +571,16 @@ const PlanUpdateSidePanel = () => {
         subscription={subscription}
         onClose={(success?: boolean) => {
           setShowExitSurvey(false)
+          if (success) onClose()
+        }}
+      />
+
+      <UpgradeSurveyModal
+        visible={showUpgradeSurvey}
+        originalPlan={originalPlanRef.current}
+        subscription={subscription}
+        onClose={(success?: boolean) => {
+          setShowUpgradeSurvey(false)
           if (success) onClose()
         }}
       />

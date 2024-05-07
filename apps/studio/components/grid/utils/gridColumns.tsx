@@ -1,5 +1,5 @@
 import { CalculatedColumn } from 'react-data-grid'
-import { ColumnType, SupaColumn, SupaRow, SupaTable } from '../types'
+import type { ColumnType, SupaColumn, SupaRow, SupaTable } from '../types'
 import {
   isArrayColumn,
   isBoolColumn,
@@ -56,8 +56,8 @@ export function getGridColumns(
     const columnWidth = options?.defaultWidth
       ? options.defaultWidth
       : columnDefaultWidth < columnWidthBasedOnName
-      ? columnWidthBasedOnName
-      : columnDefaultWidth
+        ? columnWidthBasedOnName
+        : columnDefaultWidth
 
     const columnDefinition: CalculatedColumn<SupaRow> = {
       key: x.name,

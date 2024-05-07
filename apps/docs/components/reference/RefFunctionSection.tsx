@@ -1,16 +1,14 @@
+import { Fragment } from 'react'
 import ReactMarkdown from 'react-markdown'
-
-import { CodeBlock, IconDatabase, Tabs } from 'ui'
-
+import { CodeBlock, IconDatabase } from 'ui'
+import components from '~/components'
 import Options from '~/components/Options'
 import Param from '~/components/Params'
+import { Tabs, TabPanel } from '~/components/Tabs'
+import RefDetailCollapse from '~/components/reference/RefDetailCollapse'
 import RefSubLayout from '~/layouts/ref/RefSubLayout'
 import { extractTsDocNode, generateParameters } from '~/lib/refGenerator/helpers'
-
-import RefDetailCollapse from '~/components/reference/RefDetailCollapse'
-import { Fragment } from 'react'
 import { IRefFunctionSection } from './Reference.types'
-import components from '~/components'
 
 const RefFunctionSection: React.FC<IRefFunctionSection> = (props) => {
   const item = props.spec.functions.find((x: any) => x.id === props.funcData.id)
@@ -22,8 +20,8 @@ const RefFunctionSection: React.FC<IRefFunctionSection> = (props) => {
 
   const tsDefinition =
     hasTsRef && props.typeSpec ? extractTsDocNode(hasTsRef, props.typeSpec) : null
-  const parameters = hasTsRef && tsDefinition ? generateParameters(tsDefinition) : ''
-  const shortText = hasTsRef && tsDefinition ? tsDefinition.signatures[0].comment.shortText : ''
+  const parameters = hasTsRef && tsDefinition ? generateParameters(tsDefinition) : item.params
+  const shortText = hasTsRef && tsDefinition ? tsDefinition.signatures[0].comment?.shortText : ''
 
   return (
     <>
@@ -51,24 +49,15 @@ const RefFunctionSection: React.FC<IRefFunctionSection> = (props) => {
                 </ReactMarkdown>
               </div>
             )}
-            {/* // parameters */}
+            {/* parameters */}
             {parameters && (
               <div className="not-prose mt-12">
                 <h5 className="mb-3 text-base text-foreground">Parameters</h5>
                 <ul>
                   {parameters.map((param) => {
-                    // grab override params from yaml file
-                    const overrideParams = item.overrideParams
-
-                    // params from the yaml file can override the params from parameters if it matches the name
-                    const overide = overrideParams?.filter((x) => {
-                      return param.name === x.name
-                    })
-
-                    const paramItem = overide?.length > 0 ? overide[0] : param
                     return (
-                      <Param {...paramItem} key={param.name}>
-                        {paramItem.subContent && (
+                      <Param {...param} key={param.name}>
+                        {param.subContent && (
                           <div className="mt-3">
                             <Options>
                               {param.subContent.map((param) => {
@@ -126,14 +115,14 @@ const RefFunctionSection: React.FC<IRefFunctionSection> = (props) => {
                       const codeBlockLang = example?.code?.startsWith('```js')
                         ? 'js'
                         : example?.code?.startsWith('```ts')
-                        ? 'ts'
-                        : example?.code?.startsWith('```dart')
-                        ? 'dart'
-                        : example?.code?.startsWith('```c#')
-                        ? 'csharp'
-                        : example?.code?.startsWith('```kotlin')
-                        ? 'kotlin'
-                        : 'js'
+                          ? 'ts'
+                          : example?.code?.startsWith('```dart')
+                            ? 'dart'
+                            : example?.code?.startsWith('```c#')
+                              ? 'csharp'
+                              : example?.code?.startsWith('```kotlin')
+                                ? 'kotlin'
+                                : 'js'
                       //                     `
                       // import { createClient } from '@supabase/supabase-js'
 
@@ -147,7 +136,7 @@ const RefFunctionSection: React.FC<IRefFunctionSection> = (props) => {
                       const tables = staticExample?.data?.tables
 
                       return (
-                        <Tabs.Panel
+                        <TabPanel
                           id={example.id}
                           key={exampleIndex}
                           label={example.name}
@@ -228,7 +217,7 @@ const RefFunctionSection: React.FC<IRefFunctionSection> = (props) => {
                               </div>
                             </RefDetailCollapse>
                           )}
-                        </Tabs.Panel>
+                        </TabPanel>
                       )
                     })}
                 </Tabs>

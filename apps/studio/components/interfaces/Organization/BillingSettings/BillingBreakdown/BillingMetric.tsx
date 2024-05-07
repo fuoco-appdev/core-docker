@@ -1,8 +1,8 @@
 import * as Tooltip from '@radix-ui/react-tooltip'
 import Link from 'next/link'
 
-import { OrgSubscription } from 'data/subscriptions/types'
-import { OrgUsageResponse } from 'data/usage/org-usage-query'
+import type { OrgSubscription } from 'data/subscriptions/types'
+import type { OrgUsageResponse } from 'data/usage/org-usage-query'
 import { Button, IconChevronRight, IconPieChart } from 'ui'
 import { Metric, USAGE_APPROACHING_THRESHOLD } from './BillingBreakdown.constants'
 import { billingMetricUnit, formatUsage } from '../helpers'
@@ -112,10 +112,10 @@ const BillingMetric = ({
                       isUsageBillingEnabled
                         ? 'text-gray-dark-800'
                         : isExceededLimit
-                        ? 'text-red-900'
-                        : isApproachingLimit
-                        ? 'text-yellow-1000'
-                        : 'text-gray-dark-800'
+                          ? 'text-red-900'
+                          : isApproachingLimit
+                            ? 'text-yellow-1000'
+                            : 'text-gray-dark-800'
                     }
                   />
                 </svg>

@@ -16,7 +16,7 @@ import CountdownComponent from '../Countdown'
 import LaunchWeekPrizeSection from '../LaunchWeekPrizeSection'
 import TicketPresence from './TicketPresence'
 import TicketActions from './TicketActions'
-import useLwxGame from '../../hooks/useLwxGame'
+import useLwxGame from '../../hooks/useLwGame'
 import LWXGame from './LWXGame'
 
 const TicketingFlow = () => {
@@ -60,7 +60,7 @@ const TicketingFlow = () => {
         </div>
         <div className="relative min-h-[500px] md:min-h-[634px] z-10 w-full flex flex-col justify-center items-center gap-5 md:gap-10 text-center">
           <LazyMotion features={domAnimation}>
-            <AnimatePresence exitBeforeEnter key={ticketState}>
+            <AnimatePresence mode="wait" key={ticketState}>
               {isLoading && (
                 <m.div
                   key="loading"

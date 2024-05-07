@@ -1,7 +1,6 @@
 import { PermissionAction } from '@supabase/shared-types/out/constants'
 import { useParams } from 'common'
 import { isNull, partition } from 'lodash'
-import { observer } from 'mobx-react-lite'
 import Link from 'next/link'
 import { useEffect, useState } from 'react'
 import { Button, IconAlertCircle, IconExternalLink, IconSearch, Input } from 'ui'
@@ -26,16 +25,21 @@ const Extensions = () => {
     connectionString: project?.connectionString,
   })
 
+  const formattedExtensions = (data ?? []).map((ext) => {
+    if (ext.name === 'vector') return { ...ext, altName: 'pgvector' }
+    else return ext
+  })
+
   const extensions =
     filterString.length === 0
-      ? data ?? []
-      : (data ?? []).filter((ext) => ext.name.includes(filterString))
-  const extensionsWithoutHidden = extensions.filter(
-    (ext: any) => !HIDDEN_EXTENSIONS.includes(ext.name)
-  )
+      ? formattedExtensions
+      : formattedExtensions.filter((ext) =>
+          (ext?.altName ?? ext.name).toLowerCase().includes(filterString.toLowerCase())
+        )
+  const extensionsWithoutHidden = extensions.filter((ext) => !HIDDEN_EXTENSIONS.includes(ext.name))
   const [enabledExtensions, disabledExtensions] = partition(
     extensionsWithoutHidden,
-    (ext: any) => !isNull(ext.installed_version)
+    (ext) => !isNull(ext.installed_version)
   )
 
   const canUpdateExtensions = useCheckPermissions(
@@ -131,4 +135,4 @@ const Extensions = () => {
   )
 }
 
-export default observer(Extensions)
+export default Extensions

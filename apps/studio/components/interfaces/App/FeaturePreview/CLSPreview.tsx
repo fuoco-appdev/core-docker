@@ -18,7 +18,7 @@ const CLSPreview = () => {
           className="text-foreground-light max-w-full"
           content={`This is an advanced feature and should be used with caution. Unless you have a very specific use case, we recommend just using [Row-Level Security](https://supabase.com/docs/guides/auth/row-level-security).`}
         />
-        <Alert_Shadcn_ variant="warning" className="mt-8">
+        <Alert_Shadcn_ variant="warning" className="mt-2">
           <IconAlertCircle strokeWidth={2} />
           <AlertTitle_Shadcn_>
             Changes to column privileges will not be reflected in migrations when running{' '}
@@ -44,7 +44,7 @@ const CLSPreview = () => {
           <li>
             <Markdown
               className="text-foreground-light"
-              content={`Grant access to a new UI for granting and/or revoking column-level privileges [here](/project/${ref}/auth/column-privileges).`}
+              content={`Grant access to a new UI for granting and/or revoking column-level privileges [here](/project/${ref}/database/column-privileges).`}
             />
           </li>
         </ul>

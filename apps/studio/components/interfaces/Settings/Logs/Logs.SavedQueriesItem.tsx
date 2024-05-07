@@ -3,7 +3,7 @@ import { useState } from 'react'
 import toast from 'react-hot-toast'
 
 import Table from 'components/to-be-cleaned/Table'
-import ConfirmationModal from 'components/ui/ConfirmationModal'
+import ConfirmationModal from 'ui-patterns/Dialogs/ConfirmationModal'
 import { useContentDeleteMutation } from 'data/content/content-delete-mutation'
 import { useContentUpsertMutation } from 'data/content/content-upsert-mutation'
 import {
@@ -44,7 +44,7 @@ const SavedQueriesItem = ({ item }: SavedQueriesItemProps) => {
         console.error('Invalid project reference')
         return
       }
-      await deleteContent({ projectRef: ref, id: item.id })
+      await deleteContent({ projectRef: ref, ids: [item.id] })
       setShowConfirmModal(false)
       toast.success('Query deleted')
     } catch (error) {
@@ -132,20 +132,18 @@ const SavedQueriesItem = ({ item }: SavedQueriesItemProps) => {
               </DropdownMenuContent>
             </DropdownMenu>
             <ConfirmationModal
-              danger
+              variant="destructive"
               visible={showConfirmModal}
-              buttonLabel="Delete query"
-              header="Confirm to delete saved query"
-              onSelectCancel={() => {
+              confirmLabel="Delete query"
+              title="Confirm to delete saved query"
+              onCancel={() => {
                 setShowConfirmModal(false)
               }}
-              onSelectConfirm={onConfirmDelete}
+              onConfirm={onConfirmDelete}
             >
-              <Modal.Content>
-                <p className="py-4 text-sm text-foreground-light">
-                  Are you sure you want to delete {item.name}?
-                </p>
-              </Modal.Content>
+              <p className="text-sm text-foreground-light">
+                Are you sure you want to delete {item.name}?
+              </p>
             </ConfirmationModal>
             <UpdateSavedQueryModal
               visible={showUpdateModal}
