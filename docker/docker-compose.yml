@@ -497,6 +497,8 @@ services:
     environment:
       DATABASE_URL: postgres://${POSTGRES_USER}:${POSTGRES_PASSWORD}@${POSTGRES_HOST}:${POSTGRES_PORT}/${POSTGRES_DB}
       REDIS_URL: redis://redis
+      REDIS_TLS: ${REDIS_TLS}
+      REDIS_PASSWORD: ${REDIS_PASSWORD}
       JWT_SECRET: ${MEDUSA_JWT_SECRET}
       COOKIE_SECRET: ${MEDUSA_COOKIE_SECRET}
       SENDGRID_API_KEY: ${SENDGRID_API_KEY}
@@ -576,6 +578,16 @@ services:
       interval: 1s
       timeout: 3s
       retries: 30
+    command:
+      - /bin/sh
+      - -c
+      # - Double dollars, so that the variable is not expanded by Docker Compose
+      # - Surround by quotes, so that the shell does not split the password
+      # - The ${variable:?message} syntax causes shell to exit with a non-zero
+      #   code and print a message, when the variable is not set or empty
+      - redis-server --requirepass ${REDIS_PASSWORD}
+    ports:
+      - "6379:6379"
     expose:
       - 6379
 
