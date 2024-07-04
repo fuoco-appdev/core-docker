@@ -10,10 +10,10 @@ import InformationBox from 'components/ui/InformationBox'
 import NoSearchResults from 'components/ui/NoSearchResults'
 import ShimmeringLoader from 'components/ui/ShimmeringLoader'
 import { useDatabaseExtensionsQuery } from 'data/database-extensions/database-extensions-query'
-import { useCheckPermissions, usePermissionsLoaded } from 'hooks'
+import { useCheckPermissions, usePermissionsLoaded } from 'hooks/misc/useCheckPermissions'
 import ExtensionCard from './ExtensionCard'
 import ExtensionCardSkeleton from './ExtensionCardSkeleton'
-import { HIDDEN_EXTENSIONS } from './Extensions.constants'
+import { HIDDEN_EXTENSIONS, SEARCH_TERMS } from './Extensions.constants'
 
 const Extensions = () => {
   const { filter } = useParams()
@@ -25,17 +25,16 @@ const Extensions = () => {
     connectionString: project?.connectionString,
   })
 
-  const formattedExtensions = (data ?? []).map((ext) => {
-    if (ext.name === 'vector') return { ...ext, altName: 'pgvector' }
-    else return ext
-  })
-
   const extensions =
     filterString.length === 0
-      ? formattedExtensions
-      : formattedExtensions.filter((ext) =>
-          (ext?.altName ?? ext.name).toLowerCase().includes(filterString.toLowerCase())
-        )
+      ? data ?? []
+      : (data ?? []).filter((ext) => {
+          const nameMatchesSearch = ext.name.toLowerCase().includes(filterString.toLowerCase())
+          const searchTermsMatchesSearch = (SEARCH_TERMS[ext.name] || []).some((x) =>
+            x.includes(filterString.toLowerCase())
+          )
+          return nameMatchesSearch || searchTermsMatchesSearch
+        })
   const extensionsWithoutHidden = extensions.filter((ext) => !HIDDEN_EXTENSIONS.includes(ext.name))
   const [enabledExtensions, disabledExtensions] = partition(
     extensionsWithoutHidden,

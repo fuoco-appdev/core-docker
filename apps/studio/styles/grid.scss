@@ -400,26 +400,6 @@
 }
 
 /*
-  Pagination
-*/
-
-.sb-grid-pagination {
-  @apply flex items-center space-x-2;
-}
-
-.sb-grid-pagination-input-container {
-  @apply w-12;
-}
-.sb-grid-pagination-input {
-  @apply block w-12;
-}
-
-.sb-grid-pagination-input .sbui-inputnumber {
-  padding-top: 0.25rem;
-  padding-bottom: 0.25rem;
-}
-
-/*
   Footer
 */
 
@@ -560,30 +540,6 @@
 
 .sb-grid-empty-value {
   @apply block;
-}
-
-/*
-  header/filter/FilterDropdown
-*/
-
-.sb-grid-filter-popover {
-  @apply overflow-visible;
-}
-
-.sb-grid-filter-popover__misc {
-  @apply py-2;
-}
-
-.sb-grid-filter-popover__misc__text {
-  @apply block;
-}
-
-/*
-header/filter/FilterRow
-*/
-
-.sb-grid-filter-row {
-  @apply flex w-full items-center justify-between space-x-1;
 }
 
 /*

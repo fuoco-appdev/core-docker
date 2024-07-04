@@ -1,10 +1,13 @@
 import { Transition } from '@headlessui/react'
 import * as Tooltip from '@radix-ui/react-tooltip'
 import { PermissionAction } from '@supabase/shared-types/out/constants'
-import { BASE_PATH } from 'lib/constants'
-import { formatBytes } from 'lib/helpers'
 import { isEmpty } from 'lodash'
 import SVG from 'react-inlinesvg'
+
+import { useCheckPermissions } from 'hooks/misc/useCheckPermissions'
+import { BASE_PATH } from 'lib/constants'
+import { formatBytes } from 'lib/helpers'
+import { useStorageStore } from 'localStores/storageExplorer/StorageExplorerStore'
 import {
   Button,
   DropdownMenu,
@@ -19,12 +22,9 @@ import {
   IconTrash2,
   IconX,
 } from 'ui'
-
-import { useCheckPermissions } from 'hooks'
-import { useStorageStore } from 'localStores/storageExplorer/StorageExplorerStore'
 import { URL_EXPIRY_DURATION } from '../Storage.constants'
 
-const PreviewFile = ({ mimeType, previewUrl }: { mimeType: string; previewUrl: string }) => {
+const PreviewFile = ({ mimeType, previewUrl }: { mimeType?: string; previewUrl?: string }) => {
   if (!mimeType || !previewUrl) {
     return (
       <SVG
@@ -115,13 +115,18 @@ const PreviewPane = ({ onCopyUrl }: PreviewPaneProps) => {
     setSelectedFileCustomExpiry,
   } = storageExplorerStore
 
+  const canUpdateFiles = useCheckPermissions(PermissionAction.STORAGE_ADMIN_WRITE, '*')
+
+  if (!file) {
+    return null
+  }
+
   const width = 450
   const isOpen = !isEmpty(file)
   const size = file.metadata ? formatBytes(file.metadata.size) : null
-  const mimeType = file.metadata ? file.metadata.mimetype : null
+  const mimeType = file.metadata ? file.metadata.mimetype : undefined
   const createdAt = file.created_at ? new Date(file.created_at).toLocaleString() : 'Unknown'
   const updatedAt = file.updated_at ? new Date(file.updated_at).toLocaleString() : 'Unknown'
-  const canUpdateFiles = useCheckPermissions(PermissionAction.STORAGE_ADMIN_WRITE, '*')
 
   return (
     <>
