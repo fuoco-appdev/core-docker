@@ -245,6 +245,7 @@ export const REFERENCES: References = {
 export const gettingstarted: NavMenuConstant = {
   icon: 'getting-started',
   title: 'Start with Supabase',
+  url: '/guides/getting-started',
   items: [
     { name: 'Features', url: '/guides/getting-started/features' },
     { name: 'Architecture', url: '/guides/getting-started/architecture' },
@@ -1198,7 +1199,7 @@ export const functions: NavMenuConstant = {
     },
     {
       name: 'Examples',
-      url: '/guides/functions/examples',
+      url: undefined,
       items: [
         {
           name: 'CORS support for invoking from the browser',
@@ -1889,6 +1890,10 @@ export const resources: NavMenuConstant = {
       name: 'Migrate to Supabase',
       url: '/guides/resources/migrating-to-supabase',
       items: [
+        {
+          name: 'Auth0',
+          url: '/guides/resources/migrating-to-supabase/auth0',
+        },
         {
           name: 'Firebase Auth',
           url: '/guides/resources/migrating-to-supabase/firebase-auth',
