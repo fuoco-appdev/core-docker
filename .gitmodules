@@ -2,3 +2,6 @@
 [submodule "medusa-server"]
 	path = medusa-server
 	url = git@github.com:fuoco-appdev/medusa-server.git
+[submodule "open-webui"]
+	path = open-webui
+	url = git@github.com:open-webui/open-webui.git

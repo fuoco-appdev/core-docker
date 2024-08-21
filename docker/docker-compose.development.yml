@@ -1,5 +1,4 @@
-version: "3.8"
-
+name: docker
 services:
   pgadmin:
     image: dpage/pgadmin4:latest

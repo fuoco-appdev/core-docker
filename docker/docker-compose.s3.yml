@@ -1,7 +1,5 @@
-version: "3.8"
-
+name: docker
 services:
-
   minio:
     image: minio/minio
     ports:
@@ -33,7 +31,7 @@ services:
 
   storage:
     container_name: supabase-storage
-    image: supabase/storage-api:v0.43.11
+    image: supabase/storage-api:v1.8.2
     depends_on:
       db:
         # Disable this if you are using an external Postgres database
@@ -52,7 +50,7 @@ services:
           "--no-verbose",
           "--tries=1",
           "--spider",
-          "http://localhost:5000/status"
+          "http://localhost:5000/health"
         ]
       timeout: 5s
       interval: 5s
@@ -66,6 +64,12 @@ services:
       DATABASE_URL: postgres://supabase_storage_admin:${POSTGRES_PASSWORD}@${POSTGRES_HOST}:${POSTGRES_PORT}/${POSTGRES_DB}
       FILE_SIZE_LIMIT: 52428800
       STORAGE_BACKEND: s3
+      FILE_STORAGE_BACKEND_PATH: /var/lib/storage
+      TENANT_ID: stub
+      # TODO: https://github.com/supabase/storage-api/issues/55
+      REGION: stub
+      ENABLE_IMAGE_TRANSFORMATION: "true"
+      IMGPROXY_URL: http://imgproxy:5001
       GLOBAL_S3_BUCKET: stub
       GLOBAL_S3_ENDPOINT: http://minio:9000
       GLOBAL_S3_PROTOCOL: http
@@ -73,12 +77,6 @@ services:
       AWS_ACCESS_KEY_ID: supa-storage
       AWS_SECRET_ACCESS_KEY: secret1234
       AWS_DEFAULT_REGION: stub
-      FILE_STORAGE_BACKEND_PATH: /var/lib/storage
-      TENANT_ID: stub
-      # TODO: https://github.com/supabase/storage-api/issues/55
-      REGION: stub
-      ENABLE_IMAGE_TRANSFORMATION: "true"
-      IMGPROXY_URL: http://imgproxy:5001
     volumes:
       - ./volumes/storage:/var/lib/storage:z
 
@@ -92,5 +90,8 @@ services:
       retries: 3
     environment:
       IMGPROXY_BIND: ":5001"
+      IMGPROXY_LOCAL_FILESYSTEM_ROOT: /
       IMGPROXY_USE_ETAG: "true"
       IMGPROXY_ENABLE_WEBP_DETECTION: ${IMGPROXY_ENABLE_WEBP_DETECTION}
+    volumes:
+      - ./volumes/storage:/var/lib/storage:z
