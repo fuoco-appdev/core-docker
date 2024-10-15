@@ -4,7 +4,7 @@
 #   Stop:           docker compose down
 #   Destroy:        docker compose -f docker-compose.yml -f ./dev/docker-compose.dev.yml down -v --remove-orphans
 
-name: docker
+name: ${PROJECT_NAME}
 services:
   studio:
     container_name: supabase-studio

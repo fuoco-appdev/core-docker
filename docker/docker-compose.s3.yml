@@ -1,4 +1,4 @@
-name: docker
+name: ${PROJECT_NAME}
 services:
   minio:
     image: minio/minio

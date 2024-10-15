@@ -1,4 +1,4 @@
-name: docker
+name: ${PROJECT_NAME}
 services:
   ghost:
     image: ghost:5-alpine

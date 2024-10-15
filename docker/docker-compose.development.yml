@@ -1,4 +1,4 @@
-name: docker
+name: ${PROJECT_NAME}
 services:
   pgadmin:
     image: dpage/pgadmin4:latest
