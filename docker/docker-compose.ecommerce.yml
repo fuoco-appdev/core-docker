@@ -15,7 +15,7 @@ services:
         condition: service_healthy
 
     environment:
-      DATABASE_URL: postgres://${POSTGRES_USER}:${POSTGRES_PASSWORD}@${POSTGRES_HOST}:${POSTGRES_PORT}/${POSTGRES_DB}
+      DATABASE_URL: postgres://supabase_admin:${POSTGRES_PASSWORD}@${POSTGRES_HOST}:${POSTGRES_PORT}/${POSTGRES_DB}
       REDIS_URL: redis://redis
       REDIS_TLS: ${REDIS_TLS}
       REDIS_PASSWORD: ${REDIS_PASSWORD}
@@ -38,6 +38,7 @@ services:
       SENDGRID_MEDUSA_RESTOCK_ID: ${SENDGRID_MEDUSA_RESTOCK_ID}
       ADMIN_CORS: ${MEDUSA_ADMIN_CORS}
       STORE_CORS: ${MEDUSA_STORE_CORS}
+      AUTH_CORS: ${MEDUSA_AUTH_CORS}
       MEILISEARCH_HOST: ${MEILI_HOST}
       MEILISEARCH_API_KEY: ${MEILI_MASTER_KEY}
       MEILI_PRODUCTS_SEARCHABLE_ATTRIBUTES: ${MEILI_PRODUCTS_SEARCHABLE_ATTRIBUTES}
@@ -51,6 +52,7 @@ services:
       MEILI_STOCK_LOCATIONS_SORTABLE_ATTRIBUTES: ${MEILI_STOCK_LOCATIONS_SORTABLE_ATTRIBUTES}
       MEILI_STOCK_LOCATIONS_PRIMARY_KEY: ${MEILI_STOCK_LOCATIONS_PRIMARY_KEY}
       MEDUSA_ADMIN_BASE_URL: ${MEDUSA_ADMIN_BASE_URL}
+      MEDUSA_BACKEND_URL: ${MEDUSA_BACKEND_URL}
       NOTIFICATION_TELEGRAM_BOT_TOKEN: ${NOTIFICATION_TELEGRAM_BOT_TOKEN}
       STRIPE_API_KEY: ${STRIPE_API_KEY}
       STRIPE_WEBHOOK_SECRET: ${STRIPE_WEBHOOK_SECRET}
@@ -61,9 +63,9 @@ services:
       SPACE_SECRET_ACCESS_KEY: ${SPACE_SECRET_ACCESS_KEY}
       MEDUSA_FF_SALES_CHANNELS: "true"
       MEDUSA_FF_TAX_INCLUSIVE_PRICING: "false"
-      PORT: 9010
+      PORT: 9000
     ports:
-      - "127.0.0.1:9010:9010"
+      - "127.0.0.1:9000:9000"
     extra_hosts:
       - "host.docker.internal:host-gateway"
     volumes:
@@ -105,7 +107,8 @@ services:
       # - Surround by quotes, so that the shell does not split the password
       # - The ${variable:?message} syntax causes shell to exit with a non-zero
       #   code and print a message, when the variable is not set or empty
-      - redis-server --requirepass ${REDIS_PASSWORD}
+      #- redis-server --requirepass ${REDIS_PASSWORD}
+      - redis-server
     ports:
       - "6379:6379"
     expose:

@@ -23,6 +23,8 @@ services:
       retries: 3
     ports:
       - 127.0.0.1:${STUDIO_PORT}:3000/tcp
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
     environment:
       STUDIO_PG_META_URL: http://meta:8080
       POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
@@ -50,7 +52,8 @@ services:
     ports:
       - 127.0.0.1:${KONG_HTTP_PORT}:8000/tcp
       - 127.0.0.1:${KONG_HTTPS_PORT}:8443/tcp
-
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
     environment:
       KONG_DATABASE: "off"
       KONG_DECLARATIVE_CONFIG: /home/kong/kong.yml
@@ -88,6 +91,8 @@ services:
       interval: 5s
       retries: 3
     restart: unless-stopped
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
     environment:
       GOTRUE_API_HOST: 0.0.0.0
       GOTRUE_API_PORT: 9999
@@ -247,6 +252,8 @@ services:
         # Disable this if you are using an external Postgres database
         condition: service_healthy
     restart: unless-stopped
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
     environment:
       PGRST_DB_URI: postgres://authenticator:${POSTGRES_PASSWORD}@${POSTGRES_HOST}:${POSTGRES_PORT}/${POSTGRES_DB}
       PGRST_DB_SCHEMAS: ${PGRST_DB_SCHEMAS}
@@ -282,6 +289,8 @@ services:
       interval: 5s
       retries: 3
     restart: unless-stopped
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
     environment:
       PORT: 4000
       DB_HOST: ${POSTGRES_HOST}
@@ -307,6 +316,8 @@ services:
         # Disable this if you are using an external Postgres database
         condition: service_healthy
     restart: unless-stopped
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
     environment:
       PG_META_PORT: 8080
       PG_META_DB_HOST: ${POSTGRES_HOST}
@@ -319,6 +330,8 @@ services:
     container_name: supabase-edge-functions
     image: supabase/edge-runtime:v1.54.10
     restart: unless-stopped
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
     environment:
       JWT_SECRET: ${JWT_SECRET}
       SUPABASE_URL: http://kong:8000
@@ -327,12 +340,6 @@ services:
       SUPABASE_DB_URL: postgresql://postgres:${POSTGRES_PASSWORD}@${POSTGRES_HOST}:${POSTGRES_PORT}/${POSTGRES_DB}
       # TODO: Allow configuring VERIFY_JWT per function. This PR might help: https://github.com/supabase/cli/pull/786
       VERIFY_JWT: "${FUNCTIONS_VERIFY_JWT}"
-    volumes:
-      - ./volumes/functions:/home/deno/functions:Z
-    command:
-      - start
-      - --main-service
-      - /home/deno/functions/main
 
   analytics:
     container_name: supabase-analytics
@@ -343,6 +350,8 @@ services:
       interval: 5s
       retries: 10
     restart: unless-stopped
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
     depends_on:
       db:
         # Disable this if you are using an external Postgres database
@@ -380,6 +389,8 @@ services:
   db:
     container_name: supabase-db
     image: supabase/postgres:15.1.1.61
+    build:
+      dockerfile: Dockerfile
     healthcheck:
       test: pg_isready -U postgres -h localhost
       interval: 5s
@@ -388,9 +399,19 @@ services:
     command:
       - postgres
       - -c
-      - config_file=/etc/postgresql/postgresql.conf
+      - config_file=/var/lib/postgresql/data/postgresql.conf
+      - -c
+      - hba_file=/var/lib/postgresql/data/pg_hba.conf
+      - -c
+      - ident_file=/var/lib/postgresql/data/pg_ident.conf
       - -c
       - log_min_messages=fatal # prevents Realtime polling queries from appearing in logs
+      - -c
+      - ssl=on
+      - -c
+      - ssl_cert_file=/var/lib/postgresql/server.crt
+      - -c
+      - ssl_key_file=/var/lib/postgresql/server.key
     restart: unless-stopped
     ports:
       # Pass down internal port because it's set dynamically by other services
@@ -415,6 +436,7 @@ services:
       - ./volumes/db/jwt.sql:/docker-entrypoint-initdb.d/init-scripts/99-jwt.sql:Z
       # PGDATA directory is persisted between restarts
       - ./volumes/db/data:/var/lib/postgresql/data:Z
+      - ./volumes/db/postgresql.conf:/var/lib/postgresql/data/postgresql.conf
       # Changes required for Analytics support
       - ./volumes/db/logs.sql:/docker-entrypoint-initdb.d/migrations/99-logs.sql:Z
       # Use named volume to persist pgsodium decryption key between restarts
@@ -437,6 +459,8 @@ services:
       timeout: 5s
       interval: 5s
       retries: 3
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
     volumes:
       - ./volumes/logs/vector.yml:/etc/vector/vector.yml:ro
       - ${DOCKER_SOCKET_LOCATION}:/var/run/docker.sock:ro
@@ -444,5 +468,23 @@ services:
       LOGFLARE_API_KEY: ${LOGFLARE_API_KEY}
     command: [ "--config", "etc/vector/vector.yml" ]
 
+  mail:
+    container_name: mail-server
+    image: stalwartlabs/mail-server:latest
+    volumes:
+      - mail:/var/lib/stalwart-mail
+    ports:
+      - "8080:8080"
+      - "443:443"
+      - "25:25"
+      - "587:587"
+      - "465:465"
+      - "143:143"
+      - "993:993"
+      - "4190:4190"
+      - "110:110"
+      - "995:995"
+
 volumes:
   db-config:
+  mail:
