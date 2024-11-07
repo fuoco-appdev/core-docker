@@ -389,8 +389,6 @@ services:
   db:
     container_name: supabase-db
     image: supabase/postgres:15.1.1.61
-    build:
-      dockerfile: Dockerfile
     healthcheck:
       test: pg_isready -U postgres -h localhost
       interval: 5s
@@ -399,19 +397,15 @@ services:
     command:
       - postgres
       - -c
-      - config_file=/var/lib/postgresql/data/postgresql.conf
-      - -c
-      - hba_file=/var/lib/postgresql/data/pg_hba.conf
-      - -c
-      - ident_file=/var/lib/postgresql/data/pg_ident.conf
+      - config_file=/etc/postgresql/postgresql.conf
       - -c
       - log_min_messages=fatal # prevents Realtime polling queries from appearing in logs
       - -c
       - ssl=on
       - -c
-      - ssl_cert_file=/var/lib/postgresql/server.crt
+      - ssl_cert_file=/var/lib/ssl/server.crt
       - -c
-      - ssl_key_file=/var/lib/postgresql/server.key
+      - ssl_key_file=/var/lib/ssl/private/server.key
     restart: unless-stopped
     ports:
       # Pass down internal port because it's set dynamically by other services
@@ -436,7 +430,8 @@ services:
       - ./volumes/db/jwt.sql:/docker-entrypoint-initdb.d/init-scripts/99-jwt.sql:Z
       # PGDATA directory is persisted between restarts
       - ./volumes/db/data:/var/lib/postgresql/data:Z
-      - ./volumes/db/postgresql.conf:/var/lib/postgresql/data/postgresql.conf
+      - ./volumes/db/server.key:/var/lib/ssl/private/server.key
+      - ./volumes/db/server.crt:/var/lib/ssl/server.crt
       # Changes required for Analytics support
       - ./volumes/db/logs.sql:/docker-entrypoint-initdb.d/migrations/99-logs.sql:Z
       # Use named volume to persist pgsodium decryption key between restarts
