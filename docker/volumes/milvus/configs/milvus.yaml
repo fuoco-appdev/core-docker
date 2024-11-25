@@ -74,7 +74,7 @@ localStorage:
 # We refer to the storage service as MinIO/S3 in the following description for simplicity.
 minio:
   accessKeyID: minioadmin # accessKeyID of MinIO/S3
-  secretAccessKey: 3AcMJRnYE9NVkBn # MinIO/S3 encryption string
+  secretAccessKey: secret1234 # MinIO/S3 encryption string
   address: localhost # Address of MinIO/S3
   port: 9000 # Port of MinIO/S3
   useSSL: false # Access to MinIO/S3 with SSL
