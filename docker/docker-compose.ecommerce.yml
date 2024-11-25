@@ -63,9 +63,9 @@ services:
       SPACE_SECRET_ACCESS_KEY: ${SPACE_SECRET_ACCESS_KEY}
       MEDUSA_FF_SALES_CHANNELS: "true"
       MEDUSA_FF_TAX_INCLUSIVE_PRICING: "false"
-      PORT: 9000
+      PORT: 9010
     ports:
-      - "127.0.0.1:9000:9000"
+      - "127.0.0.1:9010:9010"
     extra_hosts:
       - "host.docker.internal:host-gateway"
     volumes:
