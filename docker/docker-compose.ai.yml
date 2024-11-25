@@ -36,7 +36,6 @@ services:
       - 'OLLAMA_BASE_URL=http://ollama:11434'
       - 'WEBUI_SECRET_KEY='
       - 'WEBUI_URL=http://localhost:3001'
-      - 'NODE_OPTIONS=--max-old-space-size=4096'
     extra_hosts:
       - host.docker.internal:host-gateway
     restart: unless-stopped
@@ -71,6 +70,7 @@ services:
       MINIO_ROOT_PASSWORD: ${MINIO_ROOT_PASSWORD}
     volumes:
       - ${DOCKER_VOLUME_DIRECTORY:-.}/volumes/milvus:/var/lib/milvus
+      - ./volumes/milvus/configs/milvus.yaml:/milvus/configs/milvus.yaml
     ports:
       - '19530:19530'
     deploy:
