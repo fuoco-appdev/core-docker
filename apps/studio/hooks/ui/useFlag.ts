@@ -1,11 +1,15 @@
-import { PermissionAction } from '@supabase/shared-types/out/constants'
-import FlagContext from 'components/ui/Flag/FlagContext'
-import { useOrgSubscriptionQuery } from 'data/subscriptions/org-subscription-query'
-import { useCheckPermissions } from 'hooks/misc/useCheckPermissions'
 import { useContext } from 'react'
+import FlagContext from 'components/ui/Flag/FlagContext'
+import { useSelectedProject } from 'hooks/misc/useSelectedProject'
 
-export function useFlag<T = any>(name: string) {
+export function useFlag<T = boolean>(name: string) {
+  const project = useSelectedProject()
   const store: any = useContext(FlagContext)
+
+  // Temporary override as Fly projects are cant seem to upgrade their compute with the new disk UI
+  if (name === 'diskAndComputeForm' && project?.cloud_provider === 'FLY') {
+    return false
+  }
 
   const isObjectEmpty = (objectName: Object) => {
     return Object.keys(objectName).length === 0
@@ -16,26 +20,4 @@ export function useFlag<T = any>(name: string) {
     return false
   }
   return store[name] as T
-}
-
-export const useIsOptedIntoProjectLevelPermissions = (slug: string) => {
-  const orgsOptedIn = useFlag('projectLevelPermissionsOptIn')
-  const canReadSubscriptions = useCheckPermissions(
-    PermissionAction.BILLING_READ,
-    'stripe.subscriptions'
-  )
-  const { data: subscription } = useOrgSubscriptionQuery(
-    { orgSlug: slug },
-    { enabled: canReadSubscriptions }
-  )
-
-  const isEnterprise = subscription?.plan.id === 'enterprise'
-  if (!isEnterprise) return false
-
-  if (typeof orgsOptedIn === 'string') {
-    const organizations = orgsOptedIn.split(',').map((x) => x.trim())
-    return organizations.includes(slug)
-  } else {
-    return false
-  }
 }

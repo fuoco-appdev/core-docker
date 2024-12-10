@@ -1,9 +1,9 @@
 import { isUndefined } from 'lodash'
+import { ArrowUpRight, LogOut } from 'lucide-react'
 import Link from 'next/link'
 import { ReactNode } from 'react'
 
-import { useFlag } from 'hooks/ui/useFlag'
-import { Badge, IconArrowUpRight, IconLogOut, Menu } from 'ui'
+import { Badge, cn, Menu } from 'ui'
 import { LayoutHeader } from '../ProjectLayout/LayoutHeader'
 import type { SidebarLink, SidebarSection } from './AccountLayout.types'
 
@@ -31,7 +31,6 @@ const WithSidebar = ({
   customSidebarContent,
 }: WithSidebarProps) => {
   const noContent = !sections && !customSidebarContent
-  const navLayoutV2 = useFlag('navigationLayoutV2')
 
   return (
     <div className="flex h-full">
@@ -39,7 +38,7 @@ const WithSidebar = ({
         <div
           id="with-sidebar"
           className={[
-            'h-full bg-studio',
+            'h-full bg-dash-sidebar',
             'hide-scrollbar w-64 overflow-auto border-r border-default',
           ].join(' ')}
         >
@@ -79,7 +78,7 @@ const WithSidebar = ({
         </div>
       )}
       <div className="flex flex-1 flex-col">
-        {!navLayoutV2 && <LayoutHeader breadcrumbs={breadcrumbs} />}
+        <LayoutHeader breadcrumbs={breadcrumbs} />
         <div className="flex-1 flex-grow overflow-y-auto">{children}</div>
       </div>
     </div>
@@ -132,6 +131,7 @@ const SidebarItem = ({ links, subitems, subitemsParentKey }: SidebarItemProps) =
             href={link.href}
             onClick={link.onClick}
             isExternal={link.isExternal || false}
+            icon={link.icon}
           />
         )
 
@@ -144,10 +144,12 @@ const SidebarItem = ({ links, subitems, subitemsParentKey }: SidebarItemProps) =
               label={y.label}
               onClick={y.onClick}
               isExternal={link.isExternal || false}
+              icon={link.icon}
             />
           ))
           render = [render, ...subItemsRender]
         }
+
         return render
       })}
     </ul>
@@ -167,15 +169,16 @@ const SidebarLinkItem = ({
   isSubitem,
   isExternal,
   onClick,
+  icon,
 }: SidebarLinkProps) => {
   if (isUndefined(href)) {
     let icon
     if (isExternal) {
-      icon = <IconArrowUpRight size={'tiny'} />
+      icon = <ArrowUpRight size={14} />
     }
 
     if (label === 'Log out') {
-      icon = <IconLogOut size={'tiny'} />
+      icon = <LogOut size={14} />
     }
 
     return (
@@ -185,7 +188,7 @@ const SidebarLinkItem = ({
         style={{
           marginLeft: isSubitem ? '.5rem' : '0rem',
         }}
-        active={isActive ? true : false}
+        active={isActive}
         onClick={onClick || (() => {})}
         icon={icon}
       >
@@ -199,15 +202,21 @@ const SidebarLinkItem = ({
       <span className="group flex max-w-full cursor-pointer items-center space-x-2 border-default py-1 font-normal outline-none ring-foreground focus-visible:z-10 focus-visible:ring-1 group-hover:border-foreground-muted">
         {isExternal && (
           <span className="truncate text-sm text-foreground-lighter transition group-hover:text-foreground-light">
-            <IconArrowUpRight size={'tiny'} />
+            <ArrowUpRight size={14} />
           </span>
         )}
-        <span
-          title={label}
-          className="w-full truncate text-sm text-foreground-light transition group-hover:text-foreground"
-        >
-          {isSubitem ? <p>{label}</p> : label}
-        </span>
+        <div className="flex items-center gap-1.5 flex-shrink-0">
+          <span
+            title={label}
+            className={cn(
+              'w-full truncate text-sm transition',
+              isActive ? 'text-foreground' : 'text-foreground-light group-hover:text-foreground'
+            )}
+          >
+            {isSubitem ? <p>{label}</p> : label}
+          </span>
+          {icon}
+        </div>
       </span>
     </Link>
   )

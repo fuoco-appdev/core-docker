@@ -13,7 +13,7 @@ import {
 } from 'recharts'
 
 import { CHART_COLORS, DateTimeFormats } from 'components/ui/Charts/Charts.constants'
-import type { CategoricalChartState } from 'recharts/types/chart/generateCategoricalChart'
+import type { CategoricalChartState } from 'recharts/types/chart/types'
 import ChartHeader from './ChartHeader'
 import type { CommonChartProps, Datum } from './Charts.types'
 import { numberFormatter, useChartSize } from './Charts.utils'
@@ -68,6 +68,7 @@ const BarChart = ({
   const _YAxisProps = YAxisProps || {
     tickFormatter: (value) => numberFormatter(value, valuePrecision),
     tick: false,
+    width: 0,
   }
 
   const day = (value: number | string) => (displayDateInUtc ? dayjs(value).utc() : dayjs(value))
@@ -95,7 +96,7 @@ const BarChart = ({
     return (
       <NoDataPlaceholder
         message={emptyStateMessage}
-        description="It may take up to 24 hours for data to show"
+        description="It may take up to 24 hours for data to refresh"
         size={size}
         className={className}
         attribute={title}
@@ -121,12 +122,6 @@ const BarChart = ({
       <Container>
         <RechartBarChart
           data={data}
-          margin={{
-            top: 0,
-            right: 0,
-            left: -58, // [Joshen] 120724 Not sure why bar charts have a weird left margin suddenly, but this is a temp fix
-            bottom: 0,
-          }}
           className="overflow-visible"
           //   mouse hover focusing logic
           onMouseMove={(e: any) => {

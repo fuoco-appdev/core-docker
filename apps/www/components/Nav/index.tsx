@@ -1,10 +1,11 @@
-import React, { useState } from 'react'
+import { useTheme } from 'next-themes'
 import Link from 'next/link'
 import { useRouter } from 'next/router'
-import { useTheme } from 'next-themes'
+import React, { useState } from 'react'
 import { useWindowSize } from 'react-use'
 
-import { Button, buttonVariants, cn } from 'ui'
+import { useIsLoggedIn, useIsUserLoading } from 'common'
+import { Announcement, Button, buttonVariants, cn } from 'ui'
 import {
   NavigationMenu,
   NavigationMenuContent,
@@ -13,33 +14,36 @@ import {
   NavigationMenuList,
   NavigationMenuTrigger,
 } from 'ui/src/components/shadcn/ui/navigation-menu'
-import { useIsLoggedIn, useIsUserLoading } from 'common'
+import LW13CountdownBanner from 'ui/src/layout/banners/LW13CountdownBanner/LW13CountdownBanner'
+
 import ScrollProgress from '~/components/ScrollProgress'
+import { getMenu } from '~/data/nav'
 import GitHubButton from './GitHubButton'
 import HamburgerButton from './HamburgerMenu'
-import MobileMenu from './MobileMenu'
 import MenuItem from './MenuItem'
-import { menu } from '~/data/nav'
+import MobileMenu from './MobileMenu'
 import RightClickBrandLogo from './RightClickBrandLogo'
 
 interface Props {
   hideNavbar: boolean
+  stickyNavbar?: boolean
 }
 
-const Nav = (props: Props) => {
+const Nav = ({ hideNavbar, stickyNavbar = true }: Props) => {
   const { resolvedTheme } = useTheme()
   const router = useRouter()
   const { width } = useWindowSize()
   const [open, setOpen] = useState(false)
   const isLoggedIn = useIsLoggedIn()
   const isUserLoading = useIsUserLoading()
+  const menu = getMenu()
 
   const isHomePage = router.pathname === '/'
-  const isGAWeekSection = router.pathname.includes('/ga-week')
-  const isLaunchWeekPage = router.pathname.includes('launch-week') || isGAWeekSection
+  const isLaunchWeekPage = router.pathname.includes('/launch-week')
   const isLaunchWeekXPage = router.pathname === '/launch-week/x'
-  const isLaunchWeek11Page = router.pathname === '/ga-week'
-  const showLaunchWeekNavMode = (isLaunchWeekPage || isLaunchWeek11Page) && !open
+  const isGAWeekSection = router.pathname.startsWith('/ga-week')
+  const disableStickyNav = isLaunchWeekXPage || isGAWeekSection || isLaunchWeekPage || !stickyNavbar
+  const showLaunchWeekNavMode = (isLaunchWeekPage || isGAWeekSection) && !open
 
   React.useEffect(() => {
     if (open) {
@@ -55,7 +59,7 @@ const Nav = (props: Props) => {
     if (width >= 1024) setOpen(false)
   }, [width])
 
-  if (props.hideNavbar) {
+  if (hideNavbar) {
     return null
   }
 
@@ -64,15 +68,12 @@ const Nav = (props: Props) => {
   return (
     <>
       <div
-        className={cn(
-          'sticky top-0 z-40 transform',
-          (isLaunchWeekXPage || isLaunchWeek11Page) && 'relative'
-        )}
+        className={cn('sticky top-0 z-40 transform', disableStickyNav && 'relative')}
         style={{ transform: 'translate3d(0,0,999px)' }}
       >
         <div
           className={cn(
-            'absolute inset-0 h-full w-full opacity-80 bg-background',
+            'absolute inset-0 h-full w-full bg-background/90 dark:bg-background/95',
             !showLaunchWeekNavMode && '!opacity-100 transition-opacity',
             showLaunchWeekNavMode && '!bg-transparent transition-all',
             isGAWeekSection && 'dark:!bg-alternative'
@@ -81,8 +82,7 @@ const Nav = (props: Props) => {
         <nav
           className={cn(
             `relative z-40 border-default border-b backdrop-blur-sm transition-opacity`,
-            showLaunchWeekNavMode ? '!opacity-100 !border-[#e0d2f430]' : '',
-            isLaunchWeekPage && showLaunchWeekNavMode ? '!border-b-0' : ''
+            showLaunchWeekNavMode && 'border-muted border-b bg-alternative/50'
           )}
         >
           <div className="relative flex justify-between h-16 mx-auto lg:container lg:px-16 xl:px-20">
@@ -90,19 +90,6 @@ const Nav = (props: Props) => {
               <div className="flex items-center">
                 <div className="flex items-center flex-shrink-0">
                   <RightClickBrandLogo />
-
-                  {!isGAWeekSection &&
-                    !isLaunchWeek11Page &&
-                    isLaunchWeekPage &&
-                    !isLaunchWeekXPage && (
-                      <Link
-                        href="/launch-week"
-                        as="/launch-week"
-                        className="hidden ml-2 xl:block font-mono text-sm uppercase leading-4 focus-visible:ring-2 focus-visible:outline-none focus-visible:ring-foreground-lighter focus-visible:ring-offset-4 focus-visible:ring-offset-background-alternative focus-visible:rounded-sm"
-                      >
-                        Launch Week
-                      </Link>
-                    )}
                 </div>
                 <NavigationMenu
                   delayDuration={0}
@@ -121,11 +108,7 @@ const Nav = (props: Props) => {
                           >
                             {menuItem.title}
                           </NavigationMenuTrigger>
-                          <NavigationMenuContent
-                          // className={cn('rounded-xl', menuItem.dropdownContainerClassName)}
-                          >
-                            {menuItem.dropdown}
-                          </NavigationMenuContent>
+                          <NavigationMenuContent>{menuItem.dropdown}</NavigationMenuContent>
                         </NavigationMenuItem>
                       ) : (
                         <NavigationMenuItem className="text-sm font-medium" key={menuItem.title}>
@@ -148,7 +131,7 @@ const Nav = (props: Props) => {
                 {!isUserLoading && (
                   <>
                     {isLoggedIn ? (
-                      <Button className="hidden text-white lg:block" asChild>
+                      <Button className="hidden lg:block" asChild>
                         <Link href="/dashboard/projects">Dashboard</Link>
                       </Button>
                     ) : (
@@ -170,7 +153,7 @@ const Nav = (props: Props) => {
               showLaunchWeekNavMode={showLaunchWeekNavMode}
             />
           </div>
-          <MobileMenu open={open} setOpen={setOpen} isDarkMode={showDarkLogo} menu={menu} />
+          <MobileMenu open={open} setOpen={setOpen} menu={menu} />
         </nav>
 
         <ScrollProgress />
