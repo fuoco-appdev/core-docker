@@ -1,3 +1,8 @@
+docker/volumes/etcd/member
+docker/volumes/milvus/rdb_data
+docker/volumes/milvus/rdb_data_meta_kv
+docker/volumes/milvus/data
+
 .DS_Store
 node_modules
 .next
@@ -5,6 +10,8 @@ out
 .docz
 tmp
 *.swp
+
+*.snap
 
 coverage
 allure-results
