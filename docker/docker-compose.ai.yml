@@ -89,8 +89,6 @@ services:
       - 'minio'
 
   openedai-speech-server:
-    build:
-      dockerfile: ../openedai-speech/Dockerfile
     image: ghcr.io/matatonic/openedai-speech
     environment:
       TTS_HOME: voices

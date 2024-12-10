@@ -387,6 +387,16 @@ services:
     ports:
       - 4000:4000
 
+  db-setup:
+    image: supabase/postgres:15.1.1.61
+    user: root
+    entrypoint: [ "bash", "-c", "chmod 600 /var/lib/ssl/private/server.key && chown postgres:postgres /var/lib/ssl/private/server.key"] 
+    depends_on:
+      - db
+    volumes:
+      - ./volumes/db/server.key:/var/lib/ssl/private/server.key
+      - ./volumes/db/server.crt:/var/lib/ssl/server.crt
+
   # Comment out everything below this point if you are using an external Postgres database
   db:
     container_name: supabase-db
@@ -396,17 +406,17 @@ services:
       interval: 5s
       timeout: 5s
       retries: 10
-    command:
-      - postgres
-      - -c
-      - config_file=/etc/postgresql/postgresql.conf
-      - -c
-      - log_min_messages=fatal # prevents Realtime polling queries from appearing in logs
-      - -c
-      - ssl=on
-      - -c
-      - ssl_cert_file=/var/lib/ssl/server.crt
-      - -c
+    command: 
+      - postgres 
+      - -c 
+      - config_file=/etc/postgresql/postgresql.conf 
+      - -c 
+      - log_min_messages=fatal 
+      - -c 
+      - ssl=on 
+      - -c 
+      - ssl_cert_file=/var/lib/ssl/server.crt 
+      - -c 
       - ssl_key_file=/var/lib/ssl/private/server.key
     restart: unless-stopped
     ports:
