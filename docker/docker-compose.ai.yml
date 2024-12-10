@@ -88,6 +88,32 @@ services:
       - 'etcd'
       - 'minio'
 
+  openedai-speech-server:
+    build:
+      dockerfile: ../openedai-speech/Dockerfile
+    image: ghcr.io/matatonic/openedai-speech
+    environment:
+      TTS_HOME: voices
+      HF_HOME: voices
+      PRELOAD_MODEL: xtts
+      EXTRA_ARGS: --log-level DEBUG --unload-timer 300 --port 8002
+      USE_ROCM: 1
+    ports:
+      - "8002:8002"
+    volumes:
+      - ../openedai-speech/voices:/app/voices
+      - ../openedai-speech/config:/app/config
+    # To install as a service
+    restart: unless-stopped
+    deploy:
+      resources:
+        reservations:
+          devices:
+            - driver: nvidia
+              #device_ids: ['0', '1'] # Select a gpu, or
+              count: all
+              capabilities: [gpu]
+
 networks:
   default:
     name: milvus
