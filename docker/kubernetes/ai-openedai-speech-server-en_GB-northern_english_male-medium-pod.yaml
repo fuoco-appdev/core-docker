@@ -1,0 +1,23 @@
+apiVersion: v1
+kind: Pod
+metadata:
+  labels:
+    io.kompose.service: openedai-speech-server
+  name: openedai-speech-server-en-gb-northern-english-male-medium-pod
+spec:
+  initContainers:
+  - name: en-gb-northern-english-male-medium-service
+    image: busybox
+    command: ['sh', '-c', 'cp ../../openedai-speech/voices/en_GB-northern_english_male-medium.onnx /app/voices/en_GB-northern_english_male-medium.onnx']
+    volumeMounts:
+    - name: openedai-speech-server-en-gb-northern-english-male-medium-pod
+      mountPath: /app/voices
+  containers:
+  - name: openedai-speech-server
+    image: ghcr.io/matatonic/openedai-speech
+    volumeMounts:
+    - name: openedai-speech-server-en-gb-northern-english-male-medium-pod
+      mountPath: /app/voices
+  volumes:
+  - name: openedai-speech-server-en-gb-northern-english-male-medium-pod
+    emptyDir: {}

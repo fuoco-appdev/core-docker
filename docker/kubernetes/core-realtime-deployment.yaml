@@ -1,0 +1,97 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  annotations:
+    kompose.cmd: C:\Github\mindy-project\core-docker\docker\kubernetes\kompose.exe -f ../docker-compose.core.yml -f ../docker-compose.ai.yml -f ../docker-compose.blog.yml -f ../docker-compose.development.yml -f ../docker-compose.ecommerce.yml -f ../docker-compose.mail.yml -f ../docker-compose.s3.yml convert
+    kompose.version: 1.34.0 (cbf2835db)
+  labels:
+    service: realtime
+  name: realtime
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      service: realtime
+  template:
+    metadata:
+      annotations:
+        kompose.cmd: C:\Github\mindy-project\core-docker\docker\kubernetes\kompose.exe -f ../docker-compose.core.yml -f ../docker-compose.ai.yml -f ../docker-compose.blog.yml -f ../docker-compose.development.yml -f ../docker-compose.ecommerce.yml -f ../docker-compose.mail.yml -f ../docker-compose.s3.yml convert
+        kompose.version: 1.34.0 (cbf2835db)
+      labels:
+        service: realtime
+    spec:
+      initContainers:
+        - name: init-realtime
+          image: curlimages/curl
+          command: ['sh', '-c', 'until curl -fsSL -m 2 db:5432 > /dev/null 2>&1 || [ $? -eq 52 ]; do echo waiting for postgres; sleep 2; done;']
+      containers:
+        - env:
+            - name: APP_NAME
+              value: realtime
+            - name: DB_AFTER_CONNECT_QUERY
+              value: 'SET search_path TO _realtime'
+            - name: DB_ENC_KEY
+              value: supabaserealtime
+            - name: DB_USER
+              value: supabase_admin
+            - name: DNS_NODES
+              value: "''"
+            - name: ERL_AFLAGS
+              value: -proto_dist inet_tcp
+            - name: PORT
+              value: "4000"
+            - name: RLIMIT_NOFILE
+              value: "10000"
+            - name: SECRET_KEY_BASE
+              value: UpNVntn3cDxHJpq99YMc1T1AQgQpc8kfYTuRgBiYa15BLrx8etQoXz3gZv1/u2oq
+            - name: SEED_SELF_HOST
+              value: "true"
+            - name: DB_HOST
+              valueFrom:
+                secretKeyRef:
+                  name: env-secrets
+                  key: POSTGRES_HOST
+            - name: DB_PORT
+              valueFrom:
+                secretKeyRef:
+                  name: env-secrets
+                  key: POSTGRES_PORT
+            - name: DB_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: env-secrets
+                  key: POSTGRES_PASSWORD
+            - name: DB_NAME
+              valueFrom:
+                secretKeyRef:
+                  name: env-secrets
+                  key: POSTGRES_DB
+            - name: API_JWT_SECRET
+              valueFrom:
+                secretKeyRef:
+                  name: env-secrets
+                  key: API_JWT_SECRET
+            - name: ANON_KEY
+              valueFrom:
+                secretKeyRef:
+                  name: env-secrets
+                  key: ANON_KEY
+          image: supabase/realtime:v2.33.58
+          livenessProbe:
+            exec:
+              command:
+                - curl
+                - -sSfL
+                - --head
+                - -o
+                - /dev/null
+                - -H
+                - 'Authorization: Bearer $ANON_KEY'
+                - http://realtime:4000/api/tenants/realtime-dev/health
+            failureThreshold: 10
+            periodSeconds: 5
+            timeoutSeconds: 5
+          name: supabase-realtime
+          ports:
+            - containerPort: 4000
+      restartPolicy: Always

@@ -1,0 +1,526 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  annotations:
+    kompose.cmd: C:\Github\mindy-project\core-docker\docker\kubernetes\kompose.exe -f ../docker-compose.core.yml -f ../docker-compose.ai.yml -f ../docker-compose.blog.yml -f ../docker-compose.development.yml -f ../docker-compose.ecommerce.yml -f ../docker-compose.mail.yml -f ../docker-compose.s3.yml convert
+    kompose.version: 1.34.0 (cbf2835db)
+  labels:
+    service: auth
+  name: auth
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      service: auth
+  template:
+    metadata:
+      annotations:
+        kompose.cmd: C:\Github\mindy-project\core-docker\docker\kubernetes\kompose.exe -f ../docker-compose.core.yml -f ../docker-compose.ai.yml -f ../docker-compose.blog.yml -f ../docker-compose.development.yml -f ../docker-compose.ecommerce.yml -f ../docker-compose.mail.yml -f ../docker-compose.s3.yml convert
+        kompose.version: 1.34.0 (cbf2835db)
+      labels:
+        service: auth
+    spec:
+      initContainers:
+        - name: init-auth
+          image: curlimages/curl
+          command: ['sh', '-c', 'until curl -fsSL -m 2 db:5432 > /dev/null 2>&1 || [ $? -eq 52 ]; do echo waiting for postgres; sleep 2; done;']
+      containers:
+        - env:
+            - name: GOTRUE_API_HOST
+              value: 0.0.0.0
+            - name: GOTRUE_API_PORT
+              value: "9999"
+            - name: GOTRUE_DB_DRIVER
+              value: postgres
+            - name: GOTRUE_JWT_ADMIN_ROLES
+              value: service_role
+            - name: GOTRUE_JWT_AUD
+              value: authenticated
+            - name: GOTRUE_JWT_DEFAULT_GROUP_NAME
+              value: authenticated
+            - name: API_EXTERNAL_URL
+              valueFrom:
+                secretKeyRef:
+                  name: env-secrets
+                  key: API_EXTERNAL_URL
+            - name: GOTRUE_DB_DATABASE_URL
+              valueFrom:
+                secretKeyRef:
+                  name: env-secrets
+                  key: GOTRUE_DB_DATABASE_URL
+            - name: GOTRUE_SITE_URL
+              valueFrom:
+                secretKeyRef:
+                  name: env-secrets
+                  key: GOTRUE_SITE_URL
+            - name: GOTRUE_URI_ALLOW_LIST
+              valueFrom:
+                secretKeyRef:
+                  name: env-secrets
+                  key: ADDITIONAL_REDIRECT_URLS
+            - name: GOTRUE_DISABLE_SIGNUP
+              valueFrom:
+                secretKeyRef:
+                  name: env-secrets
+                  key: DISABLE_SIGNUP
+            - name: GOTRUE_JWT_EXP
+              valueFrom:
+                secretKeyRef:
+                  name: env-secrets
+                  key: JWT_EXPIRY
+            - name: GOTRUE_JWT_SECRET
+              valueFrom:
+                secretKeyRef:
+                  name: env-secrets
+                  key: GOTRUE_JWT_SECRET
+            - name: GOTRUE_EXTERNAL_EMAIL_ENABLED
+              valueFrom:
+                secretKeyRef:
+                  name: env-secrets
+                  key: ENABLE_EMAIL_SIGNUP
+            - name: GOTRUE_EXTERNAL_GITHUB_ENABLED
+              valueFrom:
+                secretKeyRef:
+                  name: env-secrets
+                  key: GOTRUE_EXTERNAL_GITHUB_ENABLED
+            - name: GOTRUE_EXTERNAL_GITHUB_CLIENT_ID
+              valueFrom:
+                secretKeyRef:
+                  name: env-secrets
+                  key: GOTRUE_EXTERNAL_GITHUB_CLIENT_ID
+            - name: GOTRUE_EXTERNAL_GITHUB_SECRET
+              valueFrom:
+                secretKeyRef:
+                  name: env-secrets
+                  key: GOTRUE_EXTERNAL_GITHUB_SECRET
+            - name: GOTRUE_EXTERNAL_GITHUB_REDIRECT_URI
+              valueFrom:
+                secretKeyRef:
+                  name: env-secrets
+                  key: GOTRUE_EXTERNAL_GITHUB_REDIRECT_URI
+            - name: GOTRUE_EXTERNAL_APPLE_ENABLED
+              valueFrom:
+                secretKeyRef:
+                  name: env-secrets
+                  key: GOTRUE_EXTERNAL_APPLE_ENABLED
+            - name: GOTRUE_EXTERNAL_APPLE_CLIENT_ID
+              valueFrom:
+                secretKeyRef:
+                  name: env-secrets
+                  key: GOTRUE_EXTERNAL_APPLE_CLIENT_ID
+            - name: GOTRUE_EXTERNAL_APPLE_SECRET
+              valueFrom:
+                secretKeyRef:
+                  name: env-secrets
+                  key: GOTRUE_EXTERNAL_APPLE_SECRET
+            - name: GOTRUE_EXTERNAL_APPLE_REDIRECT_URI
+              valueFrom:
+                secretKeyRef:
+                  name: env-secrets
+                  key: GOTRUE_EXTERNAL_APPLE_REDIRECT_URI
+            - name: GOTRUE_EXTERNAL_AZURE_ENABLED
+              valueFrom:
+                secretKeyRef:
+                  name: env-secrets
+                  key: GOTRUE_EXTERNAL_AZURE_ENABLED
+            - name: GOTRUE_EXTERNAL_AZURE_CLIENT_ID
+              valueFrom:
+                secretKeyRef:
+                  name: env-secrets
+                  key: GOTRUE_EXTERNAL_AZURE_CLIENT_ID
+            - name: GOTRUE_EXTERNAL_AZURE_SECRET
+              valueFrom:
+                secretKeyRef:
+                  name: env-secrets
+                  key: GOTRUE_EXTERNAL_AZURE_SECRET
+            - name: GOTRUE_EXTERNAL_AZURE_REDIRECT_URI
+              valueFrom:
+                secretKeyRef:
+                  name: env-secrets
+                  key: GOTRUE_EXTERNAL_AZURE_REDIRECT_URI
+            - name: GOTRUE_EXTERNAL_BITBUCKET_ENABLED
+              valueFrom:
+                secretKeyRef:
+                  name: env-secrets
+                  key: GOTRUE_EXTERNAL_BITBUCKET_ENABLED
+            - name: GOTRUE_EXTERNAL_BITBUCKET_CLIENT_ID
+              valueFrom:
+                secretKeyRef:
+                  name: env-secrets
+                  key: GOTRUE_EXTERNAL_BITBUCKET_CLIENT_ID
+            - name: GOTRUE_EXTERNAL_BITBUCKET_SECRET
+              valueFrom:
+                secretKeyRef:
+                  name: env-secrets
+                  key: GOTRUE_EXTERNAL_BITBUCKET_SECRET
+            - name: GOTRUE_EXTERNAL_BITBUCKET_REDIRECT_URI
+              valueFrom:
+                secretKeyRef:
+                  name: env-secrets
+                  key: GOTRUE_EXTERNAL_BITBUCKET_REDIRECT_URI
+            - name: GOTRUE_EXTERNAL_DISCORD_ENABLED
+              valueFrom:
+                secretKeyRef:
+                  name: env-secrets
+                  key: GOTRUE_EXTERNAL_DISCORD_ENABLED
+            - name: GOTRUE_EXTERNAL_DISCORD_CLIENT_ID
+              valueFrom:
+                secretKeyRef:
+                  name: env-secrets
+                  key: GOTRUE_EXTERNAL_DISCORD_CLIENT_ID
+            - name: GOTRUE_EXTERNAL_DISCORD_SECRET
+              valueFrom:
+                secretKeyRef:
+                  name: env-secrets
+                  key: GOTRUE_EXTERNAL_DISCORD_SECRET
+            - name: GOTRUE_EXTERNAL_DISCORD_REDIRECT_URI
+              valueFrom:
+                secretKeyRef:
+                  name: env-secrets
+                  key: GOTRUE_EXTERNAL_DISCORD_REDIRECT_URI
+            - name: GOTRUE_EXTERNAL_FACEBOOK_ENABLED
+              valueFrom:
+                secretKeyRef:
+                  name: env-secrets
+                  key: GOTRUE_EXTERNAL_FACEBOOK_ENABLED
+            - name: GOTRUE_EXTERNAL_FACEBOOK_CLIENT_ID
+              valueFrom:
+                secretKeyRef:
+                  name: env-secrets
+                  key: GOTRUE_EXTERNAL_FACEBOOK_CLIENT_ID
+            - name: GOTRUE_EXTERNAL_FACEBOOK_SECRET
+              valueFrom:
+                secretKeyRef:
+                  name: env-secrets
+                  key: GOTRUE_EXTERNAL_FACEBOOK_SECRET
+            - name: GOTRUE_EXTERNAL_FACEBOOK_REDIRECT_URI
+              valueFrom:
+                secretKeyRef:
+                  name: env-secrets
+                  key: GOTRUE_EXTERNAL_FACEBOOK_REDIRECT_URI
+            - name: GOTRUE_EXTERNAL_GITLAB_ENABLED
+              valueFrom:
+                secretKeyRef:
+                  name: env-secrets
+                  key: GOTRUE_EXTERNAL_GITLAB_ENABLED
+            - name: GOTRUE_EXTERNAL_GITLAB_CLIENT_ID
+              valueFrom:
+                secretKeyRef:
+                  name: env-secrets
+                  key: GOTRUE_EXTERNAL_GITLAB_CLIENT_ID
+            - name: GOTRUE_EXTERNAL_GITLAB_SECRET
+              valueFrom:
+                secretKeyRef:
+                  name: env-secrets
+                  key: GOTRUE_EXTERNAL_GITLAB_SECRET
+            - name: GOTRUE_EXTERNAL_GITLAB_REDIRECT_URI
+              valueFrom:
+                secretKeyRef:
+                  name: env-secrets
+                  key: GOTRUE_EXTERNAL_GITLAB_REDIRECT_URI
+            - name: GOTRUE_EXTERNAL_GOOGLE_ENABLED
+              valueFrom:
+                secretKeyRef:
+                  name: env-secrets
+                  key: GOTRUE_EXTERNAL_GOOGLE_ENABLED
+            - name: GOTRUE_EXTERNAL_GOOGLE_CLIENT_ID
+              valueFrom:
+                secretKeyRef:
+                  name: env-secrets
+                  key: GOTRUE_EXTERNAL_GOOGLE_CLIENT_ID
+            - name: GOTRUE_EXTERNAL_GOOGLE_SECRET
+              valueFrom:
+                secretKeyRef:
+                  name: env-secrets
+                  key: GOTRUE_EXTERNAL_GOOGLE_SECRET
+            - name: GOTRUE_EXTERNAL_GOOGLE_REDIRECT_URI
+              valueFrom:
+                secretKeyRef:
+                  name: env-secrets
+                  key: GOTRUE_EXTERNAL_GOOGLE_REDIRECT_URI
+            - name: GOTRUE_EXTERNAL_KEYCLOAK_ENABLED
+              valueFrom:
+                secretKeyRef:
+                  name: env-secrets
+                  key: GOTRUE_EXTERNAL_KEYCLOAK_ENABLED
+            - name: GOTRUE_EXTERNAL_KEYCLOAK_CLIENT_ID
+              valueFrom:
+                secretKeyRef:
+                  name: env-secrets
+                  key: GOTRUE_EXTERNAL_KEYCLOAK_CLIENT_ID
+            - name: GOTRUE_EXTERNAL_KEYCLOAK_SECRET
+              valueFrom:
+                secretKeyRef:
+                  name: env-secrets
+                  key: GOTRUE_EXTERNAL_KEYCLOAK_SECRET
+            - name: GOTRUE_EXTERNAL_KEYCLOAK_REDIRECT_URI
+              valueFrom:
+                secretKeyRef:
+                  name: env-secrets
+                  key: GOTRUE_EXTERNAL_KEYCLOAK_REDIRECT_URI
+            - name: GOTRUE_EXTERNAL_LINKEDIN_ENABLED
+              valueFrom:
+                secretKeyRef:
+                  name: env-secrets
+                  key: GOTRUE_EXTERNAL_LINKEDIN_ENABLED
+            - name: GOTRUE_EXTERNAL_LINKEDIN_CLIENT_ID
+              valueFrom:
+                secretKeyRef:
+                  name: env-secrets
+                  key: GOTRUE_EXTERNAL_LINKEDIN_CLIENT_ID
+            - name: GOTRUE_EXTERNAL_LINKEDIN_SECRET
+              valueFrom:
+                secretKeyRef:
+                  name: env-secrets
+                  key: GOTRUE_EXTERNAL_LINKEDIN_SECRET
+            - name: GOTRUE_EXTERNAL_LINKEDIN_REDIRECT_URI
+              valueFrom:
+                secretKeyRef:
+                  name: env-secrets
+                  key: GOTRUE_EXTERNAL_LINKEDIN_REDIRECT_URI
+            - name: GOTRUE_EXTERNAL_NOTION_ENABLED
+              valueFrom:
+                secretKeyRef:
+                  name: env-secrets
+                  key: GOTRUE_EXTERNAL_NOTION_ENABLED
+            - name: GOTRUE_EXTERNAL_NOTION_CLIENT_ID
+              valueFrom:
+                secretKeyRef:
+                  name: env-secrets
+                  key: GOTRUE_EXTERNAL_NOTION_CLIENT_ID
+            - name: GOTRUE_EXTERNAL_NOTION_SECRET
+              valueFrom:
+                secretKeyRef:
+                  name: env-secrets
+                  key: GOTRUE_EXTERNAL_NOTION_SECRET
+            - name: GOTRUE_EXTERNAL_NOTION_REDIRECT_URI
+              valueFrom:
+                secretKeyRef:
+                  name: env-secrets
+                  key: GOTRUE_EXTERNAL_NOTION_REDIRECT_URI
+            - name: GOTRUE_EXTERNAL_SPOTIFY_ENABLED
+              valueFrom:
+                secretKeyRef:
+                  name: env-secrets
+                  key: GOTRUE_EXTERNAL_SPOTIFY_ENABLED
+            - name: GOTRUE_EXTERNAL_SPOTIFY_CLIENT_ID
+              valueFrom:
+                secretKeyRef:
+                  name: env-secrets
+                  key: GOTRUE_EXTERNAL_SPOTIFY_CLIENT_ID
+            - name: GOTRUE_EXTERNAL_SPOTIFY_SECRET
+              valueFrom:
+                secretKeyRef:
+                  name: env-secrets
+                  key: GOTRUE_EXTERNAL_SPOTIFY_SECRET
+            - name: GOTRUE_EXTERNAL_SPOTIFY_REDIRECT_URI
+              valueFrom:
+                secretKeyRef:
+                  name: env-secrets
+                  key: GOTRUE_EXTERNAL_SPOTIFY_REDIRECT_URI
+            - name: GOTRUE_EXTERNAL_SLACK_ENABLED
+              valueFrom:
+                secretKeyRef:
+                  name: env-secrets
+                  key: GOTRUE_EXTERNAL_SLACK_ENABLED
+            - name: GOTRUE_EXTERNAL_SLACK_CLIENT_ID
+              valueFrom:
+                secretKeyRef:
+                  name: env-secrets
+                  key: GOTRUE_EXTERNAL_SLACK_CLIENT_ID
+            - name: GOTRUE_EXTERNAL_SLACK_SECRET
+              valueFrom:
+                secretKeyRef:
+                  name: env-secrets
+                  key: GOTRUE_EXTERNAL_SLACK_SECRET
+            - name: GOTRUE_EXTERNAL_SLACK_REDIRECT_URI
+              valueFrom:
+                secretKeyRef:
+                  name: env-secrets
+                  key: GOTRUE_EXTERNAL_SLACK_REDIRECT_URI
+            - name: GOTRUE_EXTERNAL_TWITCH_ENABLED
+              valueFrom:
+                secretKeyRef:
+                  name: env-secrets
+                  key: GOTRUE_EXTERNAL_TWITCH_ENABLED
+            - name: GOTRUE_EXTERNAL_TWITCH_CLIENT_ID
+              valueFrom:
+                secretKeyRef:
+                  name: env-secrets
+                  key: GOTRUE_EXTERNAL_TWITCH_CLIENT_ID
+            - name: GOTRUE_EXTERNAL_TWITCH_SECRET
+              valueFrom:
+                secretKeyRef:
+                  name: env-secrets
+                  key: GOTRUE_EXTERNAL_TWITCH_SECRET
+            - name: GOTRUE_EXTERNAL_TWITCH_REDIRECT_URI
+              valueFrom:
+                secretKeyRef:
+                  name: env-secrets
+                  key: GOTRUE_EXTERNAL_TWITCH_REDIRECT_URI
+            - name: GOTRUE_EXTERNAL_TWITTER_ENABLED
+              valueFrom:
+                secretKeyRef:
+                  name: env-secrets
+                  key: GOTRUE_EXTERNAL_TWITTER_ENABLED
+            - name: GOTRUE_EXTERNAL_TWITTER_CLIENT_ID
+              valueFrom:
+                secretKeyRef:
+                  name: env-secrets
+                  key: GOTRUE_EXTERNAL_TWITTER_CLIENT_ID
+            - name: GOTRUE_EXTERNAL_TWITTER_SECRET
+              valueFrom:
+                secretKeyRef:
+                  name: env-secrets
+                  key: GOTRUE_EXTERNAL_TWITTER_SECRET
+            - name: GOTRUE_EXTERNAL_TWITTER_REDIRECT_URI
+              valueFrom:
+                secretKeyRef:
+                  name: env-secrets
+                  key: GOTRUE_EXTERNAL_TWITTER_REDIRECT_URI
+            - name: GOTRUE_EXTERNAL_WORKOS_ENABLED
+              valueFrom:
+                secretKeyRef:
+                  name: env-secrets
+                  key: GOTRUE_EXTERNAL_WORKOS_ENABLED
+            - name: GOTRUE_EXTERNAL_WORKOS_CLIENT_ID
+              valueFrom:
+                secretKeyRef:
+                  name: env-secrets
+                  key: GOTRUE_EXTERNAL_WORKOS_CLIENT_ID
+            - name: GOTRUE_EXTERNAL_WORKOS_SECRET
+              valueFrom:
+                secretKeyRef:
+                  name: env-secrets
+                  key: GOTRUE_EXTERNAL_WORKOS_SECRET
+            - name: GOTRUE_EXTERNAL_WORKOS_REDIRECT_URI
+              valueFrom:
+                secretKeyRef:
+                  name: env-secrets
+                  key: GOTRUE_EXTERNAL_WORKOS_REDIRECT_URI
+            - name: GOTRUE_EXTERNAL_ANONYMOUS_USERS_ENABLED
+              valueFrom:
+                secretKeyRef:
+                  name: env-secrets
+                  key: GOTRUE_EXTERNAL_ANONYMOUS_USERS_ENABLED
+            - name: GOTRUE_MAILER_AUTOCONFIRM
+              valueFrom:
+                secretKeyRef:
+                  name: env-secrets
+                  key: ENABLE_EMAIL_AUTOCONFIRM
+            - name: GOTRUE_SMTP_ADMIN_EMAIL
+              valueFrom:
+                secretKeyRef:
+                  name: env-secrets
+                  key: SMTP_ADMIN_EMAIL
+            - name: GOTRUE_SMTP_HOST
+              valueFrom:
+                secretKeyRef:
+                  name: env-secrets
+                  key: SMTP_HOST
+            - name: GOTRUE_SMTP_PORT
+              valueFrom:
+                secretKeyRef:
+                  name: env-secrets
+                  key: SMTP_PORT
+            - name: GOTRUE_SMTP_USER
+              valueFrom:
+                secretKeyRef:
+                  name: env-secrets
+                  key: SMTP_USER
+            - name: GOTRUE_SMTP_PASS
+              valueFrom:
+                secretKeyRef:
+                  name: env-secrets
+                  key: SMTP_PASS
+            - name: GOTRUE_SMTP_SENDER_NAME
+              valueFrom:
+                secretKeyRef:
+                  name: env-secrets
+                  key: SMTP_SENDER_NAME
+            - name: GOTRUE_MAILER_URLPATHS_INVITE
+              valueFrom:
+                secretKeyRef:
+                  name: env-secrets
+                  key: MAILER_URLPATHS_INVITE
+            - name: GOTRUE_MAILER_URLPATHS_CONFIRMATION
+              valueFrom:
+                secretKeyRef:
+                  name: env-secrets
+                  key: MAILER_URLPATHS_CONFIRMATION
+            - name: GOTRUE_MAILER_URLPATHS_RECOVERY
+              valueFrom:
+                secretKeyRef:
+                  name: env-secrets
+                  key: MAILER_URLPATHS_RECOVERY
+            - name: GOTRUE_MAILER_URLPATHS_EMAIL_CHANGE
+              valueFrom:
+                secretKeyRef:
+                  name: env-secrets
+                  key: MAILER_URLPATHS_EMAIL_CHANGE
+            - name: GOTRUE_MAILER_SUBJECTS_INVITE
+              valueFrom:
+                secretKeyRef:
+                  name: env-secrets
+                  key: MAILER_SUBJECTS_INVITE
+            - name: GOTRUE_MAILER_SUBJECTS_CONFIRMATION
+              valueFrom:
+                secretKeyRef:
+                  name: env-secrets
+                  key: MAILER_SUBJECTS_CONFIRMATION
+            - name: GOTRUE_MAILER_SUBJECTS_RECOVERY
+              valueFrom:
+                secretKeyRef:
+                  name: env-secrets
+                  key: MAILER_SUBJECTS_RECOVERY
+            - name: GOTRUE_MAILER_SUBJECTS_MAGIC_LINK
+              valueFrom:
+                secretKeyRef:
+                  name: env-secrets
+                  key: MAILER_SUBJECTS_MAGIC_LINK
+            - name: GOTRUE_MAILER_TEMPLATES_INVITE
+              valueFrom:
+                secretKeyRef:
+                  name: env-secrets
+                  key: MAILER_TEMPLATES_INVITE
+            - name: GOTRUE_MAILER_TEMPLATES_CONFIRMATION
+              valueFrom:
+                secretKeyRef:
+                  name: env-secrets
+                  key: MAILER_TEMPLATES_CONFIRMATION
+            - name: GOTRUE_MAILER_TEMPLATES_RECOVERY
+              valueFrom:
+                secretKeyRef:
+                  name: env-secrets
+                  key: MAILER_TEMPLATES_RECOVERY
+            - name: GOTRUE_MAILER_TEMPLATES_MAGIC_LINK
+              valueFrom:
+                secretKeyRef:
+                  name: env-secrets
+                  key: MAILER_TEMPLATES_MAGIC_LINK
+            - name: GOTRUE_EXTERNAL_PHONE_ENABLED
+              valueFrom:
+                secretKeyRef:
+                  name: env-secrets
+                  key: ENABLE_PHONE_SIGNUP
+            - name: GOTRUE_SMS_AUTOCONFIRM
+              valueFrom:
+                secretKeyRef:
+                  name: env-secrets
+                  key: ENABLE_PHONE_AUTOCONFIRM
+          image: supabase/gotrue:v2.167.0
+          livenessProbe:
+            exec:
+              command:
+                - wget
+                - --no-verbose
+                - --tries=1
+                - --spider
+                - http://auth:9999/health
+            failureThreshold: 10
+            periodSeconds: 5
+            timeoutSeconds: 5
+          name: supabase-auth
+          ports:
+            - containerPort: 9999
+      restartPolicy: Always

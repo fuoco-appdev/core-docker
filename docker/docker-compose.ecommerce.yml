@@ -1,4 +1,3 @@
-name: ${PROJECT_NAME}
 services:
   medusa-server:
     build:
@@ -15,7 +14,7 @@ services:
         condition: service_healthy
 
     environment:
-      DATABASE_URL: postgres://supabase_admin:${POSTGRES_PASSWORD}@${POSTGRES_HOST}:${POSTGRES_PORT}/${POSTGRES_DB}
+      DATABASE_URL: ${MEDUSA_DATABASE_URL}
       REDIS_URL: redis://redis
       REDIS_TLS: ${REDIS_TLS}
       REDIS_PASSWORD: ${REDIS_PASSWORD}

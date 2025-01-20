@@ -1,0 +1,63 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  annotations:
+    kompose.cmd: C:\Github\mindy-project\core-docker\docker\kubernetes\kompose.exe -f ../docker-compose.core.yml -f ../docker-compose.ai.yml -f ../docker-compose.blog.yml -f ../docker-compose.development.yml -f ../docker-compose.ecommerce.yml -f ../docker-compose.mail.yml -f ../docker-compose.s3.yml convert
+    kompose.version: 1.34.0 (cbf2835db)
+  labels:
+    service: meta
+  name: meta
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      service: meta
+  template:
+    metadata:
+      annotations:
+        kompose.cmd: C:\Github\mindy-project\core-docker\docker\kubernetes\kompose.exe -f ../docker-compose.core.yml -f ../docker-compose.ai.yml -f ../docker-compose.blog.yml -f ../docker-compose.development.yml -f ../docker-compose.ecommerce.yml -f ../docker-compose.mail.yml -f ../docker-compose.s3.yml convert
+        kompose.version: 1.34.0 (cbf2835db)
+      labels:
+        service: meta
+    spec:
+      initContainers:
+        - name: init-meta
+          image: curlimages/curl
+          command: [
+            'sh', 
+            '-c', 
+            'until curl -fsSL -m 2 db:5432 > /dev/null 2>&1 || [ $? -eq 52 ]; do echo waiting for postgres; sleep 2; done;',
+            '-c',
+            'until curl -fsSL -m 2 analytics:4000; do echo waiting for analytics; sleep 2; done;'
+          ]
+      containers:
+        - env:
+            - name: PG_META_DB_USER
+              value: supabase_admin
+            - name: PG_META_PORT
+              value: "8080"
+            - name: PG_META_DB_HOST
+              valueFrom:
+                secretKeyRef:
+                  name: env-secrets
+                  key: POSTGRES_HOST
+            - name: PG_META_DB_PORT
+              valueFrom:
+                secretKeyRef:
+                  name: env-secrets
+                  key: POSTGRES_PORT
+            - name: PG_META_DB_NAME
+              valueFrom:
+                secretKeyRef:
+                  name: env-secrets
+                  key: POSTGRES_DB
+            - name: PG_META_DB_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: env-secrets
+                  key: POSTGRES_PASSWORD
+          image: supabase/postgres-meta:v0.84.2
+          ports:
+            - containerPort: 8080
+          name: supabase-meta
+      restartPolicy: Always

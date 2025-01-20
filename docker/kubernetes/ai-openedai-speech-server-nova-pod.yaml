@@ -1,0 +1,23 @@
+apiVersion: v1
+kind: Pod
+metadata:
+  labels:
+    io.kompose.service: openedai-speech-server
+  name: openedai-speech-server-nova-pod
+spec:
+  initContainers:
+  - name: openedai-speech-server-nova-service
+    image: busybox
+    command: ['sh', '-c', 'cp ../../openedai-speech/voices/nova.wav /app/voices/nova.wav']
+    volumeMounts:
+    - name: openedai-speech-server-nova-pod
+      mountPath: /app/voices
+  containers:
+  - name: openedai-speech-server
+    image: ghcr.io/matatonic/openedai-speech
+    volumeMounts:
+    - name: openedai-speech-server-nova-pod
+      mountPath: /app/voices
+  volumes:
+  - name: openedai-speech-server-nova-pod
+    emptyDir: {}

@@ -1,0 +1,81 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  annotations:
+    kompose.cmd: C:\Github\mindy-project\core-docker\docker\kubernetes\kompose.exe -f ../docker-compose.core.yml -f ../docker-compose.ai.yml -f ../docker-compose.blog.yml -f ../docker-compose.development.yml -f ../docker-compose.ecommerce.yml -f ../docker-compose.mail.yml -f ../docker-compose.s3.yml convert
+    kompose.version: 1.34.0 (cbf2835db)
+  labels:
+    service: vector
+  name: vector
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      service: vector
+  template:
+    metadata:
+      annotations:
+        kompose.cmd: C:\Github\mindy-project\core-docker\docker\kubernetes\kompose.exe -f ../docker-compose.core.yml -f ../docker-compose.ai.yml -f ../docker-compose.blog.yml -f ../docker-compose.development.yml -f ../docker-compose.ecommerce.yml -f ../docker-compose.mail.yml -f ../docker-compose.s3.yml convert
+        kompose.version: 1.34.0 (cbf2835db)
+      labels:
+        service: vector
+    spec:
+      initContainers:
+      - name: init-vector
+        image: timberio/vector:0.28.1-alpine
+        command:
+          - /bin/sh
+          - -c
+          - |
+            while [ ! -e /tmp/etc/vector/vector.yml ] || [ ! -s /tmp/etc/vector/vector.yml ]; do 
+              echo 'Waiting for all copied files...'
+              sleep 10
+            done
+            ls /tmp/etc/vector
+            ls /var/run
+        volumeMounts:
+          - name: vector-volume
+            mountPath: /tmp/etc/vector
+            subPath: vector
+      containers:
+        - env:
+            - name: LOGFLARE_API_KEY
+              valueFrom:
+                secretKeyRef:
+                  name: env-secrets
+                  key: LOGFLARE_API_KEY
+          image: timberio/vector:0.28.1-alpine
+          args:
+            - --config
+            - /etc/vector/vector.yml
+          livenessProbe:
+            exec:
+              command:
+                - wget
+                - --no-verbose
+                - --tries=1
+                - --spider
+                - http://vector:9001/health
+            failureThreshold: 10
+            periodSeconds: 5
+            timeoutSeconds: 5
+          name: supabase-vector
+          ports:
+            - containerPort: 9001
+            - containerPort: 5432
+          volumeMounts:
+            - name: vector-volume
+              mountPath: /etc/vector
+              subPath: vector
+            - name: dockersock
+              mountPath: "/var/run/docker.sock"
+      restartPolicy: Always
+      securityContext:
+        fsGroup: 412
+      volumes:
+        - name: vector-volume
+          persistentVolumeClaim: 
+            claimName: vector-volume-claim
+        - name: dockersock
+          hostPath:
+            path: /var/run/docker.sock

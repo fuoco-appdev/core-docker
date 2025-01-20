@@ -1,0 +1,104 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  annotations:
+    kompose.cmd: C:\Github\mindy-project\core-docker\docker\kubernetes\kompose.exe -f ../docker-compose.core.yml -f ../docker-compose.ai.yml -f ../docker-compose.blog.yml -f ../docker-compose.development.yml -f ../docker-compose.ecommerce.yml -f ../docker-compose.mail.yml -f ../docker-compose.s3.yml convert
+    kompose.version: 1.34.0 (cbf2835db)
+  labels:
+    service: studio
+  name: studio
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      service: studio
+  template:
+    metadata:
+      annotations:
+        kompose.cmd: C:\Github\mindy-project\core-docker\docker\kubernetes\kompose.exe -f ../docker-compose.core.yml -f ../docker-compose.ai.yml -f ../docker-compose.blog.yml -f ../docker-compose.development.yml -f ../docker-compose.ecommerce.yml -f ../docker-compose.mail.yml -f ../docker-compose.s3.yml convert
+        kompose.version: 1.34.0 (cbf2835db)
+      labels:
+        service: studio
+    spec:
+      containers:
+        - env:
+            - name: LOGFLARE_URL
+              value: http://analytics:4000
+            - name: NEXT_ANALYTICS_BACKEND_PROVIDER
+              value: postgres
+            - name: NEXT_PUBLIC_ENABLE_LOGS
+              value: "true"
+            - name: STUDIO_PG_META_URL
+              value: http://meta:8080
+            - name: SUPABASE_URL
+              value: http://kong:8000
+            - name: POSTGRES_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: env-secrets
+                  key: POSTGRES_PASSWORD
+            - name: DEFAULT_ORGANIZATION_NAME
+              valueFrom:
+                secretKeyRef:
+                  name: env-secrets
+                  key: STUDIO_DEFAULT_ORGANIZATION
+            - name: DEFAULT_PROJECT_NAME
+              valueFrom:
+                secretKeyRef:
+                  name: env-secrets
+                  key: STUDIO_DEFAULT_PROJECT
+            - name: DASHBOARD_USERNAME
+              valueFrom:
+                secretKeyRef:
+                  name: env-secrets
+                  key: STUDIO_DASHBOARD_USERNAME
+            - name: DASHBOARD_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: env-secrets
+                  key: STUDIO_DASHBOARD_PASSWORD
+            - name: OPENAI_API_KEY
+              valueFrom:
+                secretKeyRef:
+                  name: env-secrets
+                  key: OPENAI_API_KEY
+            - name: SUPABASE_PUBLIC_URL
+              valueFrom:
+                secretKeyRef:
+                  name: env-secrets
+                  key: SUPABASE_PUBLIC_URL
+            - name: SUPABASE_ANON_KEY
+              valueFrom:
+                secretKeyRef:
+                  name: env-secrets
+                  key: ANON_KEY
+            - name: SUPABASE_SERVICE_KEY
+              valueFrom:
+                secretKeyRef:
+                  name: env-secrets
+                  key: SERVICE_ROLE_KEY
+            - name: AUTH_JWT_SECRET
+              valueFrom:
+                secretKeyRef:
+                  name: env-secrets
+                  key: AUTH_JWT_SECRET
+            - name: LOGFLARE_API_KEY
+              valueFrom:
+                secretKeyRef:
+                  name: env-secrets
+                  key: LOGFLARE_API_KEY
+          image: supabase/studio:20250113-83c9420
+          livenessProbe:
+            exec:
+              command:
+                - node
+                - -e
+                - fetch('http://studio:3000/api/profile').then((r) => {if (r.status !== 200) throw new Error(r.status)})
+            failureThreshold: 10
+            periodSeconds: 5
+            timeoutSeconds: 10
+          name: supabase-studio
+          ports:
+            - containerPort: 3000
+              protocol: TCP
+      restartPolicy: Always

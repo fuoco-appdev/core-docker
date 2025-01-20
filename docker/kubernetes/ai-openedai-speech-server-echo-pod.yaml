@@ -1,0 +1,23 @@
+apiVersion: v1
+kind: Pod
+metadata:
+  labels:
+    io.kompose.service: openedai-speech-server
+  name: openedai-speech-server-echo-pod
+spec:
+  initContainers:
+  - name: openedai-speech-server-echo-service
+    image: busybox
+    command: ['sh', '-c', 'cp ../../openedai-speech/voices/echo.wav /app/voices/echo.wav']
+    volumeMounts:
+    - name: openedai-speech-server-echo-pod
+      mountPath: /app/voices
+  containers:
+  - name: openedai-speech-server
+    image: ghcr.io/matatonic/openedai-speech
+    volumeMounts:
+    - name: openedai-speech-server-echo-pod
+      mountPath: /app/voices
+  volumes:
+  - name: openedai-speech-server-echo-pod
+    emptyDir: {}

@@ -1,0 +1,166 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  annotations:
+    kompose.cmd: C:\Github\mindy-project\core-docker\docker\kubernetes\kompose.exe -f ../docker-compose.core.yml -f ../docker-compose.ai.yml -f ../docker-compose.blog.yml -f ../docker-compose.development.yml -f ../docker-compose.ecommerce.yml -f ../docker-compose.mail.yml -f ../docker-compose.s3.yml convert
+    kompose.version: 1.34.0 (cbf2835db)
+  labels:
+    service: db
+  name: db
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      service: db
+  strategy:
+    type: Recreate
+  template:
+    metadata:
+      labels:
+        service: db
+    spec:
+      initContainers:
+      - name: init-db
+        image: supabase/postgres:15.8.1.020
+        command:
+          - /bin/sh
+          - -c
+          - |
+            while [ ! -e /tmp/docker-entrypoint-initdb.d/migrations/99-pooler.sql ] || [ ! -s /tmp/docker-entrypoint-initdb.d/migrations/99-pooler.sql ]; do 
+              echo 'Waiting for all copied files...'
+              sleep 10
+            done
+            ls /etc/postgresql-custom
+            cp -r /etc/postgresql-custom/* /tmp/etc/postgresql-custom
+            ls /docker-entrypoint-initdb.d/init-scripts
+            cp -r /docker-entrypoint-initdb.d/init-scripts/* /tmp/docker-entrypoint-initdb.d/init-scripts/
+            ls /docker-entrypoint-initdb.d/migrations
+            cp -r /docker-entrypoint-initdb.d/migrations/* /tmp/docker-entrypoint-initdb.d/migrations/
+            chmod 600 /tmp/var/lib/ssl/server.key && chown postgres:postgres /tmp/var/lib/ssl/server.key
+        volumeMounts:
+          - name: ssl-volume
+            mountPath: /tmp/var/lib/ssl
+            subPath: ssl
+          - name: init-scripts-volume
+            mountPath: /tmp/docker-entrypoint-initdb.d/init-scripts
+            subPath: init-scripts
+          - name: migrations-volume
+            mountPath: /tmp/docker-entrypoint-initdb.d/migrations
+            subPath: migrations
+          - name: data-volume
+            mountPath: /var/lib/postgresql/data
+            subPath: data
+          - name: config-volume
+            mountPath: /tmp/etc/postgresql-custom
+            subPath: postgresql-custom
+      containers:
+        - args:
+            - postgres
+            - -c
+            - config_file=/etc/postgresql/postgresql.conf
+            - -c
+            - ssl=on
+            - -c
+            - ssl_cert_file=/var/lib/ssl/server.crt
+            - -c
+            - ssl_key_file=/var/lib/ssl/server.key
+          env:
+            - name: POSTGRES_HOST
+              value: /var/run/postgresql
+            - name: PGPORT
+              valueFrom:
+                secretKeyRef:
+                  name: env-secrets
+                  key: POSTGRES_PORT
+            - name: POSTGRES_PORT
+              valueFrom:
+                secretKeyRef:
+                  name: env-secrets
+                  key: POSTGRES_PORT
+            - name: PGPASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: env-secrets
+                  key: POSTGRES_PASSWORD
+            - name: POSTGRES_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: env-secrets
+                  key: POSTGRES_PASSWORD
+            - name: PGDATABASE
+              valueFrom:
+                secretKeyRef:
+                  name: env-secrets
+                  key: POSTGRES_DB
+            - name: POSTGRES_DB
+              valueFrom:
+                secretKeyRef:
+                  name: env-secrets
+                  key: POSTGRES_DB
+            - name: JWT_SECRET
+              valueFrom:
+                secretKeyRef:
+                  name: env-secrets
+                  key: JWT_SECRET
+            - name: JWT_EXP
+              valueFrom:
+                secretKeyRef:
+                  name: env-secrets
+                  key: JWT_EXPIRY
+          image: supabase/postgres:15.8.1.020
+          imagePullPolicy: IfNotPresent
+          readinessProbe:
+            exec:
+              command: 
+              - /bin/sh
+              - -c
+              - 'pg_isready -U postgres -h localhost  -p 5432'
+            initialDelaySeconds: 10
+            periodSeconds: 10
+            failureThreshold: 3
+            successThreshold: 1
+          livenessProbe:
+            exec:
+              command:
+              - /bin/sh
+              - -c
+              - 'pg_isready -U postgres -h localhost -p 5432'
+            initialDelaySeconds: 30
+            periodSeconds: 10
+            failureThreshold: 3
+          name: supabase-db
+          ports:
+            - containerPort: 5432
+          volumeMounts:
+            - mountPath: /var/lib/ssl
+              name: ssl-volume
+              subPath: ssl
+            - mountPath: /docker-entrypoint-initdb.d/init-scripts
+              name: init-scripts-volume
+              subPath: init-scripts
+            - mountPath: /docker-entrypoint-initdb.d/migrations
+              name: migrations-volume
+              subPath: migrations
+            - mountPath: /var/lib/postgresql/data
+              name: data-volume
+              subPath: data
+            - mountPath: /etc/postgresql-custom
+              name: config-volume
+              subPath: postgresql-custom
+      restartPolicy: Always
+      volumes:
+        - name: ssl-volume
+          persistentVolumeClaim:
+            claimName: db-ssl-volume-claim
+        - name: migrations-volume
+          persistentVolumeClaim:
+            claimName: db-migrations-volume-claim
+        - name: init-scripts-volume
+          persistentVolumeClaim:
+            claimName: db-init-scripts-volume-claim
+        - name: data-volume
+          persistentVolumeClaim:
+            claimName: db-data-volume-claim
+        - name: config-volume
+          persistentVolumeClaim:
+            claimName: db-config-volume-claim

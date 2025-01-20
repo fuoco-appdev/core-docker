@@ -1,0 +1,23 @@
+apiVersion: v1
+kind: Pod
+metadata:
+  labels:
+    io.kompose.service: openedai-speech-server
+  name: openedai-speech-server-alloy-pod
+spec:
+  initContainers:
+  - name: openedai-speech-server-alloy-service
+    image: busybox
+    command: ['sh', '-c', 'cp ../../openedai-speech/voices/alloy.wav /app/voices/alloy.wav']
+    volumeMounts:
+    - name: openedai-speech-server-alloy-pod
+      mountPath: /app/voices
+  containers:
+  - name: openedai-speech-server
+    image: ghcr.io/matatonic/openedai-speech
+    volumeMounts:
+    - name: openedai-speech-server-alloy-pod
+      mountPath: /app/voices
+  volumes:
+  - name: openedai-speech-server-alloy-pod
+    emptyDir: {}

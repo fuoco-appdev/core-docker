@@ -1,0 +1,94 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  annotations:
+    kompose.cmd: C:\Github\mindy-project\core-docker\docker\kubernetes\kompose.exe -f ../docker-compose.core.yml -f ../docker-compose.ai.yml -f ../docker-compose.blog.yml -f ../docker-compose.development.yml -f ../docker-compose.ecommerce.yml -f ../docker-compose.mail.yml -f ../docker-compose.s3.yml convert
+    kompose.version: 1.34.0 (cbf2835db)
+  labels:
+    service: kong
+  name: kong
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      service: kong
+  strategy:
+    type: Recreate
+  template:
+    metadata:
+      annotations:
+        kompose.cmd: C:\Github\mindy-project\core-docker\docker\kubernetes\kompose.exe -f ../docker-compose.core.yml -f ../docker-compose.ai.yml -f ../docker-compose.blog.yml -f ../docker-compose.development.yml -f ../docker-compose.ecommerce.yml -f ../docker-compose.mail.yml -f ../docker-compose.s3.yml convert
+        kompose.version: 1.34.0 (cbf2835db)
+      labels:
+        service: kong
+    spec:
+      initContainers:
+      - name: init-kong
+        image: kong:2.8.1
+        command:
+          - /bin/sh
+          - -c
+          - |
+            while [ ! -e /tmp/home/kong/temp.yml ] || [ ! -s /tmp/home/kong/temp.yml ]; do 
+              echo 'Waiting for all copied files...'
+              sleep 10
+            done
+            ls /tmp/home/kong/
+        volumeMounts:
+          - name: kong-volume
+            mountPath: /tmp/home/kong
+            subPath: kong
+      containers:
+        - command:
+            - bash
+            - -c
+            - eval "echo \"$(cat ~/temp.yml)\"" > ~/kong.yml && /docker-entrypoint.sh kong docker-start
+          env:
+            - name: KONG_DATABASE
+              value: "off"
+            - name: KONG_DECLARATIVE_CONFIG
+              value: /home/kong/kong.yml
+            - name: KONG_DNS_ORDER
+              value: LAST,A,CNAME
+            - name: KONG_NGINX_PROXY_PROXY_BUFFERS
+              value: 64 160k
+            - name: KONG_NGINX_PROXY_PROXY_BUFFER_SIZE
+              value: 160k
+            - name: KONG_PLUGINS
+              value: request-transformer,cors,key-auth,acl,basic-auth
+            - name: SUPABASE_ANON_KEY
+              valueFrom:
+                secretKeyRef:
+                  name: env-secrets
+                  key: ANON_KEY
+            - name: SUPABASE_SERVICE_KEY
+              valueFrom:
+                secretKeyRef:
+                  name: env-secrets
+                  key: SERVICE_ROLE_KEY
+            - name: DASHBOARD_USERNAME
+              valueFrom:
+                secretKeyRef:
+                  name: env-secrets
+                  key: DASHBOARD_USERNAME
+            - name: DASHBOARD_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: env-secrets
+                  key: DASHBOARD_PASSWORD
+          image: kong:2.8.1
+          name: supabase-kong
+          ports:
+            - containerPort: 8000
+              protocol: TCP
+            - containerPort: 8443
+              protocol: TCP
+          volumeMounts:
+            - name: kong-volume
+              mountPath: /home/kong
+              subPath: kong
+      restartPolicy: Always
+      volumes:
+        - name: kong-volume
+          persistentVolumeClaim:
+            claimName: kong-volume-claim

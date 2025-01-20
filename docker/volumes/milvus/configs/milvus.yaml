@@ -16,7 +16,7 @@
 
 # Related configuration of etcd, used to store Milvus metadata & service discovery.
 etcd:
-  endpoints: localhost:2379
+  endpoints: 0.0.0.0:2379
   rootPath: by-dev # The root path where data is stored in etcd
   metaSubPath: meta # metaRootPath = rootPath + '/' + metaSubPath
   kvSubPath: kv # kvRootPath = rootPath + '/' + kvSubPath
@@ -75,7 +75,7 @@ localStorage:
 minio:
   accessKeyID: minioadmin # accessKeyID of MinIO/S3
   secretAccessKey: secret1234 # MinIO/S3 encryption string
-  address: localhost # Address of MinIO/S3
+  address: 0.0.0.0 # Address of MinIO/S3
   port: 9000 # Port of MinIO/S3
   useSSL: false # Access to MinIO/S3 with SSL
   ssl:
@@ -126,7 +126,7 @@ mq:
 
 # Related configuration of pulsar, used to manage Milvus logs of recent mutation operations, output streaming log, and provide log publish-subscribe services.
 pulsar:
-  address: localhost # Address of pulsar
+  address: 0.0.0.0 # Address of pulsar
   port: 6650 # Port of Pulsar
   webport: 80 # Web port of pulsar, if you connect directly without proxy, should use 8080
   maxMessageSize: 5242880 # 5 * 1024 * 1024 Bytes, Maximum size of each message in pulsar.
@@ -393,7 +393,7 @@ queryNode:
 indexCoord:
   bindIndexNodeMode:
     enable: false
-    address: localhost:22930
+    address: 0.0.0.0:22930
     withCred: false
     nodeID: 0
   segment:

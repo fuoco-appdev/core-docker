@@ -1,0 +1,272 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  annotations:
+    kompose.cmd: C:\Github\mindy-project\core-docker\docker\kubernetes\kompose.exe -f ../docker-compose.core.yml -f ../docker-compose.ai.yml -f ../docker-compose.blog.yml -f ../docker-compose.development.yml -f ../docker-compose.ecommerce.yml -f ../docker-compose.mail.yml -f ../docker-compose.s3.yml convert
+    kompose.version: 1.34.0 (cbf2835db)
+  labels:
+    service: medusa-server
+  name: medusa-server
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      service: medusa-server
+  strategy:
+    type: Recreate
+  template:
+    metadata:
+      annotations:
+        kompose.cmd: C:\Github\mindy-project\core-docker\docker\kubernetes\kompose.exe -f ../docker-compose.core.yml -f ../docker-compose.ai.yml -f ../docker-compose.blog.yml -f ../docker-compose.development.yml -f ../docker-compose.ecommerce.yml -f ../docker-compose.mail.yml -f ../docker-compose.s3.yml convert
+        kompose.version: 1.34.0 (cbf2835db)
+      labels:
+        service: medusa-server
+    spec:
+      containers:
+        - env:
+          - name: REDIS_URL
+            value: redis://redis
+          - name: MEDUSA_FF_SALES_CHANNELS
+            value: "true"
+          - name: MEDUSA_FF_TAX_INCLUSIVE_PRICING
+            value: "false"
+          - name: PORT
+            value: "9010"
+          - name: DATABASE_URL
+            valueFrom:
+              secretKeyRef:
+                name: env-secrets
+                key: MEDUSA_DATABASE_URL
+          - name: ADMIN_CORS
+            valueFrom:
+              secretKeyRef:
+                name: env-secrets
+                key: MEDUSA_ADMIN_CORS
+          - name: AUTH_CORS
+            valueFrom:
+              secretKeyRef:
+                name: env-secrets
+                key: MEDUSA_AUTH_CORS
+          - name: COOKIE_SECRET
+            valueFrom:
+              secretKeyRef:
+                name: env-secrets
+                key: MEDUSA_COOKIE_SECRET
+          - name: JWT_SECRET
+            valueFrom:
+              secretKeyRef:
+                name: env-secrets
+                key: MEDUSA_JWT_SECRET
+          - name: MEDUSA_ADMIN_BASE_URL
+            valueFrom:
+              secretKeyRef:
+                name: env-secrets
+                key: MEDUSA_ADMIN_BASE_URL
+          - name: MEDUSA_BACKEND_URL
+            valueFrom:
+              secretKeyRef:
+                name: env-secrets
+                key: MEDUSA_BACKEND_URL
+          - name: MEILISEARCH_API_KEY
+            valueFrom:
+              secretKeyRef:
+                name: env-secrets
+                key: MEILI_MASTER_KEY
+          - name: MEILISEARCH_HOST
+            valueFrom:
+              secretKeyRef:
+                name: env-secrets
+                key: MEILI_HOST
+          - name: MEILI_PRODUCTS_DISPLAYED_ATTRIBUTES
+            valueFrom:
+              secretKeyRef:
+                name: env-secrets
+                key: MEILI_PRODUCTS_DISPLAYED_ATTRIBUTES
+          - name: MEILI_PRODUCTS_FILTERABLE_ATTRIBUTES
+            valueFrom:
+              secretKeyRef:
+                name: env-secrets
+                key: MEILI_PRODUCTS_FILTERABLE_ATTRIBUTES
+          - name: MEILI_PRODUCTS_PRIMARY_KEY
+            valueFrom:
+              secretKeyRef:
+                name: env-secrets
+                key: MEILI_PRODUCTS_PRIMARY_KEY
+          - name: MEILI_PRODUCTS_SEARCHABLE_ATTRIBUTES
+            valueFrom:
+              secretKeyRef:
+                name: env-secrets
+                key: MEILI_PRODUCTS_SEARCHABLE_ATTRIBUTES
+          - name: MEILI_PRODUCTS_SORTABLE_ATTRIBUTES
+            valueFrom:
+              secretKeyRef:
+                name: env-secrets
+                key: MEILI_PRODUCTS_SORTABLE_ATTRIBUTES
+          - name: MEILI_STOCK_LOCATIONS_DISPLAYED_ATTRIBUTES
+            valueFrom:
+              secretKeyRef:
+                name: env-secrets
+                key: MEILI_STOCK_LOCATIONS_DISPLAYED_ATTRIBUTES
+          - name: MEILI_STOCK_LOCATIONS_FILTERABLE_ATTRIBUTES
+            valueFrom:
+              secretKeyRef:
+                name: env-secrets
+                key: MEILI_STOCK_LOCATIONS_FILTERABLE_ATTRIBUTES
+          - name: MEILI_STOCK_LOCATIONS_PRIMARY_KEY
+            valueFrom:
+              secretKeyRef:
+                name: env-secrets
+                key: MEILI_STOCK_LOCATIONS_PRIMARY_KEY
+          - name: MEILI_STOCK_LOCATIONS_SEARCHABLE_ATTRIBUTES
+            valueFrom:
+              secretKeyRef:
+                name: env-secrets
+                key: MEILI_STOCK_LOCATIONS_SEARCHABLE_ATTRIBUTES
+          - name: MEILI_STOCK_LOCATIONS_SORTABLE_ATTRIBUTES
+            valueFrom:
+              secretKeyRef:
+                name: env-secrets
+                key: MEILI_STOCK_LOCATIONS_SORTABLE_ATTRIBUTES
+          - name: NOTIFICATION_TELEGRAM_BOT_TOKEN
+            valueFrom:
+              secretKeyRef:
+                name: env-secrets
+                key: NOTIFICATION_TELEGRAM_BOT_TOKEN
+          - name: REDIS_PASSWORD
+            valueFrom:
+              secretKeyRef:
+                name: env-secrets
+                key: REDIS_PASSWORD
+          - name: REDIS_TLS
+            valueFrom:
+              secretKeyRef:
+                name: env-secrets
+                key: REDIS_TLS
+          - name: SENDGRID_API_KEY
+            valueFrom:
+              secretKeyRef:
+                name: env-secrets
+                key: SENDGRID_API_KEY
+          - name: SENDGRID_CLAIM_SHIPMENT_CREATED_ID
+            valueFrom:
+              secretKeyRef:
+                name: env-secrets
+                key: SENDGRID_CLAIM_SHIPMENT_CREATED_ID
+          - name: SENDGRID_CUSTOMER_PASSWORD_RESET_ID
+            valueFrom:
+              secretKeyRef:
+                name: env-secrets
+                key: SENDGRID_CUSTOMER_PASSWORD_RESET_ID
+          - name: SENDGRID_FROM
+            valueFrom:
+              secretKeyRef:
+                name: env-secrets
+                key: SENDGRID_FROM
+          - name: SENDGRID_GIFT_CARD_CREATED_ID
+            valueFrom:
+              secretKeyRef:
+                name: env-secrets
+                key: SENDGRID_GIFT_CARD_CREATED_ID
+          - name: SENDGRID_MEDUSA_RESTOCK_ID
+            valueFrom:
+              secretKeyRef:
+                name: env-secrets
+                key: SENDGRID_MEDUSA_RESTOCK_ID
+          - name: SENDGRID_ORDER_CANCELED_ID
+            valueFrom:
+              secretKeyRef:
+                name: env-secrets
+                key: SENDGRID_ORDER_CANCELED_ID
+          - name: SENDGRID_ORDER_ITEMS_RETURNED_ID
+            valueFrom:
+              secretKeyRef:
+                name: env-secrets
+                key: SENDGRID_ORDER_ITEMS_RETURNED_ID
+          - name: SENDGRID_ORDER_PLACED_ID
+            valueFrom:
+              secretKeyRef:
+                name: env-secrets
+                key: SENDGRID_ORDER_PLACED_ID
+          - name: SENDGRID_ORDER_RETURN_REQUESTED_ID
+            valueFrom:
+              secretKeyRef:
+                name: env-secrets
+                key: SENDGRID_ORDER_RETURN_REQUESTED_ID
+          - name: SENDGRID_ORDER_SHIPPED_ID
+            valueFrom:
+              secretKeyRef:
+                name: env-secrets
+                key: SENDGRID_ORDER_SHIPPED_ID
+          - name: SENDGRID_SWAP_CREATED_ID
+            valueFrom:
+              secretKeyRef:
+                name: env-secrets
+                key: SENDGRID_SWAP_CREATED_ID
+          - name: SENDGRID_SWAP_RECEIVED_ID
+            valueFrom:
+              secretKeyRef:
+                name: env-secrets
+                key: SENDGRID_SWAP_RECEIVED_ID
+          - name: SENDGRID_SWAP_SHIPMENT_CREATED_ID
+            valueFrom:
+              secretKeyRef:
+                name: env-secrets
+                key: SENDGRID_SWAP_SHIPMENT_CREATED_ID
+          - name: SENDGRID_USER_PASSWORD_RESET_ID
+            valueFrom:
+              secretKeyRef:
+                name: env-secrets
+                key: SENDGRID_USER_PASSWORD_RESET_ID
+          - name: SPACE_ACCESS_KEY_ID
+            valueFrom:
+              secretKeyRef:
+                name: env-secrets
+                key: SPACE_ACCESS_KEY_ID
+          - name: SPACE_BUCKET
+            valueFrom:
+              secretKeyRef:
+                name: env-secrets
+                key: SPACE_BUCKET
+          - name: SPACE_ENDPOINT
+            valueFrom:
+              secretKeyRef:
+                name: env-secrets
+                key: SPACE_ENDPOINT
+          - name: SPACE_SECRET_ACCESS_KEY
+            valueFrom:
+              secretKeyRef:
+                name: env-secrets
+                key: SPACE_SECRET_ACCESS_KEY
+          - name: SPACE_URL
+            valueFrom:
+              secretKeyRef:
+                name: env-secrets
+                key: SPACE_URL
+          - name: STORE_CORS
+            valueFrom:
+              secretKeyRef:
+                name: env-secrets
+                key: MEDUSA_STORE_CORS
+          - name: STRIPE_API_KEY
+            valueFrom:
+              secretKeyRef:
+                name: env-secrets
+                key: STRIPE_API_KEY
+          - name: STRIPE_WEBHOOK_SECRET
+            valueFrom:
+              secretKeyRef:
+                name: env-secrets
+                key: STRIPE_WEBHOOK_SECRET
+          image: medusa/server:v0.0.1
+          name: medusa-server
+          ports:
+            - containerPort: 9010
+              protocol: TCP
+          # volumeMounts:
+          #   - mountPath: /app/medusa
+          #     name: medusa-server
+      restartPolicy: Always
+      # volumes:
+      #   - configMap:
+      #       name: medusa-server
+      #     name: medusa-server-volume-claim
