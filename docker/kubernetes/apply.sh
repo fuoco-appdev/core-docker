@@ -193,4 +193,12 @@ fi
 
 kubectl cp ../volumes/logs/vector.yml $VECTOR_POD_NAME:/tmp/etc/vector/vector.yml -c init-vector
 
+kubectl apply -f https://raw.githubusercontent.com/kubernetes/dashboard/v2.7.0/aio/deploy/recommended.yaml
+kubectl proxy &
+
+kubectl apply -f dashboard-adminuser.yaml -n kubernetes-dashboard
+kubectl apply -f dashboard-clusterrole.yaml -n kubernetes-dashboard
+kubectl apply -f dashboard-secret.yaml -n kubernetes-dashboard
+kubectl get secret admin-user -n kubernetes-dashboard -o jsonpath={".data.token"} | base64 -d
+
 exit 0
