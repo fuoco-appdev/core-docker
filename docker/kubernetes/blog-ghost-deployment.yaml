@@ -8,7 +8,7 @@ metadata:
     io.kompose.service: ghost
   name: ghost
 spec:
-  replicas: 1
+  replicas: $BLOG_GHOST_REPLICAS
   selector:
     matchLabels:
       io.kompose.service: ghost
@@ -31,10 +31,14 @@ spec:
             - name: database__connection__host
               value: db
             - name: database__connection__password
+              valueFrom:
+                secretKeyRef:
+                  name: env-secrets
+                  key: GHOST_DB_PASSWORD
             - name: database__connection__user
               value: root
             - name: url
-              value: http://localhost:8080
+              value: http://localhost:2368
           image: ghost:5-alpine
           name: ghost
           ports:

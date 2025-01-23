@@ -8,9 +8,10 @@ metadata:
     io.kompose.service: ghost
   name: ghost
 spec:
+  type: LoadBalancer
   ports:
-    - name: "8080"
-      port: 8080
+    - name: "2368"
+      port: 2368
       targetPort: 2368
   selector:
     io.kompose.service: ghost
