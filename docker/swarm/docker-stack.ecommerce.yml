@@ -1,0 +1,135 @@
+
+services:
+  medusa-server:
+    build:
+      context: ../../medusa-server
+      dockerfile: Dockerfile
+    image: medusa/server:v0.0.1
+    depends_on:
+      - 'redis'
+      - 'db'
+      - 'meilisearch'
+    environment:
+      DATABASE_URL: postgres://supabase_admin:${POSTGRES_PASSWORD}@${POSTGRES_HOST}:${POSTGRES_PORT}/${POSTGRES_DB}
+      REDIS_URL: redis://redis
+      REDIS_TLS: ${REDIS_TLS}
+      REDIS_PASSWORD: ${REDIS_PASSWORD}
+      JWT_SECRET: ${MEDUSA_JWT_SECRET}
+      COOKIE_SECRET: ${MEDUSA_COOKIE_SECRET}
+      SENDGRID_API_KEY: ${SENDGRID_API_KEY}
+      SENDGRID_FROM: ${SENDGRID_FROM}
+      SENDGRID_ORDER_PLACED_ID: ${SENDGRID_ORDER_PLACED_ID}
+      SENDGRID_ORDER_CANCELED_ID: ${SENDGRID_ORDER_CANCELED_ID}
+      SENDGRID_ORDER_SHIPPED_ID: ${SENDGRID_ORDER_SHIPPED_ID}
+      SENDGRID_ORDER_RETURN_REQUESTED_ID: ${SENDGRID_ORDER_RETURN_REQUESTED_ID}
+      SENDGRID_ORDER_ITEMS_RETURNED_ID: ${SENDGRID_ORDER_ITEMS_RETURNED_ID}
+      SENDGRID_CLAIM_SHIPMENT_CREATED_ID: ${SENDGRID_CLAIM_SHIPMENT_CREATED_ID}
+      SENDGRID_SWAP_CREATED_ID: ${SENDGRID_SWAP_CREATED_ID}
+      SENDGRID_SWAP_SHIPMENT_CREATED_ID: ${SENDGRID_SWAP_SHIPMENT_CREATED_ID}
+      SENDGRID_SWAP_RECEIVED_ID: ${SENDGRID_SWAP_RECEIVED_ID}
+      SENDGRID_GIFT_CARD_CREATED_ID: ${SENDGRID_GIFT_CARD_CREATED_ID}
+      SENDGRID_CUSTOMER_PASSWORD_RESET_ID: ${SENDGRID_CUSTOMER_PASSWORD_RESET_ID}
+      SENDGRID_USER_PASSWORD_RESET_ID: ${SENDGRID_USER_PASSWORD_RESET_ID}
+      SENDGRID_MEDUSA_RESTOCK_ID: ${SENDGRID_MEDUSA_RESTOCK_ID}
+      ADMIN_CORS: ${MEDUSA_ADMIN_CORS}
+      STORE_CORS: ${MEDUSA_STORE_CORS}
+      AUTH_CORS: ${MEDUSA_AUTH_CORS}
+      MEILISEARCH_HOST: ${MEILI_HOST}
+      MEILISEARCH_API_KEY: ${MEILI_MASTER_KEY}
+      MEILI_PRODUCTS_SEARCHABLE_ATTRIBUTES: ${MEILI_PRODUCTS_SEARCHABLE_ATTRIBUTES}
+      MEILI_PRODUCTS_DISPLAYED_ATTRIBUTES: ${MEILI_PRODUCTS_DISPLAYED_ATTRIBUTES}
+      MEILI_PRODUCTS_FILTERABLE_ATTRIBUTES: ${MEILI_PRODUCTS_FILTERABLE_ATTRIBUTES}
+      MEILI_PRODUCTS_SORTABLE_ATTRIBUTES: ${MEILI_PRODUCTS_SORTABLE_ATTRIBUTES}
+      MEILI_PRODUCTS_PRIMARY_KEY: ${MEILI_PRODUCTS_PRIMARY_KEY}
+      MEILI_STOCK_LOCATIONS_SEARCHABLE_ATTRIBUTES: ${MEILI_STOCK_LOCATIONS_SEARCHABLE_ATTRIBUTES}
+      MEILI_STOCK_LOCATIONS_DISPLAYED_ATTRIBUTES: ${MEILI_STOCK_LOCATIONS_DISPLAYED_ATTRIBUTES}
+      MEILI_STOCK_LOCATIONS_FILTERABLE_ATTRIBUTES: ${MEILI_STOCK_LOCATIONS_FILTERABLE_ATTRIBUTES}
+      MEILI_STOCK_LOCATIONS_SORTABLE_ATTRIBUTES: ${MEILI_STOCK_LOCATIONS_SORTABLE_ATTRIBUTES}
+      MEILI_STOCK_LOCATIONS_PRIMARY_KEY: ${MEILI_STOCK_LOCATIONS_PRIMARY_KEY}
+      MEDUSA_ADMIN_BASE_URL: ${MEDUSA_ADMIN_BASE_URL}
+      MEDUSA_BACKEND_URL: ${MEDUSA_BACKEND_URL}
+      NOTIFICATION_TELEGRAM_BOT_TOKEN: ${NOTIFICATION_TELEGRAM_BOT_TOKEN}
+      STRIPE_API_KEY: ${STRIPE_API_KEY}
+      STRIPE_WEBHOOK_SECRET: ${STRIPE_WEBHOOK_SECRET}
+      SPACE_URL: ${SPACE_URL}
+      SPACE_BUCKET: ${SPACE_BUCKET}
+      SPACE_ENDPOINT: ${SPACE_ENDPOINT}
+      SPACE_ACCESS_KEY_ID: ${SPACE_ACCESS_KEY_ID}
+      SPACE_SECRET_ACCESS_KEY: ${SPACE_SECRET_ACCESS_KEY}
+      MEDUSA_FF_SALES_CHANNELS: "true"
+      MEDUSA_FF_TAX_INCLUSIVE_PRICING: "false"
+      PORT: 9010
+    ports:
+      - target: 9010
+        published: 9010
+        protocol: tcp
+        mode: host
+    hostname: 0.0.0.0
+    network_mode: "host"
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
+    volumes:
+      - .:/app/medusa
+    deploy:
+      replicas: ${ECOMMERCE_MEDUSA_SERVER_REPLICAS}
+      update_config:
+        parallelism: ${ECOMMERCE_MEDUSA_SERVER_PARALLELISM}
+        delay: 10s
+
+  meilisearch:
+    image: getmeili/meilisearch:latest
+    healthcheck:
+      test: curl -X GET 'http://localhost:7700/health'
+      timeout: 5s
+      interval: 5s
+      retries: 3
+    environment:
+      - http_proxy
+      - https_proxy
+      - MEILI_MASTER_KEY=${MEILI_MASTER_KEY}
+      - MEILI_NO_ANALYTICS=${MEILI_NO_ANALYTICS}
+      - MEILI_ENV=${MEILI_ENV}
+      - MEILI_LOG_LEVEL
+      - MEILI_DB_PATH=${MEILI_DB_PATH}
+    ports:
+      - target: ${MEILI_PORT}
+        published: 7700
+        protocol: tcp
+        mode: host
+    volumes:
+      - ./data.ms:/data.ms
+    restart: unless-stopped
+    deploy:
+      replicas: ${ECOMMERCE_MEILISEARCH_REPLICAS}
+      update_config:
+        parallelism: ${ECOMMERCE_MEILISEARCH_PARALLELISM}
+        delay: 10s
+
+  redis:
+    image: redis
+    healthcheck:
+      test: [ "CMD", "redis-cli", "ping" ]
+      interval: 1s
+      timeout: 3s
+      retries: 30
+    command:
+      - /bin/sh
+      - -c
+      # - Double dollars, so that the variable is not expanded by Docker Compose
+      # - Surround by quotes, so that the shell does not split the password
+      # - The ${variable:?message} syntax causes shell to exit with a non-zero
+      #   code and print a message, when the variable is not set or empty
+      #- redis-server --requirepass ${REDIS_PASSWORD}
+      - redis-server
+    ports:
+      - target: 6379
+        published: 6379
+        protocol: tcp
+        mode: host
+    hostname: 0.0.0.0
+    network_mode: "host"
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
+    deploy:
+      placement:
+        constraints: [node.labels.ecommerce == manager]

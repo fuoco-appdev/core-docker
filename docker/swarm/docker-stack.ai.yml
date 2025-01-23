@@ -1,0 +1,211 @@
+# > nvidia-smi -a
+
+# ==============NVSMI LOG==============
+
+# Driver Version                            : 535.183.01
+# CUDA Version                              : 12.2
+
+# Attached GPUs                             : 1
+# GPU 00000000:00:10.0
+#     Product Name                          : NVIDIA GeForce RTX 3060
+# ...
+#     GPU UUID                              : GPU-a0df8e5a-e4b9-467d-9bf5-cebb65027549
+# ...
+
+# > sudo nano /etc/docker/daemon.json
+
+# {
+#   "runtimes": {
+#     "nvidia": {
+#       "args": [],
+#       "path": "/usr/bin/nvidia-container-runtime"
+#     }
+#   },
+#   "default-runtime": "nvidia",
+#   "node-generic-resources": [
+#     "NVIDIA-GPU=GPU-a0df8e5a-e4b9-467d-9bf5-cebb65027549"
+#   ]
+# }
+
+# > sudo nano /etc/nvidia-container-runtime/config.toml
+# swarm-resource = "DOCKER_RESOURCE_NVIDIA-GPU"
+# sudo systemctl restart docker
+
+services:
+  ollama:
+    volumes:
+      - ollama:/root/.ollama
+    container_name: ollama
+    # pull_policy: always
+    tty: true
+    restart: unless-stopped
+    image: ollama/ollama:${OLLAMA_DOCKER_TAG-latest}
+    # GPU support
+    deploy:
+      placement:
+          constraints: [node.labels.ai == manager]
+      resources:
+        reservations:
+          generic_resources:
+            - discrete_resource_spec:
+                kind: 'NVIDIA-GPU'
+                value: 0
+          # devices:
+          #   - driver: ${OLLAMA_GPU_DRIVER-nvidia}
+          #     count: ${OLLAMA_GPU_COUNT-1}
+          #     capabilities:
+          #       - gpu
+
+  open-webui:
+    build:
+      context: ../../open-webui
+      args:
+        OLLAMA_BASE_URL: '/ollama'
+      dockerfile: Dockerfile
+    image: ghcr.io/open-webui/open-webui:${WEBUI_DOCKER_TAG-main}
+    volumes:
+      - open-webui:/app/backend/data
+    depends_on:
+      - ollama
+      - standalone
+    ports:
+      - target: 3001
+        published: 8080
+        protocol: tcp
+        mode: host
+    hostname: 0.0.0.0
+    network_mode: "host"
+    environment:
+      - 'OLLAMA_BASE_URL=http://ollama:11434'
+      - 'WEBUI_SECRET_KEY='
+      - 'WEBUI_URL=http://0.0.0.0:3001'
+      - 'VECTOR_DB=milvus'
+      - 'MILVUS_URI=${MILVUS_URI}'
+    extra_hosts:
+      - host.docker.internal:host-gateway
+    restart: unless-stopped
+    deploy:
+      replicas: ${AI_OPEN_WEBUI_REPLICAS}
+      update_config:
+        parallelism: ${AI_OPEN_WEBUI_PARALLELISM}
+        delay: 10s
+
+  etcd:
+    image: quay.io/coreos/etcd:v3.5.5
+    restart: always
+    environment:
+      - ETCD_AUTO_COMPACTION_MODE=revision
+      - ETCD_AUTO_COMPACTION_RETENTION=1000
+      - ETCD_QUOTA_BACKEND_BYTES=4294967296
+      - ETCD_SNAPSHOT_COUNT=50000
+    volumes:
+      - ${DOCKER_VOLUME_DIRECTORY:-.}/volumes/etcd:/etcd
+    ports:
+      - target: 2379
+        published: 2379
+        protocol: tcp
+        mode: host
+    command: etcd -advertise-client-urls=http://127.0.0.1:2379 -listen-client-urls http://0.0.0.0:2379 --data-dir /etcd
+    healthcheck:
+      test: ['CMD', 'etcdctl', 'endpoint', 'health']
+      interval: 30s
+      timeout: 20s
+      retries: 3
+    deploy:
+      placement:
+          constraints: [node.labels.ai == manager]
+
+  standalone:
+    container_name: milvus-standalone
+    image: milvusdb/milvus:latest-gpu
+    command: ['milvus', 'run', 'standalone']
+    restart: always
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://standalone:9091/log/level"]
+      interval: 6s
+      timeout: 2s
+      retries: 10
+    security_opt:
+      - seccomp:unconfined
+    environment:
+      ETCD_ENDPOINTS: etcd:2379
+      MINIO_ADDRESS: ${MINIO_ADDRESS}
+      MINIO_ROOT_USER: ${MINIO_ROOT_USER}
+      MINIO_ROOT_PASSWORD: ${MINIO_ROOT_PASSWORD}
+    hostname: 0.0.0.0
+    network_mode: "host"
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
+    volumes:
+      - ${DOCKER_VOLUME_DIRECTORY:-.}/volumes/milvus:/var/lib/milvus
+      - ./volumes/milvus/configs/milvus.yaml:/milvus/configs/milvus.yaml
+    ports:
+      - target: 19530
+        published: 19530
+        protocol: tcp
+        mode: host
+      - target: 9091
+        published: 9091
+        protocol: tcp
+        mode: host
+    deploy:
+      placement:
+        constraints: [node.labels.ai == manager]
+      resources:
+        reservations:
+          generic_resources:
+            - discrete_resource_spec:
+                kind: 'NVIDIA-GPU'
+                value: 0
+          # devices:
+          # - driver: nvidia
+          #   capabilities: ['gpu']
+          #   device_ids: ['${NVIDIA_GPU_DEVICE_ID:-0}']
+    depends_on:
+      - 'etcd'
+      - 'minio'
+
+  openedai-speech-server:
+    image: ghcr.io/matatonic/openedai-speech
+    environment:
+      TTS_HOME: voices
+      HF_HOME: voices
+      PRELOAD_MODEL: xtts
+      EXTRA_ARGS: --log-level DEBUG --unload-timer 300 --port 8002
+      USE_ROCM: 1
+    ports:
+      - target: 8002
+        published: 8002
+        protocol: tcp
+        mode: host
+    volumes:
+      - ../openedai-speech/voices:/app/voices
+      - ../openedai-speech/config:/app/config
+    # To install as a service
+    restart: unless-stopped
+    deploy:
+      replicas: ${AI_OPENEDAI_SPEECH_SERVER_REPLICAS}
+      update_config:
+        parallelism: ${AI_OPENEDAI_SPEECH_SERVER_PARALLELISM}
+        delay: 10s
+      resources:
+        reservations:
+          generic_resources:
+            - discrete_resource_spec:
+                kind: 'NVIDIA-GPU'
+                value: 0
+          # devices:
+          #   - driver: nvidia
+          #     #device_ids: ['0', '1'] # Select a gpu, or
+          #     count: all
+          #     capabilities: [gpu]
+
+networks:
+  default:
+    name: milvus
+
+volumes:
+  ollama: {}
+  open-webui: {}
+  etcd: {}
+  standalone: {}

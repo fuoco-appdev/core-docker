@@ -1,0 +1,20 @@
+services:
+  mail:
+    container_name: mail-server
+    image: stalwartlabs/mail-server:latest
+    volumes:
+      - mail:/var/lib/stalwart-mail
+    ports:
+      - "8080:8080"
+      - "443:443"
+      - "25:25"
+      - "587:587"
+      - "465:465"
+      - "143:143"
+      - "993:993"
+      - "4190:4190"
+      - "110:110"
+      - "995:995"
+
+volumes:
+  mail:

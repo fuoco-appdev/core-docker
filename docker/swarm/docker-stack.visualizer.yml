@@ -1,0 +1,11 @@
+services:
+  viz:
+    image: visualizer:latest
+    build: ../docker-swarm-visualizer
+    volumes:
+    - "/var/run/docker.sock:/var/run/docker.sock"
+    ports:
+    - "5002:8080"
+    deploy:
+        placement:
+          constraints: [node.labels.visualizer == manager]
