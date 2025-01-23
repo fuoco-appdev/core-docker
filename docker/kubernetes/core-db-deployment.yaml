@@ -8,7 +8,7 @@ metadata:
     service: db
   name: db
 spec:
-  replicas: 1
+  replicas: $CORE_DB_REPLICAS
   selector:
     matchLabels:
       service: db

@@ -8,7 +8,7 @@ metadata:
     service: kong
   name: kong
 spec:
-  replicas: 1
+  replicas: $CORE_KONG_REPLICAS
   selector:
     matchLabels:
       service: kong

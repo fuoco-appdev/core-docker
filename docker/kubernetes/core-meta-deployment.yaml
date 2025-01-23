@@ -8,7 +8,7 @@ metadata:
     service: meta
   name: meta
 spec:
-  replicas: 1
+  replicas: $CORE_META_REPLICAS
   selector:
     matchLabels:
       service: meta

@@ -8,7 +8,7 @@ metadata:
     service: auth
   name: auth
 spec:
-  replicas: 1
+  replicas: $CORE_AUTH_REPLICAS
   selector:
     matchLabels:
       service: auth

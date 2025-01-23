@@ -1,0 +1,42 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: nginx-deployment
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      service: nginx
+  template:
+    metadata:
+      labels:
+        service: nginx
+    spec:
+      initContainers:
+      - name: init-nginx
+        image: nginx:latest
+        command:
+          - /bin/sh
+          - -c
+          - |
+            while [ ! -e /etc/nginx/nginx.conf ] || [ ! -s /etc/nginx/nginx.conf  ]; do 
+              echo 'Waiting for all copied files...'
+              sleep 10
+            done
+            ls /etc/nginx
+            cp -r /etc/nginx/* /tmp/etc/nginx
+        volumeMounts:
+          - mountPath: /tmp/etc/nginx
+            name: nginx-config-volume
+            subPath: nginx
+      containers:
+      - name: nginx
+        image: nginx:latest
+        volumeMounts:
+          - mountPath: /etc/nginx
+            name: nginx-config-volume
+            subPath: nginx
+      volumes:
+      - name: nginx-config-volume
+        persistentVolumeClaim:
+            claimName: nginx-config-volume-claim

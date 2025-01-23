@@ -5,9 +5,10 @@ metadata:
     kompose.cmd: C:\Github\mindy-project\core-docker\docker\kubernetes\kompose.exe -f ../docker-compose.core.yml -f ../docker-compose.ai.yml -f ../docker-compose.blog.yml -f ../docker-compose.development.yml -f ../docker-compose.ecommerce.yml -f ../docker-compose.mail.yml -f ../docker-compose.s3.yml convert
     kompose.version: 1.34.0 (cbf2835db)
   labels:
-    io.kompose.service: standalone
+    service: standalone
   name: standalone
 spec:
+  type: LoadBalancer
   ports:
     - name: "19530"
       port: 19530
@@ -16,4 +17,4 @@ spec:
       port: 9091
       targetPort: 9091
   selector:
-    io.kompose.service: standalone
+    service: standalone

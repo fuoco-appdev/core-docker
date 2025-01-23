@@ -8,7 +8,7 @@ metadata:
     service: realtime
   name: realtime
 spec:
-  replicas: 1
+  replicas: $CORE_REALTIME_REPLICAS
   selector:
     matchLabels:
       service: realtime

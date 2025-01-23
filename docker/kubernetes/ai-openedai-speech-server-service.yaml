@@ -5,7 +5,7 @@ metadata:
     kompose.cmd: C:\Github\mindy-project\core-docker\docker\kubernetes\kompose.exe -f ../docker-compose.core.yml -f ../docker-compose.ai.yml -f ../docker-compose.blog.yml -f ../docker-compose.development.yml -f ../docker-compose.ecommerce.yml -f ../docker-compose.mail.yml -f ../docker-compose.s3.yml convert
     kompose.version: 1.34.0 (cbf2835db)
   labels:
-    io.kompose.service: openedai-speech-server
+    service: openedai-speech-server
   name: openedai-speech-server
 spec:
   ports:
@@ -13,4 +13,4 @@ spec:
       port: 8002
       targetPort: 8002
   selector:
-    io.kompose.service: openedai-speech-server
+    service: openedai-speech-server
