@@ -8,7 +8,7 @@ metadata:
     service: medusa-server
   name: medusa-server
 spec:
-  replicas: 1
+  replicas: {{ int .Values.ecommerce.medusaServer.replicas }}
   selector:
     matchLabels:
       service: medusa-server

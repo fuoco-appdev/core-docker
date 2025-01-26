@@ -8,7 +8,7 @@ metadata:
     service: storage
   name: storage
 spec:
-  replicas: 1
+  replicas: {{ int .Values.core.storage.replicas }}
   selector:
     matchLabels:
       service: storage

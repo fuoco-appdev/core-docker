@@ -8,7 +8,7 @@ metadata:
     service: rest
   name: rest
 spec:
-  replicas: $CORE_REST_REPLICAS
+  replicas: {{ int .Values.core.rest.replicas }}
   selector:
     matchLabels:
       service: rest
@@ -20,10 +20,14 @@ spec:
       labels:
         service: rest
     spec:
-       initContainers:
+      initContainers:
         - name: init-rest
           image: curlimages/curl
-          command: ['sh', '-c', 'until curl -fsSL -m 2 db:5432 > /dev/null 2>&1 || [ $? -eq 52 ]; do echo waiting for postgres; sleep 2; done;']
+          command: [
+            'sh', 
+            '-c', 
+            'until curl -fsSL -m 2 db:5432 > /dev/null 2>&1 || [ $? -eq 52 ]; do echo waiting for postgres; sleep 2; done;'
+          ]
       containers:
         - args:
             - postgrest

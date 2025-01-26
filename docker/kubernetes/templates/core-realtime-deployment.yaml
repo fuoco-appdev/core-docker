@@ -8,7 +8,7 @@ metadata:
     service: realtime
   name: realtime
 spec:
-  replicas: $CORE_REALTIME_REPLICAS
+  replicas: {{ int .Values.core.realtime.replicas }}
   selector:
     matchLabels:
       service: realtime

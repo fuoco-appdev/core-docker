@@ -8,7 +8,7 @@ metadata:
     service: kong
   name: kong
 spec:
-  replicas: $CORE_KONG_REPLICAS
+  replicas: {{ int .Values.core.kong.replicas }}
   selector:
     matchLabels:
       service: kong

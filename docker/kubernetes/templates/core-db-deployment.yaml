@@ -8,7 +8,7 @@ metadata:
     service: db
   name: db
 spec:
-  replicas: $CORE_DB_REPLICAS
+  replicas: {{ int .Values.core.db.replicas }}
   selector:
     matchLabels:
       service: db

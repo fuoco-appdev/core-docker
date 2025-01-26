@@ -1,4 +1,17 @@
-kubectl delete -f .
+env_file="../.env"
+
+# Check if the .env file exists
+if [ -f "$env_file" ]; then
+    # Source the .env file
+    . "$env_file"
+else
+    echo "Error: .env file not found at $env_file"
+    exit 1
+fi
+
+export $(grep -v '^#' $env_file | cut -d= -f1)
+
+helm template "$PROJECT_NAME" "." -f values-substituted.yaml | kubectl delete -f -
 
 kubectl delete deployments --all --all-namespaces
 kubectl delete pods --all --all-namespaces

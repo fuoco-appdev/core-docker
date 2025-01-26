@@ -5,3 +5,5 @@ volumes/milvus/rdb_data_meta_kv
 .env
 test.http
 docker-compose.override.yml
+values-substituded.yaml
+release

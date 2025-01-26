@@ -8,7 +8,7 @@ metadata:
     service: standalone
   name: standalone
 spec:
-  replicas: 1
+  replicas: {{ int .Values.ai.standalone.replicas }}
   selector:
     matchLabels:
       service: standalone

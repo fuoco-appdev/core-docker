@@ -8,7 +8,7 @@ metadata:
     service: redis
   name: redis
 spec:
-  replicas: 1
+  replicas: {{ int .Values.ecommerce.redis.replicas }}
   selector:
     matchLabels:
       service: redis

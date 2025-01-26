@@ -8,7 +8,7 @@ metadata:
     service: auth
   name: auth
 spec:
-  replicas: $CORE_AUTH_REPLICAS
+  replicas: {{ int .Values.core.auth.replicas }}
   selector:
     matchLabels:
       service: auth

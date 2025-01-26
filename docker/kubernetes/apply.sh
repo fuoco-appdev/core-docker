@@ -13,26 +13,16 @@ export $(grep -v '^#' $env_file | cut -d= -f1)
 
 OS=$(uname -s)
 
-if [ "$OS" = "Linux" ]; then
-    echo "This is Linux"
+# Function to check if command exists
+command_exists() {
+    command -v "$1" >/dev/null 2>&1
+}
 
-    #Install envsubst
-    curl -L https://github.com/a8m/envsubst/releases/download/v1.2.0/envsubst-`uname -s`-`uname -m` -o envsubst
-    chmod +x envsubst
-    sudo mv envsubst /usr/local/bin
-elif [ "$OS" = "MINGW"* ] || [ "$OS" = "MSYS"* ]; then
-    # On Windows, if you're using Git Bash or MSYS2, `uname -s` might return MINGW or MSYS
-    echo "This is Windows"
-
-    #Install envsubst
-    curl -L https://github.com/a8m/envsubst/releases/download/v1.2.0/envsubst.exe -o envsubst.exe
-else
-    echo "This is an unknown OS or not supported"
-
-    #Install envsubst
-    curl -L https://github.com/a8m/envsubst/releases/download/v1.2.0/envsubst.exe -o envsubst.exe
+# Check if curl is installed
+if ! command_exists curl; then
+    echo "Error: curl is not installed. Please install curl to proceed."
+    exit 1
 fi
-
 
 SECONDS=0
 TIMEOUT=300
@@ -47,8 +37,24 @@ done
 kubectl delete secret env-secrets --ignore-not-found
 kubectl create secret generic env-secrets --from-env-file=../.env
 
-kubectl apply -f nginx-config-persistentvolumeclaim.yaml
-kubectl apply -f nginx-deployment.yaml
+# Check if the directory exists, if not, create it
+if [ ! -d "./release" ]; then
+    mkdir -p "./release"
+    mkdir -p "./release/templates"
+    echo "Directory ./release created."
+else 
+    echo "Directory ./release already exists."
+fi
+
+envsubst < Chart.yaml > release/Chart.yaml
+envsubst < values.yaml > release/values.yaml
+
+helm template "$PROJECT_NAME" "." --show-only "templates/nginx-config-persistentvolumeclaim.yaml" > release/templates/nginx-config-persistentvolumeclaim.yaml
+kubectl apply -f release/templates/nginx-config-persistentvolumeclaim.yaml
+
+helm template "$PROJECT_NAME" "." --show-only "templates/nginx-deployment.yaml" > release/templates/nginx-deployment.yaml
+kubectl apply -f release/templates/nginx-deployment.yaml
+
 # Copy files to the pod
 echo "Copying files to the nginx pod..."
 NGINX_POD_NAME=$(kubectl get pods --no-headers=true | grep "^nginx" | awk '{print $1}' | head -n 1)
@@ -58,16 +64,19 @@ kubectl cp <(envsubst < ../volumes/nginx/nginx.conf.template) $NGINX_POD_NAME:/e
 IFS=' ' read -ra STACK_ARRAY <<< "$STACKS"
 
 if [[ "${STACK_ARRAY[@]}" =~ "ai" ]]; then
-    kubectl apply -f nvidia-device-plugin-daemonset.yaml
+    helm  template "$PROJECT_NAME" "." -f release/values.yaml --show-only "templates/nvidia-device-plugin-daemonset.yaml" > release/templates/nvidia-device-plugin-daemonset.yaml
+    kubectl apply -f release/templates/nvidia-device-plugin-daemonset.yaml
 else
     echo "Skipping nvidia-device-plugin-daemonset.yaml deployment"
 fi
 
 # Deploy services based on STACKS
 for stack in "${STACK_ARRAY[@]}"; do
-    stack_paths=$(find . -type f -name "${stack}-*")
+    stack_paths=$(find ./templates -type f -name "${stack}-*")
     for path in $stack_paths; do
-        envsubst < $path | kubectl apply -f -    
+        filename=$(basename "$path")
+        helm template "$PROJECT_NAME" "." -f release/values.yaml --show-only "templates/$filename" > release/templates/$filename
+        kubectl apply -f release/templates/$filename
     done
 done
 
@@ -258,12 +267,18 @@ else
     echo "Skipping ai stack"
 fi
 
-kubectl apply -f https://raw.githubusercontent.com/kubernetes/dashboard/v2.7.0/aio/deploy/recommended.yaml
+kubectl apply -f "https://raw.githubusercontent.com/kubernetes/dashboard/v2.7.0/aio/deploy/recommended.yaml"
 kubectl proxy &
 
-kubectl apply -f dashboard-adminuser.yaml -n kubernetes-dashboard
-kubectl apply -f dashboard-clusterrole.yaml -n kubernetes-dashboard
-kubectl apply -f dashboard-secret.yaml -n kubernetes-dashboard
+helm template "$PROJECT_NAME" "." -f release/values.yaml --show-only "templates/dashboard-adminuser.yaml" > release/templates/dashboard-adminuser.yaml
+kubectl apply -f release/templates/dashboard-adminuser.yaml -n kubernetes-dashboard
+
+helm template "$PROJECT_NAME" "." -f release/values.yaml --show-only "templates/dashboard-clusterrole.yaml" > release/templates/dashboard-clusterrole.yaml
+kubectl apply -f release/templates/dashboard-clusterrole.yaml -n kubernetes-dashboard
+
+helm template "$PROJECT_NAME" "." -f release/values.yaml --show-only "templates/dashboard-secret.yaml" > release/templates/dashboard-secret.yaml
+kubectl apply -f release/templates/dashboard-secret.yaml -n kubernetes-dashboard
+
 echo 'Dashboard token:'
 kubectl get secret admin-user -n kubernetes-dashboard -o jsonpath={".data.token"} | base64 -d
 

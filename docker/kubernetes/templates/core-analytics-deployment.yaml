@@ -8,7 +8,7 @@ metadata:
     service: analytics
   name: analytics
 spec:
-  replicas: 1
+  replicas: {{ int .Values.core.analytics.replicas }}
   selector:
     matchLabels:
       service: analytics

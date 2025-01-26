@@ -2,6 +2,7 @@ docker/volumes/etcd/member
 docker/volumes/milvus/rdb_data
 docker/volumes/milvus/rdb_data_meta_kv
 docker/volumes/milvus/data
+docker/kubernetes/values-substituted.yaml
 
 .DS_Store
 node_modules

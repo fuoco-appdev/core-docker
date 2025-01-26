@@ -5,13 +5,13 @@ metadata:
     kompose.cmd: C:\Github\mindy-project\core-docker\docker\kubernetes\kompose.exe -f ../docker-compose.core.yml -f ../docker-compose.ai.yml -f ../docker-compose.blog.yml -f ../docker-compose.development.yml -f ../docker-compose.ecommerce.yml -f ../docker-compose.mail.yml -f ../docker-compose.s3.yml convert
     kompose.version: 1.34.0 (cbf2835db)
   labels:
-    service: meilisearch
-  name: meilisearch
+    service: imgproxy
+  name: imgproxy
 spec:
-  replicas: 1
+  replicas: {{ int .Values.core.imgproxy.replicas }}
   selector:
     matchLabels:
-      io.kompose.service: meilisearch
+      service: imgproxy
   strategy:
     type: Recreate
   template:
@@ -20,47 +20,43 @@ spec:
         kompose.cmd: C:\Github\mindy-project\core-docker\docker\kubernetes\kompose.exe -f ../docker-compose.core.yml -f ../docker-compose.ai.yml -f ../docker-compose.blog.yml -f ../docker-compose.development.yml -f ../docker-compose.ecommerce.yml -f ../docker-compose.mail.yml -f ../docker-compose.s3.yml convert
         kompose.version: 1.34.0 (cbf2835db)
       labels:
-        io.kompose.service: meilisearch
+        service: imgproxy
     spec:
+      initContainers:
+        - name: init-imgproxy
+          image: curlimages/curl
+          command: ['sh', '-c', 'until curl -fsSL -m 2 db:5432 > /dev/null 2>&1 || [ $? -eq 52 ]; do echo waiting for postgres; sleep 2; done;']
       containers:
         - env:
-            - name: MEILI_DB_PATH
+            - name: IMGPROXY_BIND
+              value: :5001
+            - name: IMGPROXY_LOCAL_FILESYSTEM_ROOT
+              value: /
+            - name: IMGPROXY_USE_ETAG
+              value: "true"
+            - name: IMGPROXY_ENABLE_WEBP_DETECTION
               valueFrom:
                 secretKeyRef:
                   name: env-secrets
-                  key: MEILI_DB_PATH
-            - name: MEILI_ENV
-              valueFrom:
-                secretKeyRef:
-                  name: env-secrets
-                  key: MEILI_ENV
-            - name: MEILI_MASTER_KEY
-              valueFrom:
-                secretKeyRef:
-                  name: env-secrets
-                  key: MEILI_MASTER_KEY
-            - name: MEILI_NO_ANALYTICS
-              valueFrom:
-                secretKeyRef:
-                  name: env-secrets
-                  key: MEILI_NO_ANALYTICS
-          image: getmeili/meilisearch:latest
+                  key: IMGPROXY_ENABLE_WEBP_DETECTION
+          image: darthsim/imgproxy:v3.8.0
           livenessProbe:
             exec:
               command:
-                - curl -X GET 'http://localhost:7700/health'
-            failureThreshold: 3
+                - imgproxy
+                - health
+            failureThreshold: 10
             periodSeconds: 5
             timeoutSeconds: 5
-          name: meilisearch
+          name: supabase-imgproxy
           ports:
-            - containerPort: 7700
-              protocol: TCP
+            - containerPort: 5001
           volumeMounts:
-            - mountPath: /data.ms
-              name: meilisearch-data
+            - name: storage-volume
+              mountPath: /var/lib/storage
+              subPath: storage
       restartPolicy: Always
       volumes:
-        - name: meilisearch-data
+        - name: storage-volume
           persistentVolumeClaim:
-            claimName: meilisearch-data-volume-claim
+            claimName: storage-volume-claim

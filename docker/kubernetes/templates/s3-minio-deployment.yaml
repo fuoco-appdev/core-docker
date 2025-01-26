@@ -5,36 +5,54 @@ metadata:
     kompose.cmd: C:\Github\mindy-project\core-docker\docker\kubernetes\kompose.exe -f ../docker-compose.core.yml -f ../docker-compose.ai.yml -f ../docker-compose.blog.yml -f ../docker-compose.development.yml -f ../docker-compose.ecommerce.yml -f ../docker-compose.mail.yml -f ../docker-compose.s3.yml convert
     kompose.version: 1.34.0 (cbf2835db)
   labels:
-    io.kompose.service: pgadmin
-  name: pgadmin
+    service: minio
+  name: minio
 spec:
-  replicas: 1
+  replicas: {{ int .Values.s3.minio.replicas }}
   selector:
     matchLabels:
-      io.kompose.service: pgadmin
+      service: minio
+  strategy:
+    type: Recreate
   template:
     metadata:
       annotations:
         kompose.cmd: C:\Github\mindy-project\core-docker\docker\kubernetes\kompose.exe -f ../docker-compose.core.yml -f ../docker-compose.ai.yml -f ../docker-compose.blog.yml -f ../docker-compose.development.yml -f ../docker-compose.ecommerce.yml -f ../docker-compose.mail.yml -f ../docker-compose.s3.yml convert
         kompose.version: 1.34.0 (cbf2835db)
       labels:
-        io.kompose.service: pgadmin
+        service: minio
     spec:
       containers:
-        - env:
-            - name: PGADMIN_DEFAULT_EMAIL
+        - args:
+            - server
+            - --console-address
+            - :9001
+            - /data
+          env:
+            - name: MINIO_ROOT_USER
               valueFrom:
                 secretKeyRef:
                   name: env-secrets
-                  key: PGADMIN_DEFAULT_EMAIL
-            - name: PGADMIN_DEFAULT_PASSWORD
+                  key: MINIO_ROOT_USER
+            - name: MINIO_ROOT_PASSWORD
               valueFrom:
                 secretKeyRef:
                   name: env-secrets
-                  key: PGADMIN_DEFAULT_PASSWORD
-          image: dpage/pgadmin4:latest
-          name: pgadmin
+                  key: MINIO_ROOT_PASSWORD
+          image: minio/minio
+          livenessProbe:
+            exec:
+              command:
+                - curl
+                - -f
+                - http://minio:9000/minio/health/live
+            failureThreshold: 5
+            periodSeconds: 2
+            timeoutSeconds: 10
+          name: minio
           ports:
-            - containerPort: 80
+            - containerPort: 9000
+              protocol: TCP
+            - containerPort: 9001
               protocol: TCP
       restartPolicy: Always

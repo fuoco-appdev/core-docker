@@ -8,7 +8,7 @@ metadata:
     service: openedai-speech-server
   name: openedai-speech-server
 spec:
-  replicas: 1
+  replicas: {{ int .Values.ai.openedaiSpeechServer.replicas }}
   selector:
     matchLabels:
       service: openedai-speech-server

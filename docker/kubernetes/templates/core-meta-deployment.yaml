@@ -8,7 +8,7 @@ metadata:
     service: meta
   name: meta
 spec:
-  replicas: $CORE_META_REPLICAS
+  replicas: {{ int .Values.core.meta.replicas }}
   selector:
     matchLabels:
       service: meta
