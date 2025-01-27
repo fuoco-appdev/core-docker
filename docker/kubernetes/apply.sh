@@ -40,20 +40,19 @@ kubectl create secret generic env-secrets --from-env-file=../.env
 # Check if the directory exists, if not, create it
 if [ ! -d "./release" ]; then
     mkdir -p "./release"
-    mkdir -p "./release/templates"
     echo "Directory ./release created."
 else 
     echo "Directory ./release already exists."
 fi
 
-envsubst < Chart.yaml > release/Chart.yaml
-envsubst < values.yaml > release/values.yaml
+envsubst < Chart.yaml.tpl > Chart.yaml
+envsubst < values.yaml.tpl > values.yaml
 
-helm template "$PROJECT_NAME" "." --show-only "templates/nginx-config-persistentvolumeclaim.yaml" > release/templates/nginx-config-persistentvolumeclaim.yaml
-kubectl apply -f release/templates/nginx-config-persistentvolumeclaim.yaml
+helm template "$PROJECT_NAME" "." --show-only "templates/nginx-config-persistentvolumeclaim.yaml" > release/nginx-config-persistentvolumeclaim.yaml
+kubectl apply -f release/nginx-config-persistentvolumeclaim.yaml
 
-helm template "$PROJECT_NAME" "." --show-only "templates/nginx-deployment.yaml" > release/templates/nginx-deployment.yaml
-kubectl apply -f release/templates/nginx-deployment.yaml
+helm template "$PROJECT_NAME" "." --show-only "templates/nginx-deployment.yaml" > release/nginx-deployment.yaml
+kubectl apply -f release/nginx-deployment.yaml
 
 # Copy files to the pod
 echo "Copying files to the nginx pod..."
@@ -64,8 +63,8 @@ kubectl cp <(envsubst < ../volumes/nginx/nginx.conf.template) $NGINX_POD_NAME:/e
 IFS=' ' read -ra STACK_ARRAY <<< "$STACKS"
 
 if [[ "${STACK_ARRAY[@]}" =~ "ai" ]]; then
-    helm  template "$PROJECT_NAME" "." -f release/values.yaml --show-only "templates/nvidia-device-plugin-daemonset.yaml" > release/templates/nvidia-device-plugin-daemonset.yaml
-    kubectl apply -f release/templates/nvidia-device-plugin-daemonset.yaml
+    helm  template "$PROJECT_NAME" "." --show-only "templates/nvidia-device-plugin-daemonset.yaml" > release/nvidia-device-plugin-daemonset.yaml
+    kubectl apply -f release/nvidia-device-plugin-daemonset.yaml
 else
     echo "Skipping nvidia-device-plugin-daemonset.yaml deployment"
 fi
@@ -75,8 +74,8 @@ for stack in "${STACK_ARRAY[@]}"; do
     stack_paths=$(find ./templates -type f -name "${stack}-*")
     for path in $stack_paths; do
         filename=$(basename "$path")
-        helm template "$PROJECT_NAME" "." -f release/values.yaml --show-only "templates/$filename" > release/templates/$filename
-        kubectl apply -f release/templates/$filename
+        helm template "$PROJECT_NAME" "." --show-only "templates/$filename" > release/$filename
+        kubectl apply -f release/$filename
     done
 done
 
@@ -270,14 +269,14 @@ fi
 kubectl apply -f "https://raw.githubusercontent.com/kubernetes/dashboard/v2.7.0/aio/deploy/recommended.yaml"
 kubectl proxy &
 
-helm template "$PROJECT_NAME" "." -f release/values.yaml --show-only "templates/dashboard-adminuser.yaml" > release/templates/dashboard-adminuser.yaml
-kubectl apply -f release/templates/dashboard-adminuser.yaml -n kubernetes-dashboard
+helm template "$PROJECT_NAME" "."  --show-only "templates/dashboard-adminuser.yaml" > release/dashboard-adminuser.yaml
+kubectl apply -f release/dashboard-adminuser.yaml -n kubernetes-dashboard
 
-helm template "$PROJECT_NAME" "." -f release/values.yaml --show-only "templates/dashboard-clusterrole.yaml" > release/templates/dashboard-clusterrole.yaml
-kubectl apply -f release/templates/dashboard-clusterrole.yaml -n kubernetes-dashboard
+helm template "$PROJECT_NAME" "." --show-only "templates/dashboard-clusterrole.yaml" > release/dashboard-clusterrole.yaml
+kubectl apply -f release/dashboard-clusterrole.yaml -n kubernetes-dashboard
 
-helm template "$PROJECT_NAME" "." -f release/values.yaml --show-only "templates/dashboard-secret.yaml" > release/templates/dashboard-secret.yaml
-kubectl apply -f release/templates/dashboard-secret.yaml -n kubernetes-dashboard
+helm template "$PROJECT_NAME" "." --show-only "templates/dashboard-secret.yaml" > release/dashboard-secret.yaml
+kubectl apply -f release/dashboard-secret.yaml -n kubernetes-dashboard
 
 echo 'Dashboard token:'
 kubectl get secret admin-user -n kubernetes-dashboard -o jsonpath={".data.token"} | base64 -d

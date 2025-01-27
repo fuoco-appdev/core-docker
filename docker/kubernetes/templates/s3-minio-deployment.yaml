@@ -45,7 +45,7 @@ spec:
               command:
                 - curl
                 - -f
-                - http://minio:9000/minio/health/live
+                - http://localhost:9000/minio/health/live
             failureThreshold: 5
             periodSeconds: 2
             timeoutSeconds: 10

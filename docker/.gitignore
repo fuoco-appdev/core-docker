@@ -6,4 +6,6 @@ volumes/milvus/rdb_data_meta_kv
 test.http
 docker-compose.override.yml
 values-substituded.yaml
-release
+kubernetes/release
+kubernetes/Chart.yaml
+kubernetes/values.yaml

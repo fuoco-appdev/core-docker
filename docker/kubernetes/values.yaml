@@ -1,60 +1,60 @@
 ai:
   etcd:
-    replicas: $AI_ETCD_REPLICAS
+    replicas: 1
   ollama:
-    replicas: $AI_OLLAMA_REPLICAS
+    replicas: 1
   openWebui:
-    replicas: $AI_OPEN_WEBUI_REPLICAS
+    replicas: 1
   openedaiSpeechServer:
-    replicas: $AI_OPENEDAI_SPEECH_SERVER_REPLICAS
+    replicas: 1
   standalone:
-    replicas: $AI_STANDALONE_REPLICAS
+    replicas: 1
 blog:
   ghost:
-    replicas: $BLOG_GHOST_REPLICAS
+    replicas: 1
 core:
   analytics:
-    replicas: $CORE_ANALYTICS_REPLICAS
+    replicas: 1
   auth:
-    replicas: $CORE_AUTH_REPLICAS
+    replicas: 1
   db:
-    replicas: $CORE_DB_REPLICAS
+    replicas: 1
   imgproxy:
-    replicas: $CORE_IMGPROXY_REPLICAS
+    replicas: 1
   kong:
-    replicas: $CORE_KONG_REPLICAS
+    replicas: 1
   meta:
-    replicas: $CORE_META_REPLICAS
+    replicas: 1
   realtime:
-    replicas: $CORE_REALTIME_REPLICAS
+    replicas: 1
   rest:
-    replicas: $CORE_REST_REPLICAS
+    replicas: 1
   storage:
-    replicas: $CORE_STORAGE_REPLICAS
+    replicas: 1
   studio:
-    replicas: $CORE_STUDIO_REPLICAS
+    replicas: 1
   supavisor:
-    replicas: $CORE_SUPAVISOR_REPLICAS
+    replicas: 1
   vector:
-    replicas: $CORE_VECTOR_REPLICAS
+    replicas: 1
 dashboard:
   adminuser:
   clusterrole:
   secret:
 development:
   pgadmin:
-    replicas: $DEVELOPMENT_PGADMIN_REPLICAS
+    replicas: 1
 ecommerce:
   medusaServer:
-    replicas: $ECOMMERCE_MEDUSA_SERVER_REPLICAS
+    replicas: 1
   meilisearch:
-    replicas: $ECOMMERCE_MEILISEARCH_REPLICAS
+    replicas: 1
   redis:
-    replicas: $ECOMMERCE_REDIS_REPLICAS
+    replicas: 1
 mail:
 nginx:
-  replicas: $NGINX_REPLICAS
+  replicas: 1
 nvidia:
 s3:
   minio:
-    replicas: $S3_MINIO_REPLICAS
+    replicas: 1
