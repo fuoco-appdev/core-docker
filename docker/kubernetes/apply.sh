@@ -45,8 +45,8 @@ else
     echo "Directory ./release already exists."
 fi
 
-envsubst < Chart.yaml.tpl > Chart.yaml
-envsubst < values.yaml.tpl > values.yaml
+envsubst < Chart.tpl.yaml > Chart.yaml
+envsubst < values.tpl.yaml > values.yaml
 
 helm template "$PROJECT_NAME" "." --show-only "templates/nginx-config-persistentvolumeclaim.yaml" > release/nginx-config-persistentvolumeclaim.yaml
 kubectl apply -f release/nginx-config-persistentvolumeclaim.yaml
