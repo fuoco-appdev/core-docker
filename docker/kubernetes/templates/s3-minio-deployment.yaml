@@ -55,4 +55,12 @@ spec:
               protocol: TCP
             - containerPort: 9001
               protocol: TCP
+          volumeMounts:
+            - mountPath: /data
+              name: minio-data-volume
+              subPath: data
       restartPolicy: Always
+      volumes:
+      - name: minio-data-volume
+        persistentVolumeClaim:
+            claimName: minio-data-volume-claim

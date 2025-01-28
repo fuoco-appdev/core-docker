@@ -75,7 +75,7 @@ for stack in "${STACK_ARRAY[@]}"; do
     for path in $stack_paths; do
         filename=$(basename "$path")
         helm template "$PROJECT_NAME" "." --show-only "templates/$filename" > release/$filename
-        kubectl apply -f release/$filename
+        envsubst < release/$filename | kubectl apply -f - 
     done
 done
 
