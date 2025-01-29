@@ -20,7 +20,7 @@ kubectl delete configmaps --all --all-namespaces
 kubectl delete secrets --all --all-namespaces
 kubectl delete replicasets --all --all-namespaces
 kubectl delete statefulsets --all --all-namespaces
-kubectl delete persistentvolumeclaims --all --all-namespaces
+# kubectl delete persistentvolumeclaims --all --all-namespaces
 kubectl delete jobs --all --all-namespaces
 kubectl delete cronjobs --all --all-namespaces
 kubectl delete daemonsets --all --all-namespaces
