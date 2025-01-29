@@ -11,7 +11,7 @@ fi
 
 export $(grep -v '^#' $env_file | cut -d= -f1)
 
-helm template "$PROJECT_NAME" "." -f values-substituted.yaml | kubectl delete -f -
+helm template "$PROJECT_NAME" "." | kubectl delete -f -
 
 kubectl delete deployments --all --all-namespaces
 kubectl delete pods --all --all-namespaces

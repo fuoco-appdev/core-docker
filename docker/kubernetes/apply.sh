@@ -84,7 +84,7 @@ if [[ "${STACK_ARRAY[@]}" =~ "core" ]]; then
     echo "Copying files to the pod..."
     DB_POD_NAME=$(kubectl get pods --no-headers=true | grep "^db" | awk '{print $1}' | head -n 1)
     NAMESPACE="default"
-    TIMEOUT=3000
+    TIMEOUT=10
 
     start_time=$(date +%s)
     while true; do
