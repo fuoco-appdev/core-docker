@@ -24,6 +24,8 @@ spec:
     spec:
       containers:
         - args:
+            - /bin/sh
+            - -c
             - etcd
             - -advertise-client-urls=http://127.0.0.1:2379
             - -listen-client-urls

@@ -3,15 +3,21 @@ ai:
     replicas: $AI_ETCD_REPLICAS
   ollama:
     replicas: $AI_OLLAMA_REPLICAS
+    storage: $AI_OLLAMA_STORAGE
   openWebui:
     replicas: $AI_OPEN_WEBUI_REPLICAS
+    storage: $AI_OPEN_WEBUI_STORAGE
   openedaiSpeechServer:
     replicas: $AI_OPENEDAI_SPEECH_SERVER_REPLICAS
+    configStorage: $AI_OPENEDAI_SPEECH_SERVER_CONFIG_STORAGE
+    voicesStorage: $AI_OPENEDAI_SPEECH_SERVER_VOICES_STORAGE
   standalone:
     replicas: $AI_STANDALONE_REPLICAS
+    storage: $AI_STANDALONE_STORAGE
 blog:
   ghost:
     replicas: $BLOG_GHOST_REPLICAS
+    storage: $BLOG_GHOST_STORAGE
 core:
   analytics:
     replicas: $CORE_ANALYTICS_REPLICAS
@@ -19,10 +25,17 @@ core:
     replicas: $CORE_AUTH_REPLICAS
   db:
     replicas: $CORE_DB_REPLICAS
+    configStorage: $CORE_DB_CONFIG_STORAGE
+    dataStorage: $CORE_DB_DATA_STORAGE
+    initScriptsStorage: $CORE_DB_INIT_SCRIPTS_STORAGE
+    migrationsStorage: $CORE_DB_MIGRATIONS_STORAGE
+    sslStorage: $CORE_DB_SSL_STORAGE
+    storage: $CORE_DB_STORAGE
   imgproxy:
     replicas: $CORE_IMGPROXY_REPLICAS
   kong:
     replicas: $CORE_KONG_REPLICAS
+    storage: $CORE_KONG_STORAGE
   meta:
     replicas: $CORE_META_REPLICAS
   realtime:
@@ -31,12 +44,15 @@ core:
     replicas: $CORE_REST_REPLICAS
   storage:
     replicas: $CORE_STORAGE_REPLICAS
+    storage: $CORE_STORAGE_STORAGE
   studio:
     replicas: $CORE_STUDIO_REPLICAS
   supavisor:
     replicas: $CORE_SUPAVISOR_REPLICAS
+    storage: $CORE_SUPAVISOR_STORAGE
   vector:
     replicas: $CORE_VECTOR_REPLICAS
+    storage: $CORE_VECTOR_STORAGE
 dashboard:
   adminuser:
   clusterrole:
@@ -47,14 +63,20 @@ development:
 ecommerce:
   medusaServer:
     replicas: $ECOMMERCE_MEDUSA_SERVER_REPLICAS
+    storage: $ECOMMERCE_MEDUSA_SERVER_STORAGE
   meilisearch:
     replicas: $ECOMMERCE_MEILISEARCH_REPLICAS
+    dataStorage: $ECOMMERCE_MEILISEARCH_DATA_STORAGE
   redis:
     replicas: $ECOMMERCE_REDIS_REPLICAS
 mail:
+  mail:
+    storage: $MAIL_MAIL_STORAGE
 nginx:
   replicas: $NGINX_REPLICAS
+  configStorage: $NGINX_CONFIG_STORAGE
 nvidia:
 s3:
   minio:
     replicas: $S3_MINIO_REPLICAS
+    storage: $S3_MINIO_DATA_STORAGE
