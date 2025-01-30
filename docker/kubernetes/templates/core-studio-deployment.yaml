@@ -91,6 +91,8 @@ spec:
           livenessProbe:
             exec:
               command:
+                - /bin/sh
+                - -c
                 - node
                 - -e
                 - fetch('http://studio:3000/api/profile').then((r) => {if (r.status !== 200) throw new Error(r.status)})
