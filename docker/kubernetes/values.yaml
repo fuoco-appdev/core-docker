@@ -3,15 +3,21 @@ ai:
     replicas: 1
   ollama:
     replicas: 1
+    storage: 100Mi
   openWebui:
     replicas: 1
+    storage: 100Mi
   openedaiSpeechServer:
     replicas: 1
+    configStorage: 100Mi
+    voicesStorage: 5Gi
   standalone:
     replicas: 1
+    storage: 100Mi
 blog:
   ghost:
     replicas: 1
+    storage: 100Mi
 core:
   analytics:
     replicas: 1
@@ -19,10 +25,17 @@ core:
     replicas: 1
   db:
     replicas: 1
+    configStorage: 100Mi
+    dataStorage: 10Gi
+    initScriptsStorage: 100Mi
+    migrationsStorage: 100Mi
+    sslStorage: 100Mi
+    storage: 100Mi
   imgproxy:
     replicas: 1
   kong:
     replicas: 1
+    storage: 100Mi
   meta:
     replicas: 1
   realtime:
@@ -31,12 +44,15 @@ core:
     replicas: 1
   storage:
     replicas: 1
+    storage: 100Mi
   studio:
     replicas: 1
   supavisor:
     replicas: 1
+    storage: 100Mi
   vector:
     replicas: 1
+    storage: 100Mi
 dashboard:
   adminuser:
   clusterrole:
@@ -47,14 +63,20 @@ development:
 ecommerce:
   medusaServer:
     replicas: 1
+    storage: 100Mi
   meilisearch:
     replicas: 1
+    dataStorage: 100Mi
   redis:
     replicas: 1
 mail:
+  mail:
+    storage: 
 nginx:
   replicas: 1
+  configStorage: 100Mi
 nvidia:
 s3:
   minio:
     replicas: 1
+    storage: 10Gi

@@ -90,10 +90,10 @@ services:
       TTS_HOME: voices
       HF_HOME: voices
       PRELOAD_MODEL: xtts
-      EXTRA_ARGS: --log-level DEBUG --unload-timer 300 --port 8002
+      EXTRA_ARGS: --log-level DEBUG --unload-timer 300
       USE_ROCM: 1
     ports:
-      - "8002:8002"
+      - 8002:8000
     volumes:
       - ../openedai-speech/voices:/app/voices
       - ../openedai-speech/config:/app/config
@@ -108,12 +108,12 @@ services:
               count: all
               capabilities: [ gpu ]
 
-networks:
-  default:
-    name: milvus
-
 volumes:
   ollama: {}
   open-webui: {}
   etcd: {}
   standalone: {}
+
+networks:
+  default:
+    name: milvus
