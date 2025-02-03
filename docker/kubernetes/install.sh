@@ -25,6 +25,9 @@ if [ "$OS" = "Linux" ]; then
         exit 1
     fi
 
+    # Install htpasswd if it's not already installed
+    npm install -g htpasswd
+
     # Cleanup
     echo "Cleaning up installation script..."
     rm get_helm.sh
@@ -40,6 +43,8 @@ elif [ "$(uname)" == "Darwin" ]; then
 
     #Install helm
     brew install helm
+
+    npm install -g htpasswd
 elif [ "$OS" = "MINGW"* ] || [ "$OS" = "MSYS"* ]; then
     # On Windows, if you're using Git Bash or MSYS2, `uname -s` might return MINGW or MSYS
     echo "This is Windows"
@@ -49,6 +54,8 @@ elif [ "$OS" = "MINGW"* ] || [ "$OS" = "MSYS"* ]; then
 
     #Install helm
     winget install Helm.Helm
+
+    npm install -g htpasswd
 else
     echo "This is an unknown OS or not supported"
 
@@ -57,4 +64,6 @@ else
 
     #Install helm
     winget install Helm.Helm
+
+    npm install -g htpasswd
 fi
