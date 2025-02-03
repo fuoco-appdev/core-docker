@@ -9,20 +9,27 @@ else
     exit 1
 fi
 
+# Check if an argument (config file path) is provided
+if [ -n "$1" ]; then
+    KUBECONFIG_PATH="$1"
+else
+    KUBECONFIG_PATH=""
+fi
+
 export $(grep -v '^#' $env_file | cut -d= -f1)
 
 helm template "$PROJECT_NAME" "." | kubectl delete -f -
 
-kubectl delete deployments --all --all-namespaces
-kubectl delete pods --all --all-namespaces
-kubectl delete services --all --all-namespaces
-kubectl delete configmaps --all --all-namespaces
-kubectl delete secrets --all --all-namespaces
-kubectl delete replicasets --all --all-namespaces
-kubectl delete statefulsets --all --all-namespaces
-# kubectl delete persistentvolumeclaims --all --all-namespaces
-kubectl delete jobs --all --all-namespaces
-kubectl delete cronjobs --all --all-namespaces
-kubectl delete daemonsets --all --all-namespaces
-kubectl delete ingress --all --all-namespaces
-kubectl delete networkpolicies --all --all-namespaces
+kubectl --kubeconfig="$KUBECONFIG_PATH" delete deployments --all --all-namespaces
+kubectl --kubeconfig="$KUBECONFIG_PATH" delete pods --all --all-namespaces
+kubectl --kubeconfig="$KUBECONFIG_PATH" delete services --all --all-namespaces
+kubectl --kubeconfig="$KUBECONFIG_PATH" delete configmaps --all --all-namespaces
+kubectl --kubeconfig="$KUBECONFIG_PATH" delete secrets --all --all-namespaces
+kubectl --kubeconfig="$KUBECONFIG_PATH" delete replicasets --all --all-namespaces
+kubectl --kubeconfig="$KUBECONFIG_PATH" delete statefulsets --all --all-namespaces
+# kubectl --kubeconfig="$KUBECONFIG_PATH" delete persistentvolumeclaims --all --all-namespaces
+kubectl --kubeconfig="$KUBECONFIG_PATH" delete jobs --all --all-namespaces
+kubectl --kubeconfig="$KUBECONFIG_PATH" delete cronjobs --all --all-namespaces
+kubectl --kubeconfig="$KUBECONFIG_PATH" delete daemonsets --all --all-namespaces
+kubectl --kubeconfig="$KUBECONFIG_PATH" delete ingress --all --all-namespaces
+kubectl --kubeconfig="$KUBECONFIG_PATH" delete networkpolicies --all --all-namespaces

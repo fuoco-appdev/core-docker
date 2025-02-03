@@ -5,7 +5,7 @@ metadata:
     kompose.cmd: C:\Github\mindy-project\core-docker\docker\kubernetes\kompose.exe -f ../docker-compose.core.yml -f ../docker-compose.ai.yml -f ../docker-compose.blog.yml -f ../docker-compose.development.yml -f ../docker-compose.ecommerce.yml -f ../docker-compose.mail.yml -f ../docker-compose.s3.yml convert
     kompose.version: 1.34.0 (cbf2835db)
   labels:
-    io.kompose.service: mail
+    service: mail
   name: mail
 spec:
   ports:
@@ -40,4 +40,4 @@ spec:
       port: 995
       targetPort: 995
   selector:
-    io.kompose.service: mail
+    service: mail

@@ -19,12 +19,13 @@ spec:
           - /bin/sh
           - -c
           - |
-            while [ ! -e /etc/nginx/nginx.conf ] || [ ! -s /etc/nginx/nginx.conf  ]; do 
+            ls /etc/nginx
+            cp -r /etc/nginx/* /tmp/etc/nginx
+            rm /tmp/etc/nginx/nginx.conf
+            while [ ! -e /tmp/etc/nginx/nginx.conf ] || [ ! -s /tmp/etc/nginx/nginx.conf ]; do 
               echo 'Waiting for all copied files...'
               sleep 10
             done
-            ls /etc/nginx
-            cp -r /etc/nginx/* /tmp/etc/nginx
         volumeMounts:
           - mountPath: /tmp/etc/nginx
             name: nginx-config-volume
@@ -36,6 +37,9 @@ spec:
           - mountPath: /etc/nginx
             name: nginx-config-volume
             subPath: nginx
+        ports:
+        - containerPort: 80
+      restartPolicy: Always
       volumes:
       - name: nginx-config-volume
         persistentVolumeClaim:
