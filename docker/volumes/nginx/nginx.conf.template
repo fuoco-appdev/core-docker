@@ -44,13 +44,28 @@ http {
             return 301 /app;
         }
 
-        location /api/ {
-            proxy_pass http://medusa-server:9010/api/;
+        location /admin/ {
+            proxy_pass http://medusa-server:9010/admin/;
             proxy_set_header Host $host;
             proxy_set_header X-Real-IP $remote_addr;
             proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
             proxy_set_header X-Forwarded-Proto $scheme;
-            return 301 /app;
+        }
+
+        location /auth/ {
+            proxy_pass http://medusa-server:9010/auth/;
+            proxy_set_header Host $host;
+            proxy_set_header X-Real-IP $remote_addr;
+            proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+            proxy_set_header X-Forwarded-Proto $scheme;
+        }
+
+        location /store/ {
+            proxy_pass http://medusa-server:9010/store/;
+            proxy_set_header Host $host;
+            proxy_set_header X-Real-IP $remote_addr;
+            proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+            proxy_set_header X-Forwarded-Proto $scheme;
         }
 
         location /app/ {
