@@ -109,7 +109,7 @@ spec:
           livenessProbe:
             exec:
               command:
-                - curl -sSfL --head -o /dev/null "http://127.0.0.1:4000/api/health"
+                - curl -sSfL --head -o /dev/null "http://analytics:4000/api/health"
             failureThreshold: 10
             periodSeconds: 10
             timeoutSeconds: 5

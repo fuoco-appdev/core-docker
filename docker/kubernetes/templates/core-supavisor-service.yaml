@@ -8,7 +8,7 @@ metadata:
     service: supavisor
   name: supavisor
 spec:
-  type: LoadBalancer
+  type: ClusterIP
   ports:
     - name: "6543"
       port: 6543
