@@ -12,6 +12,7 @@ fi
 export $(grep -v '^#' $env_file | cut -d= -f1)
 
 OS=$(uname -s)
+IFS=' ' read -ra STACK_ARRAY <<< "$STACKS"
 
 # Function to check if command exists
 command_exists() {
@@ -130,11 +131,26 @@ if [ -z "$NGINX_POD_NAME" ]; then
 fi
 
 export host="\$host" remote_addr="\$remote_addr" proxy_add_x_forwarded_for="\$proxy_add_x_forwarded_for" scheme="\$scheme"
+
+if [[ "${STACK_ARRAY[@]}" =~ "core" ]]; then
+    envsubst < ../volumes/nginx/conf.d/supabase.conf.template > ../volumes/nginx/conf.d/supabase.conf
+    kubectl --kubeconfig="$KUBECONFIG_PATH" cp ../volumes/nginx/conf.d/supabase.conf $NGINX_POD_NAME:/tmp/etc/nginx/conf.d/supabase.conf -c init-nginx
+    export NGINX_SUPABASE_CONFIG="include /etc/nginx/conf.d/supabase.conf;"
+else
+    echo "Skipping nginx core config"
+fi
+
+if [[ "${STACK_ARRAY[@]}" =~ "ecommerce" ]]; then
+    envsubst < ../volumes/nginx/conf.d/medusa.conf.template > ../volumes/nginx/conf.d/medusa.conf
+    kubectl --kubeconfig="$KUBECONFIG_PATH" cp ../volumes/nginx/conf.d/medusa.conf $NGINX_POD_NAME:/tmp/etc/nginx/conf.d/medusa.conf -c init-nginx
+    export NGINX_MEDUSA_CONFIG="include /etc/nginx/conf.d/medusa.conf;"
+else
+    echo "Skipping nginx ecommerce config"
+fi
+
 envsubst < ../volumes/nginx/nginx.conf.template > ../volumes/nginx/nginx.conf
 kubectl --kubeconfig="$KUBECONFIG_PATH" cp ../volumes/nginx/nginx.conf $NGINX_POD_NAME:/tmp/etc/nginx/nginx.conf -c init-nginx
 kubectl --kubeconfig="$KUBECONFIG_PATH" cp ../volumes/nginx/.htpasswd $NGINX_POD_NAME:/tmp/etc/nginx/.htpasswd -c init-nginx
-
-IFS=' ' read -ra STACK_ARRAY <<< "$STACKS"
 
 if [[ "${STACK_ARRAY[@]}" =~ "ai" ]]; then
     helm  template "$PROJECT_NAME" "." --show-only "templates/nvidia-device-plugin-daemonset.yaml" > release/nvidia-device-plugin-daemonset.yaml
@@ -288,7 +304,7 @@ if [[ "${STACK_ARRAY[@]}" =~ "core" ]]; then
         echo "No pod found with label service=vector"
         exit 1
     fi
-
+ 
     kubectl --kubeconfig="$KUBECONFIG_PATH" cp ../volumes/logs/vector.yml $VECTOR_POD_NAME:/tmp/etc/vector/vector.yml -c init-vector
 else
     echo "Skipping core stack"
