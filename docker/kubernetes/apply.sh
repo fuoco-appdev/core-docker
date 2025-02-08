@@ -141,11 +141,19 @@ else
 fi
 
 if [[ "${STACK_ARRAY[@]}" =~ "ecommerce" ]]; then
-    envsubst < ../volumes/nginx/conf.d/medusa.conf.template > ../volumes/nginx/conf.d/medusa.conf
-    kubectl --kubeconfig="$KUBECONFIG_PATH" cp ../volumes/nginx/conf.d/medusa.conf $NGINX_POD_NAME:/tmp/etc/nginx/conf.d/medusa.conf -c init-nginx
-    export NGINX_MEDUSA_CONFIG="include /etc/nginx/conf.d/medusa.conf;"
+    envsubst < ../volumes/nginx/conf.d/ecommerce.conf.template > ../volumes/nginx/conf.d/ecommerce.conf
+    kubectl --kubeconfig="$KUBECONFIG_PATH" cp ../volumes/nginx/conf.d/ecommerce.conf $NGINX_POD_NAME:/tmp/etc/nginx/conf.d/ecommerce.conf -c init-nginx
+    export NGINX_MEDUSA_CONFIG="include /etc/nginx/conf.d/ecommerce.conf;"
 else
     echo "Skipping nginx ecommerce config"
+fi
+
+if [[ "${STACK_ARRAY[@]}" =~ "ai" ]]; then
+    envsubst < ../volumes/nginx/conf.d/ai.conf.template > ../volumes/nginx/conf.d/ai.conf
+    kubectl --kubeconfig="$KUBECONFIG_PATH" cp ../volumes/nginx/conf.d/ai.conf $NGINX_POD_NAME:/tmp/etc/nginx/conf.d/ai.conf -c init-nginx
+    export NGINX_MEDUSA_CONFIG="include /etc/nginx/conf.d/ai.conf;"
+else
+    echo "Skipping nginx ai config"
 fi
 
 envsubst < ../volumes/nginx/nginx.conf.template > ../volumes/nginx/nginx.conf

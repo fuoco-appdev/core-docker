@@ -5,4 +5,5 @@ events {
 http {
     $NGINX_SUPABASE_CONFIG
     $NGINX_MEDUSA_CONFIG
+    $NGINX_AI_CONFIG
 }
