@@ -84,23 +84,32 @@ fi
 export host="\$host" remote_addr="\$remote_addr" proxy_add_x_forwarded_for="\$proxy_add_x_forwarded_for" scheme="\$scheme"
 
 if [[ "${STACK_ARRAY[@]}" =~ "core" ]]; then
-    envsubst < ../volumes/nginx/conf.d/supabase.conf.template > ../volumes/nginx/conf.d/supabase.conf
-    kubectl --kubeconfig="$KUBECONFIG_PATH" cp ../volumes/nginx/conf.d/supabase.conf $NGINX_POD_NAME:/tmp/etc/nginx/conf.d/supabase.conf -c init-nginx
-    export NGINX_SUPABASE_CONFIG="include /etc/nginx/conf.d/supabase.conf;"
+    envsubst < ../volumes/nginx/conf.d/core.conf.template > ../volumes/nginx/conf.d/core.conf
+    kubectl --kubeconfig="$KUBECONFIG_PATH" cp ../volumes/nginx/conf.d/core.conf $NGINX_POD_NAME:/tmp/etc/nginx/conf.d/core.conf -c init-nginx
+    export NGINX_CORE_CONFIG="include /etc/nginx/conf.d/core.conf;"
 else
     echo "Skipping nginx core config"
 fi
 
 if [[ "${STACK_ARRAY[@]}" =~ "ecommerce" ]]; then
-    envsubst < ../volumes/nginx/conf.d/medusa.conf.template > ../volumes/nginx/conf.d/medusa.conf
-    kubectl --kubeconfig="$KUBECONFIG_PATH" cp ../volumes/nginx/conf.d/medusa.conf $NGINX_POD_NAME:/tmp/etc/nginx/conf.d/medusa.conf -c init-nginx
-    export NGINX_MEDUSA_CONFIG="include /etc/nginx/conf.d/medusa.conf;"
+    envsubst < ../volumes/nginx/conf.d/ecommerce.conf.template > ../volumes/nginx/conf.d/ecommerce.conf
+    kubectl --kubeconfig="$KUBECONFIG_PATH" cp ../volumes/nginx/conf.d/ecommerce.conf $NGINX_POD_NAME:/tmp/etc/nginx/conf.d/ecommerce.conf -c init-nginx
+    export NGINX_ECOMMERCE_CONFIG="include /etc/nginx/conf.d/ecommerce.conf;"
 else
     echo "Skipping nginx ecommerce config"
 fi
 
+if [[ "${STACK_ARRAY[@]}" =~ "ai" ]]; then
+    envsubst < ../volumes/nginx/conf.d/ai.conf.template > ../volumes/nginx/conf.d/ai.conf
+    kubectl --kubeconfig="$KUBECONFIG_PATH" cp ../volumes/nginx/conf.d/ai.conf $NGINX_POD_NAME:/tmp/etc/nginx/conf.d/ai.conf -c init-nginx
+    export NGINX_AI_CONFIG="include /etc/nginx/conf.d/ai.conf;"
+else
+    echo "Skipping nginx ai config"
+fi
+
 envsubst < ../volumes/nginx/nginx.conf.template > ../volumes/nginx/nginx.conf
 kubectl --kubeconfig="$KUBECONFIG_PATH" cp ../volumes/nginx/nginx.conf $NGINX_POD_NAME:/tmp/etc/nginx/nginx.conf -c init-nginx
+kubectl --kubeconfig="$KUBECONFIG_PATH" cp ../volumes/nginx/.htpasswd $NGINX_POD_NAME:/tmp/etc/nginx/.htpasswd -c init-nginx
 
 if [[ "${STACK_ARRAY[@]}" =~ "core" ]]; then
     ANALYTICS_DEPLOYMENT_NAME=$(kubectl --kubeconfig="$KUBECONFIG_PATH" get deployments --no-headers=true | grep "^analytics" | awk '{print $1}' | head -n 1)
