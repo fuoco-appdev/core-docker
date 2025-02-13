@@ -9,6 +9,8 @@ metadata:
   name: pgadmin
 spec:
   replicas: {{ int .Values.development.pgadmin.replicas }}
+  strategy:
+    type: Recreate
   selector:
     matchLabels:
       io.kompose.service: pgadmin

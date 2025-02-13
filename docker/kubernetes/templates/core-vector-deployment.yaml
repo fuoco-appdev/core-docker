@@ -9,6 +9,8 @@ metadata:
   name: vector
 spec:
   replicas: {{ int .Values.core.vector.replicas }}
+  strategy:
+    type: Recreate
   selector:
     matchLabels:
       service: vector

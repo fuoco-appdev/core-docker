@@ -8,6 +8,8 @@ metadata:
     service: realtime
   name: realtime
 spec:
+  strategy:
+    type: Recreate
   replicas: {{ int .Values.core.realtime.replicas }}
   selector:
     matchLabels:

@@ -9,6 +9,8 @@ metadata:
   name: auth
 spec:
   replicas: {{ int .Values.core.auth.replicas }}
+  strategy:
+    type: Recreate
   selector:
     matchLabels:
       service: auth

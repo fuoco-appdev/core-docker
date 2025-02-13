@@ -3,6 +3,11 @@ events {
 }
 
 http {
+    map $http_upgrade $connection_upgrade {
+        default upgrade;
+        `` close;
+    }
+
     $NGINX_CORE_CONFIG
     $NGINX_ECOMMERCE_CONFIG
     $NGINX_AI_CONFIG

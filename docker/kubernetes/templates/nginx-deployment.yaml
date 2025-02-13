@@ -4,6 +4,8 @@ metadata:
   name: nginx-deployment
 spec:
   replicas: {{ int .Values.nginx.replicas }}
+  strategy:
+    type: Recreate
   selector:
     matchLabels:
       service: nginx

@@ -9,6 +9,8 @@ metadata:
   name: analytics
 spec:
   replicas: {{ int .Values.core.analytics.replicas }}
+  strategy:
+    type: Recreate
   selector:
     matchLabels:
       service: analytics
@@ -22,8 +24,13 @@ spec:
     spec:
       initContainers:
         - name: init-analytics
-          image: curlimages/curl
-          command: ['sh', '-c', 'until curl -fsSL -m 2 db:5432 > /dev/null 2>&1 || [ $? -eq 52 ]; do echo waiting for postgres; sleep 2; done;']
+          image: supabase/logflare:build
+          imagePullPolicy: IfNotPresent
+          command:
+            - sh 
+            - -c
+            - |
+              until curl -fsSL -m 2 db:5432 > /dev/null 2>&1 || [ $? -eq 52 ]; do echo waiting for postgres; sleep 2; done;
       containers:
         - env:
             - name: DB_DATABASE
@@ -36,14 +43,29 @@ spec:
               value: multibackend=true
             - name: LOGFLARE_MIN_CLUSTER_SIZE
               value: "1"
-            - name: LOGFLARE_NODE_HOST
-              value: 127.0.0.1
             - name: LOGFLARE_SINGLE_TENANT
               value: "true"
             - name: LOGFLARE_SUPABASE_MODE
               value: "true"
             - name: POSTGRES_BACKEND_SCHEMA
               value: _analytics
+            - name: PORT
+              value: '4000'
+            - name: HOST
+              valueFrom:
+                secretKeyRef:
+                  name: env-secrets
+                  key: NGINX_LOGFLARE_HOST_URL
+            - name: PHX_URL_HOST
+              valueFrom:
+                secretKeyRef:
+                  name: env-secrets
+                  key: NGINX_LOGFLARE_HOST_URL
+            - name: LOGFLARE_NODE_HOST
+              valueFrom:
+                secretKeyRef:
+                  name: env-secrets
+                  key: NGINX_LOGFLARE_HOST_URL
             - name: DB_HOSTNAME
               valueFrom:
                 secretKeyRef:
@@ -69,7 +91,7 @@ spec:
                 secretKeyRef:
                   name: env-secrets
                   key: ANALYTICS_POSTGRES_BACKEND_URL
-          image: supabase/logflare:1.4.0
+          image: supabase/logflare:build
           livenessProbe:
             exec:
               command:
@@ -79,6 +101,7 @@ spec:
             periodSeconds: 5
             timeoutSeconds: 5
           name: supabase-analytics
+          imagePullPolicy: IfNotPresent
           ports:
             - containerPort: 4000
       restartPolicy: Always

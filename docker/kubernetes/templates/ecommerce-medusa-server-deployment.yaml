@@ -262,11 +262,4 @@ spec:
           ports:
             - containerPort: 9010
               protocol: TCP
-          # volumeMounts:
-          #   - mountPath: /app/medusa
-          #     name: medusa-server
       restartPolicy: Always
-      # volumes:
-      #   - configMap:
-      #       name: medusa-server
-      #     name: medusa-server-volume-claim

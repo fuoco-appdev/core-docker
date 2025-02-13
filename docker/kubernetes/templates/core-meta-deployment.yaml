@@ -9,6 +9,8 @@ metadata:
   name: meta
 spec:
   replicas: {{ int .Values.core.meta.replicas }}
+  strategy:
+    type: Recreate
   selector:
     matchLabels:
       service: meta

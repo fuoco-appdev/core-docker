@@ -8,6 +8,8 @@ metadata:
     service: rest
   name: rest
 spec:
+  strategy:
+    type: Recreate
   replicas: {{ int .Values.core.rest.replicas }}
   selector:
     matchLabels:
