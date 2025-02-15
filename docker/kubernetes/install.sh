@@ -1,3 +1,5 @@
+OS=$(uname -s)
+
 if [ "$OS" = "Linux" ]; then
     echo "This is Linux"
 
