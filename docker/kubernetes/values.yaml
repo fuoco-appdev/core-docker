@@ -75,6 +75,7 @@ mail:
 nginx:
   replicas: 1
   configStorage: 100Mi
+  sslStorage: 100Mi
 nvidia:
 s3:
   minio:

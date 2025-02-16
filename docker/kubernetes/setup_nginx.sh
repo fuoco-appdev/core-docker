@@ -1,6 +1,7 @@
+IFS=' ' read -ra STACK_ARRAY <<< "$STACKS"
 NGINX_POD_NAME=$(kubectl --kubeconfig="$KUBECONFIG_PATH" get pods --no-headers=true | grep "^nginx.*Init" | awk '{print $1}' | head -n 1)
 NAMESPACE="default"
-TIMEOUT=30
+TIMEOUT=60
 
 if [[ -z "$NGINX_POD_NAME" ]]; then
     echo "No pod found with label service=nginx"
@@ -55,7 +56,10 @@ else
         echo "Skipping nginx ai config"
     fi
 
+    kubectl --kubeconfig="$KUBECONFIG_PATH" cp ../volumes/nginx/.htpasswd $NGINX_POD_NAME:/tmp/etc/nginx/.htpasswd -c init-nginx
+    kubectl --kubeconfig="$KUBECONFIG_PATH" cp ../volumes/nginx/domain.pass $NGINX_POD_NAME:/tmp/etc/ssl/domain.pass -c init-nginx
+    kubectl --kubeconfig="$KUBECONFIG_PATH" cp --no-preserve ../volumes/nginx/domain.crt $NGINX_POD_NAME:/tmp/etc/ssl/domain.crt -c init-nginx
+    kubectl --kubeconfig="$KUBECONFIG_PATH" cp --no-preserve ../volumes/nginx/domain.key $NGINX_POD_NAME:/tmp/etc/ssl/domain.key -c init-nginx
     envsubst < ../volumes/nginx/nginx.conf.template > ../volumes/nginx/nginx.conf
     kubectl --kubeconfig="$KUBECONFIG_PATH" cp ../volumes/nginx/nginx.conf $NGINX_POD_NAME:/tmp/etc/nginx/nginx.conf -c init-nginx
-    kubectl --kubeconfig="$KUBECONFIG_PATH" cp ../volumes/nginx/.htpasswd $NGINX_POD_NAME:/tmp/etc/nginx/.htpasswd -c init-nginx
 fi

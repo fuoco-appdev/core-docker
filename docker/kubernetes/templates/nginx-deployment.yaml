@@ -28,10 +28,18 @@ spec:
               echo 'Waiting for all copied files...'
               sleep 10
             done
+            cat /tmp/etc/nginx/.htpasswd
+            cat /tmp/etc/ssl/domain.pass
+            cat /tmp/etc/ssl/domain.crt
+            cat /tmp/etc/ssl/domain.key
+            cat /tmp/etc/nginx/nginx.conf
         volumeMounts:
           - mountPath: /tmp/etc/nginx
             name: nginx-config-volume
             subPath: nginx
+          - mountPath: /tmp/etc/ssl
+            name: nginx-ssl-volume
+            subPath: ssl
       containers:
       - name: nginx
         image: nginx:latest
@@ -39,6 +47,9 @@ spec:
           - mountPath: /etc/nginx
             name: nginx-config-volume
             subPath: nginx
+          - mountPath: /etc/ssl
+            name: nginx-ssl-volume
+            subPath: ssl
         ports:
         - containerPort: 80
       restartPolicy: Always
@@ -46,3 +57,6 @@ spec:
       - name: nginx-config-volume
         persistentVolumeClaim:
             claimName: nginx-config-volume-claim
+      - name: nginx-ssl-volume
+        persistentVolumeClaim:
+            claimName: nginx-ssl-volume-claim

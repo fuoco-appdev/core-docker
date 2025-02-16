@@ -1,6 +1,9 @@
 server {
     listen 80;
+    listen 443 ssl;
     server_name $NGINX_SUPABASE_HOST_URL;
+    ssl_certificate /etc/ssl/domain.crt;
+    ssl_certificate_key /etc/ssl/domain.key;
 
     location / {
         proxy_pass http://studio:3000;
@@ -15,7 +18,10 @@ server {
 
 server {
     listen 80;
+    listen 443 ssl;
     server_name $NGINX_KONG_HOST_URL;
+    ssl_certificate /etc/ssl/domain.crt;
+    ssl_certificate_key /etc/ssl/domain.key;
 
     location / {
         proxy_pass http://kong:8000;
@@ -28,7 +34,11 @@ server {
 
 server {
     listen 80;
+    listen 443 ssl;
     server_name $NGINX_LOGFLARE_HOST_URL;
+    ssl_certificate /etc/ssl/domain.crt;
+    ssl_certificate_key /etc/ssl/domain.key;
+
     auth_basic "Restricted Access";
     auth_basic_user_file /etc/nginx/.htpasswd;
 

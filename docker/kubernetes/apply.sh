@@ -9,6 +9,7 @@ fi
 
 source ./setup_env.sh
 source ./setup_password.sh
+source ./setup_ssl.sh
 
 # Check if the directory exists, if not, create it
 if [ ! -d "./release" ]; then
@@ -23,6 +24,9 @@ envsubst < values.tpl.yaml > values.yaml
 
 helm template "$PROJECT_NAME" "." --show-only "templates/nginx-config-persistentvolumeclaim.yaml" > release/nginx-config-persistentvolumeclaim.yaml
 kubectl --kubeconfig="$KUBECONFIG_PATH" apply -f release/nginx-config-persistentvolumeclaim.yaml
+
+helm template "$PROJECT_NAME" "." --show-only "templates/nginx-ssl-persistentvolumeclaim.yaml" > release/nginx-ssl-persistentvolumeclaim.yaml
+kubectl --kubeconfig="$KUBECONFIG_PATH" apply -f release/nginx-ssl-persistentvolumeclaim.yaml
 
 helm template "$PROJECT_NAME" "." --show-only "templates/nginx-service.yaml" > release/nginx-service.yaml
 kubectl --kubeconfig="$KUBECONFIG_PATH" apply -f release/nginx-service.yaml

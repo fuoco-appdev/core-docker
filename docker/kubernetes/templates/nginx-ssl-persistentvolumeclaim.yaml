@@ -3,10 +3,10 @@ kind: PersistentVolumeClaim
 metadata:
   labels:
     service: nginx
-  name: nginx-config-volume-claim
+  name: nginx-ssl-volume-claim
 spec:
   accessModes:
     - ReadWriteMany
   resources:
     requests:
-      storage: {{ .Values.nginx.configStorage }}
+      storage: {{ .Values.nginx.sslStorage }}

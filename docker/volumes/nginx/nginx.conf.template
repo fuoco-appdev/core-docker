@@ -8,6 +8,8 @@ http {
         `` close;
     }
 
+    ssl_password_file /etc/ssl/domain.pass;
+
     $NGINX_CORE_CONFIG
     $NGINX_ECOMMERCE_CONFIG
     $NGINX_AI_CONFIG

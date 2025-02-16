@@ -4,7 +4,7 @@ if [[ "${STACK_ARRAY[@]}" =~ "ai" ]]; then
     # Copy files to the pod
     echo "Copying files ai..."
     NAMESPACE="default"
-    TIMEOUT=300
+    TIMEOUT=30
     OPENEDAI_SPEECH_SERVER_POD_NAME=$(kubectl --kubeconfig="$KUBECONFIG_PATH" get pods --no-headers=true | grep "^openedai-speech-server.*Init" | awk '{print $1}' | head -n 1)
     if [[ -z "$OPENEDAI_SPEECH_SERVER_POD_NAME" ]]; then
         echo "No pod found with label service=openedai-speech-server"
