@@ -116,7 +116,7 @@ spec:
               command: 
               - /bin/sh
               - -c
-              - 'pg_isready -U postgres -h localhost  -p 5432'
+              - 'pg_isready -U postgres -h localhost -p 5432'
             initialDelaySeconds: 10
             periodSeconds: 10
             failureThreshold: 3

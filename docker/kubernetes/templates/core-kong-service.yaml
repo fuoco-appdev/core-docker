@@ -8,7 +8,7 @@ metadata:
     service: kong
   name: kong
 spec:
-  type: LoadBalancer
+  type: ClusterIP
   ports:
     - name: "8000"
       port: 8000

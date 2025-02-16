@@ -8,7 +8,7 @@ metadata:
     io.kompose.service: ghost
   name: ghost
 spec:
-  type: LoadBalancer
+  type: ClusterIP
   ports:
     - name: "2368"
       port: 2368

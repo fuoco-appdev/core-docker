@@ -8,7 +8,7 @@ metadata:
     service: minio
   name: minio
 spec:
-  type: LoadBalancer
+  type: ClusterIP
   ports:
     - name: "9000"
       port: 9000

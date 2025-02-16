@@ -8,7 +8,7 @@ metadata:
     service: medusa-server
   name: medusa-server
 spec:
-  type: LoadBalancer
+  type: ClusterIP
   ports:
     - name: "9010"
       port: 9010

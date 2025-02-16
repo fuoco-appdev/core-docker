@@ -8,7 +8,7 @@ metadata:
     service: open-webui
   name: open-webui
 spec:
-  type: LoadBalancer
+  type: ClusterIP
   ports:
     - name: "3001"
       port: 3001

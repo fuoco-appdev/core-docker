@@ -8,7 +8,7 @@ metadata:
     service: standalone
   name: standalone
 spec:
-  type: LoadBalancer
+  type: ClusterIP
   ports:
     - name: "19530"
       port: 19530

@@ -8,7 +8,7 @@ metadata:
     io.kompose.service: pgadmin
   name: pgadmin
 spec:
-  type: LoadBalancer
+  type: ClusterIP
   ports:
     - name: "80"
       port: 80
