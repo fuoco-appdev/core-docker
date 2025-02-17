@@ -22,8 +22,8 @@ fi
 envsubst < Chart.tpl.yaml > Chart.yaml
 envsubst < values.tpl.yaml > values.yaml
 
-helm template "$PROJECT_NAME" "." --show-only "templates/nginx-config-persistentvolumeclaim.yaml" > release/nginx-config-persistentvolumeclaim.yaml
-kubectl --kubeconfig="$KUBECONFIG_PATH" apply -f release/nginx-config-persistentvolumeclaim.yaml
+helm template "$PROJECT_NAME" "." --show-only "templates/nginx-persistentvolumeclaim.yaml" > release/nginx-persistentvolumeclaim.yaml
+kubectl --kubeconfig="$KUBECONFIG_PATH" apply -f release/nginx-persistentvolumeclaim.yaml
 
 helm template "$PROJECT_NAME" "." --show-only "templates/nginx-ssl-persistentvolumeclaim.yaml" > release/nginx-ssl-persistentvolumeclaim.yaml
 kubectl --kubeconfig="$KUBECONFIG_PATH" apply -f release/nginx-ssl-persistentvolumeclaim.yaml

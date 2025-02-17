@@ -10,7 +10,11 @@ http {
 
     ssl_password_file /etc/ssl/domain.pass;
 
-    $NGINX_CORE_CONFIG
-    $NGINX_ECOMMERCE_CONFIG
-    $NGINX_AI_CONFIG
+    $NGINX_CORE_HTTP_CONFIG
+    $NGINX_ECOMMERCE_HTTP_CONFIG
+    $NGINX_AI_HTTP_CONFIG
+}
+
+stream {
+    $NGINX_CORE_STREAM_CONFIG
 }

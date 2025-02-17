@@ -24,6 +24,8 @@ spec:
             ls /etc/nginx
             cp -r /etc/nginx/* /tmp/etc/nginx
             rm /tmp/etc/nginx/nginx.conf
+            mkdir /tmp/etc/nginx/conf.d/http
+            mkdir /tmp/etc/nginx/conf.d/stream
             while [ ! -e /tmp/etc/nginx/nginx.conf ] || [ ! -s /tmp/etc/nginx/nginx.conf ]; do 
               echo 'Waiting for all copied files...'
               sleep 10
@@ -35,7 +37,7 @@ spec:
             cat /tmp/etc/nginx/nginx.conf
         volumeMounts:
           - mountPath: /tmp/etc/nginx
-            name: nginx-config-volume
+            name: nginx-volume
             subPath: nginx
           - mountPath: /tmp/etc/ssl
             name: nginx-ssl-volume
@@ -45,7 +47,7 @@ spec:
         image: nginx:latest
         volumeMounts:
           - mountPath: /etc/nginx
-            name: nginx-config-volume
+            name: nginx-volume
             subPath: nginx
           - mountPath: /etc/ssl
             name: nginx-ssl-volume
@@ -54,9 +56,9 @@ spec:
         - containerPort: 80
       restartPolicy: Always
       volumes:
-      - name: nginx-config-volume
+      - name: nginx-volume
         persistentVolumeClaim:
-            claimName: nginx-config-volume-claim
+            claimName: nginx-volume-claim
       - name: nginx-ssl-volume
         persistentVolumeClaim:
             claimName: nginx-ssl-volume-claim

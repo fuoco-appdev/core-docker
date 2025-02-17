@@ -3,7 +3,7 @@ kind: PersistentVolumeClaim
 metadata:
   labels:
     service: nginx
-  name: nginx-config-volume-claim
+  name: nginx-volume-claim
 spec:
   accessModes:
     - ReadWriteMany

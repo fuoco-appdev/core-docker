@@ -1,0 +1,5 @@
+server {
+    listen 5432;
+    server_name $NGINX_DB_HOST_URL;
+    proxy_pass db:5432;
+}
