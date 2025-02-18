@@ -2,11 +2,11 @@ apiVersion: v1
 kind: PersistentVolumeClaim
 metadata:
   labels:
-    service: ghost
-  name: ghost-volume-claim
+    service: ghost-db
+  name: ghost-db-volume-claim
 spec:
   accessModes:
     - ReadWriteMany
   resources:
     requests:
-      storage: {{ .Values.blog.ghost.storage }}
+      storage: {{ .Values.blog.db.storage }}

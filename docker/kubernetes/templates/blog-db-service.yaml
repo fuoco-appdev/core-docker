@@ -5,13 +5,13 @@ metadata:
     kompose.cmd: C:\Github\mindy-project\core-docker\docker\kubernetes\kompose.exe -f ../docker-compose.core.yml -f ../docker-compose.ai.yml -f ../docker-compose.blog.yml -f ../docker-compose.development.yml -f ../docker-compose.ecommerce.yml -f ../docker-compose.mail.yml -f ../docker-compose.s3.yml convert
     kompose.version: 1.34.0 (cbf2835db)
   labels:
-    service: ghost
-  name: ghost
+    service: ghost-db
+  name: ghost-db
 spec:
   type: ClusterIP
   ports:
-    - name: "2368"
-      port: 2368
-      targetPort: 2368
+    - name: "3306"
+      port: 3306
+      targetPort: 3306
   selector:
-    service: ghost
+    service: ghost-db

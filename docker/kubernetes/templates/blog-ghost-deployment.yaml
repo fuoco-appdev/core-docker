@@ -5,23 +5,28 @@ metadata:
     kompose.cmd: C:\Github\mindy-project\core-docker\docker\kubernetes\kompose.exe -f ../docker-compose.core.yml -f ../docker-compose.ai.yml -f ../docker-compose.blog.yml -f ../docker-compose.development.yml -f ../docker-compose.ecommerce.yml -f ../docker-compose.mail.yml -f ../docker-compose.s3.yml convert
     kompose.version: 1.34.0 (cbf2835db)
   labels:
-    io.kompose.service: ghost
+    service: ghost
   name: ghost
 spec:
   replicas: {{ int .Values.blog.ghost.replicas }}
   selector:
     matchLabels:
-      io.kompose.service: ghost
+      service: ghost
   strategy:
     type: Recreate
   template:
     metadata:
-      annotations:
-        kompose.cmd: C:\Github\mindy-project\core-docker\docker\kubernetes\kompose.exe -f ../docker-compose.core.yml -f ../docker-compose.ai.yml -f ../docker-compose.blog.yml -f ../docker-compose.development.yml -f ../docker-compose.ecommerce.yml -f ../docker-compose.mail.yml -f ../docker-compose.s3.yml convert
-        kompose.version: 1.34.0 (cbf2835db)
       labels:
-        io.kompose.service: ghost
+        service: ghost
     spec:
+      initContainers:
+      - name: init-ghost
+        image: ghost:5-alpine
+        command:
+          - /bin/sh
+          - -c
+          - |
+            ls /var/lib/ghost/
       containers:
         - env:
             - name: database__client
@@ -29,16 +34,16 @@ spec:
             - name: database__connection__database
               value: ghost
             - name: database__connection__host
-              value: db
+              value: ghost-db
+            - name: database__connection__user
+              value: root
+            - name: url
+              value: http://ghost:2368
             - name: database__connection__password
               valueFrom:
                 secretKeyRef:
                   name: env-secrets
                   key: GHOST_DB_PASSWORD
-            - name: database__connection__user
-              value: root
-            - name: url
-              value: http://localhost:2368
           image: ghost:5-alpine
           name: ghost
           ports:
@@ -46,9 +51,9 @@ spec:
               protocol: TCP
           volumeMounts:
             - mountPath: /var/lib/ghost/content
-              name: ghost
+              name: ghost-volume
       restartPolicy: Always
       volumes:
-        - name: ghost
+        - name: ghost-volume
           persistentVolumeClaim:
-            claimName: ghost
+            claimName: ghost-volume-claim

@@ -18,6 +18,9 @@ blog:
   ghost:
     replicas: $BLOG_GHOST_REPLICAS
     storage: $BLOG_GHOST_STORAGE
+  db:
+    replicas: $BLOG_DB_REPLICAS
+    storage: $BLOG_DB_STORAGE
 core:
   analytics:
     replicas: $CORE_ANALYTICS_REPLICAS

@@ -1,0 +1,41 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  annotations:
+    kompose.cmd: C:\Github\mindy-project\core-docker\docker\kubernetes\kompose.exe -f ../docker-compose.core.yml -f ../docker-compose.ai.yml -f ../docker-compose.blog.yml -f ../docker-compose.development.yml -f ../docker-compose.ecommerce.yml -f ../docker-compose.mail.yml -f ../docker-compose.s3.yml convert
+    kompose.version: 1.34.0 (cbf2835db)
+  labels:
+    service: ghost-db
+  name: ghost-db
+spec:
+  replicas: {{ int .Values.blog.db.replicas }}
+  selector:
+    matchLabels:
+      service: ghost-db
+  strategy:
+    type: Recreate
+  template:
+    metadata:
+      labels:
+        service: ghost-db
+    spec:
+      containers:
+        - env:
+          - name: MYSQL_ROOT_PASSWORD
+            valueFrom:
+              secretKeyRef:
+                name: env-secrets
+                key: GHOST_DB_PASSWORD
+          image: mysql:8.0
+          name: ghost-db
+          ports:
+            - containerPort: 3306
+              protocol: TCP
+          volumeMounts:
+            - mountPath: /var/lib/mysql
+              name: ghost-db-volume
+      restartPolicy: Always
+      volumes:
+        - name: ghost-db-volume
+          persistentVolumeClaim:
+            claimName: ghost-db-volume-claim

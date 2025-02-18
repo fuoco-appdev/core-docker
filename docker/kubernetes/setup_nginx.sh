@@ -60,6 +60,14 @@ else
         echo "Skipping nginx ai config"
     fi
 
+    if [[ "${STACK_ARRAY[@]}" =~ "blog" ]]; then
+        envsubst < ../volumes/nginx/conf.d/http/blog.conf.template > ../volumes/nginx/conf.d/http/blog.conf
+        kubectl --kubeconfig="$KUBECONFIG_PATH" cp ../volumes/nginx/conf.d/http/blog.conf $NGINX_POD_NAME:/tmp/etc/nginx/conf.d/http/blog.conf -c init-nginx
+        export NGINX_BLOG_HTTP_CONFIG="include /etc/nginx/conf.d/http/blog.conf;"
+    else
+        echo "Skipping nginx blog config"
+    fi
+
     kubectl --kubeconfig="$KUBECONFIG_PATH" cp ../volumes/nginx/.htpasswd $NGINX_POD_NAME:/tmp/etc/nginx/.htpasswd -c init-nginx
     kubectl --kubeconfig="$KUBECONFIG_PATH" cp ../volumes/nginx/domain.pass $NGINX_POD_NAME:/tmp/etc/ssl/domain.pass -c init-nginx
     kubectl --kubeconfig="$KUBECONFIG_PATH" cp --no-preserve ../volumes/nginx/domain.crt $NGINX_POD_NAME:/tmp/etc/ssl/domain.crt -c init-nginx

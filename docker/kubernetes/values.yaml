@@ -18,6 +18,9 @@ blog:
   ghost:
     replicas: 1
     storage: 100Mi
+  db:
+    replicas: 1
+    storage: 10Gi
 core:
   analytics:
     replicas: 1

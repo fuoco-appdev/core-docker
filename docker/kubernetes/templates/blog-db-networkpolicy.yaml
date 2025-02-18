@@ -1,0 +1,17 @@
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata:
+  name: ghost-db-network-policy
+  namespace: default
+spec:
+  podSelector:
+    matchLabels:
+      app: ghost-db
+  ingress:
+  - from:
+    - podSelector:
+        matchLabels:
+          app: ghost
+    ports:
+    - protocol: TCP
+      port: 3306

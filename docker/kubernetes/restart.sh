@@ -9,78 +9,89 @@ fi
 
 source ./setup_env.sh
 
-NGINX_DEPLOYMENT_NAME=$(kubectl --kubeconfig="$KUBECONFIG_PATH" get deployments --no-headers=true | grep "^nginx.*Init" | awk '{print $1}' | head -n 1)
+NGINX_DEPLOYMENT_NAME=$(kubectl --kubeconfig="$KUBECONFIG_PATH" get deployments --no-headers=true | grep "^nginx" | awk '{print $1}' | head -n 1)
 kubectl --kubeconfig="$KUBECONFIG_PATH" rollout restart deployment $NGINX_DEPLOYMENT_NAME
 
 source ./setup_nginx.sh
 
 if [[ "${STACK_ARRAY[@]}" =~ "core" ]]; then
-    ANALYTICS_DEPLOYMENT_NAME=$(kubectl --kubeconfig="$KUBECONFIG_PATH" get deployments --no-headers=true | grep "^analytics.*Init" | awk '{print $1}' | head -n 1)
+    ANALYTICS_DEPLOYMENT_NAME=$(kubectl --kubeconfig="$KUBECONFIG_PATH" get deployments --no-headers=true | grep "^analytics" | awk '{print $1}' | head -n 1)
     kubectl --kubeconfig="$KUBECONFIG_PATH" rollout restart deployment $ANALYTICS_DEPLOYMENT_NAME -n default
-    AUTH_DEPLOYMENT_NAME=$(kubectl --kubeconfig="$KUBECONFIG_PATH" get deployments --no-headers=true | grep "^auth.*Init" | awk '{print $1}' | head -n 1)
+    AUTH_DEPLOYMENT_NAME=$(kubectl --kubeconfig="$KUBECONFIG_PATH" get deployments --no-headers=true | grep "^auth" | awk '{print $1}' | head -n 1)
     kubectl --kubeconfig="$KUBECONFIG_PATH" rollout restart deployment $AUTH_DEPLOYMENT_NAME -n default
-    DB_DEPLOYMENT_NAME=$(kubectl --kubeconfig="$KUBECONFIG_PATH" get deployments --no-headers=true | grep "^db.*Init" | awk '{print $1}' | head -n 1)
+    DB_DEPLOYMENT_NAME=$(kubectl --kubeconfig="$KUBECONFIG_PATH" get deployments --no-headers=true | grep "^db" | awk '{print $1}' | head -n 1)
     kubectl --kubeconfig="$KUBECONFIG_PATH" rollout restart deployment $DB_DEPLOYMENT_NAME -n default
-    IMGPROXY_DEPLOYMENT_NAME=$(kubectl --kubeconfig="$KUBECONFIG_PATH" get deployments --no-headers=true | grep "^imgproxy.*Init" | awk '{print $1}' | head -n 1)
+    IMGPROXY_DEPLOYMENT_NAME=$(kubectl --kubeconfig="$KUBECONFIG_PATH" get deployments --no-headers=true | grep "^imgproxy" | awk '{print $1}' | head -n 1)
     kubectl --kubeconfig="$KUBECONFIG_PATH" rollout restart deployment $IMGPROXY_DEPLOYMENT_NAME -n default
-    KONG_DEPLOYMENT_NAME=$(kubectl --kubeconfig="$KUBECONFIG_PATH" get deployments --no-headers=true | grep "^kong.*Init" | awk '{print $1}' | head -n 1)
+    KONG_DEPLOYMENT_NAME=$(kubectl --kubeconfig="$KUBECONFIG_PATH" get deployments --no-headers=true | grep "^kong" | awk '{print $1}' | head -n 1)
     kubectl --kubeconfig="$KUBECONFIG_PATH" rollout restart deployment $KONG_DEPLOYMENT_NAME -n default
-    META_DEPLOYMENT_NAME=$(kubectl --kubeconfig="$KUBECONFIG_PATH" get deployments --no-headers=true | grep "^meta.*Init" | awk '{print $1}' | head -n 1)
+    META_DEPLOYMENT_NAME=$(kubectl --kubeconfig="$KUBECONFIG_PATH" get deployments --no-headers=true | grep "^meta" | awk '{print $1}' | head -n 1)
     kubectl --kubeconfig="$KUBECONFIG_PATH" rollout restart deployment $META_DEPLOYMENT_NAME -n default
-    REALTIME_DEPLOYMENT_NAME=$(kubectl get deployments --no-headers=true | grep "^realtime.*Init" | awk '{print $1}' | head -n 1)
+    REALTIME_DEPLOYMENT_NAME=$(kubectl get deployments --no-headers=true | grep "^realtime" | awk '{print $1}' | head -n 1)
     kubectl --kubeconfig="$KUBECONFIG_PATH" rollout restart deployment $REALTIME_DEPLOYMENT_NAME -n default
-    REST_DEPLOYMENT_NAME=$(kubectl get deployments --no-headers=true | grep "^rest.*Init" | awk '{print $1}' | head -n 1)
+    REST_DEPLOYMENT_NAME=$(kubectl get deployments --no-headers=true | grep "^rest" | awk '{print $1}' | head -n 1)
     kubectl --kubeconfig="$KUBECONFIG_PATH" rollout restart deployment $REST_DEPLOYMENT_NAME -n default
-    STORAGE_DEPLOYMENT_NAME=$(kubectl get deployments --no-headers=true | grep "^storage.*Init" | awk '{print $1}' | head -n 1)
+    STORAGE_DEPLOYMENT_NAME=$(kubectl get deployments --no-headers=true | grep "^storage" | awk '{print $1}' | head -n 1)
     kubectl --kubeconfig="$KUBECONFIG_PATH" rollout restart deployment $STORAGE_DEPLOYMENT_NAME -n default
-    STUDIO_DEPLOYMENT_NAME=$(kubectl get deployments --no-headers=true | grep "^studio.*Init" | awk '{print $1}' | head -n 1)
+    STUDIO_DEPLOYMENT_NAME=$(kubectl get deployments --no-headers=true | grep "^studio" | awk '{print $1}' | head -n 1)
     kubectl --kubeconfig="$KUBECONFIG_PATH" rollout restart deployment $STUDIO_DEPLOYMENT_NAME -n default
-    SUPAVISOR_DEPLOYMENT_NAME=$(kubectl get deployments --no-headers=true | grep "^supavisor.*Init" | awk '{print $1}' | head -n 1)
+    SUPAVISOR_DEPLOYMENT_NAME=$(kubectl get deployments --no-headers=true | grep "^supavisor" | awk '{print $1}' | head -n 1)
     kubectl --kubeconfig="$KUBECONFIG_PATH" rollout restart deployment $SUPAVISOR_DEPLOYMENT_NAME -n default
-    VECTOR_DEPLOYMENT_NAME=$(kubectl get deployments --no-headers=true | grep "^vector.*Init" | awk '{print $1}' | head -n 1)
+    VECTOR_DEPLOYMENT_NAME=$(kubectl get deployments --no-headers=true | grep "^vector" | awk '{print $1}' | head -n 1)
     kubectl --kubeconfig="$KUBECONFIG_PATH" rollout restart deployment $VECTOR_DEPLOYMENT_NAME -n default
+
+    source ./setup_core.sh
 else
     echo "Skipping core stack"
 fi
 
-source ./setup_core.sh
-
 if [[ "${STACK_ARRAY[@]}" =~ "ecommerce" ]]; then
-    MEDUSA_SERVER_DEPLOYMENT_NAME=$(kubectl --kubeconfig="$KUBECONFIG_PATH" get deployments --no-headers=true | grep "^medusa-server.*Init" | awk '{print $1}' | head -n 1)
+    MEDUSA_SERVER_DEPLOYMENT_NAME=$(kubectl --kubeconfig="$KUBECONFIG_PATH" get deployments --no-headers=true | grep "^medusa-server" | awk '{print $1}' | head -n 1)
     kubectl --kubeconfig="$KUBECONFIG_PATH" rollout restart deployment $MEDUSA_SERVER_DEPLOYMENT_NAME -n default
-    MEILISEARCH_DEPLOYMENT_NAME=$(kubectl --kubeconfig="$KUBECONFIG_PATH" get deployments --no-headers=true | grep "^meilisearch.*Init" | awk '{print $1}' | head -n 1)
+    MEILISEARCH_DEPLOYMENT_NAME=$(kubectl --kubeconfig="$KUBECONFIG_PATH" get deployments --no-headers=true | grep "^meilisearch" | awk '{print $1}' | head -n 1)
     kubectl --kubeconfig="$KUBECONFIG_PATH" rollout restart deployment $MEILISEARCH_DEPLOYMENT_NAME -n default
-    REDIS_DEPLOYMENT_NAME=$(kubectl --kubeconfig="$KUBECONFIG_PATH" get deployments --no-headers=true | grep "^redis.*Init" | awk '{print $1}' | head -n 1)
+    REDIS_DEPLOYMENT_NAME=$(kubectl --kubeconfig="$KUBECONFIG_PATH" get deployments --no-headers=true | grep "^redis" | awk '{print $1}' | head -n 1)
     kubectl --kubeconfig="$KUBECONFIG_PATH" rollout restart deployment $REDIS_DEPLOYMENT_NAME -n default
 else
     echo "Skipping core stack"
 fi
 
+if [[ "${STACK_ARRAY[@]}" =~ "blog" ]]; then
+    GHOST_DEPLOYMENT_NAME=$(kubectl --kubeconfig="$KUBECONFIG_PATH" get deployments --no-headers=true | grep "^ghost" | awk '{print $1}' | head -n 1)
+    kubectl --kubeconfig="$KUBECONFIG_PATH" rollout restart deployment $GHOST_DEPLOYMENT_NAME -n default
+    GHOST_DB_DEPLOYMENT_NAME=$(kubectl --kubeconfig="$KUBECONFIG_PATH" get deployments --no-headers=true | grep "^ghost-db" | awk '{print $1}' | head -n 1)
+    kubectl --kubeconfig="$KUBECONFIG_PATH" rollout restart deployment $GHOST_DB_DEPLOYMENT_NAME -n default
+
+    source ./setup_blog.sh
+else
+    echo "Skipping blog stack"
+fi
+
 if [[ "${STACK_ARRAY[@]}" =~ "s3" ]]; then
-    MINIO_DEPLOYMENT_NAME=$(kubectl --kubeconfig="$KUBECONFIG_PATH" get deployments --no-headers=true | grep "^minio.*Init" | awk '{print $1}' | head -n 1)
+    MINIO_DEPLOYMENT_NAME=$(kubectl --kubeconfig="$KUBECONFIG_PATH" get deployments --no-headers=true | grep "^minio" | awk '{print $1}' | head -n 1)
     kubectl --kubeconfig="$KUBECONFIG_PATH" rollout restart deployment $MINIO_DEPLOYMENT_NAME -n default
 else
     echo "Skipping core stack"
 fi
 
 if [[ "${STACK_ARRAY[@]}" =~ "ai" ]]; then
-    ETCD_DEPLOYMENT_NAME=$(kubectl --kubeconfig="$KUBECONFIG_PATH" get deployments --no-headers=true | grep "^etcd.*Init" | awk '{print $1}' | head -n 1)
+    ETCD_DEPLOYMENT_NAME=$(kubectl --kubeconfig="$KUBECONFIG_PATH" get deployments --no-headers=true | grep "^etcd" | awk '{print $1}' | head -n 1)
     kubectl --kubeconfig="$KUBECONFIG_PATH" rollout restart deployment $ETCD_DEPLOYMENT_NAME -n default
-    OLLAMA_DEPLOYMENT_NAME=$(kubectl --kubeconfig="$KUBECONFIG_PATH" get deployments --no-headers=true | grep "^ollama.*Init" | awk '{print $1}' | head -n 1)
+    OLLAMA_DEPLOYMENT_NAME=$(kubectl --kubeconfig="$KUBECONFIG_PATH" get deployments --no-headers=true | grep "^ollama" | awk '{print $1}' | head -n 1)
     kubectl --kubeconfig="$KUBECONFIG_PATH" rollout restart deployment $OLLAMA_DEPLOYMENT_NAME -n default
-    OPEN_WEBUI_DEPLOYMENT_NAME=$(kubectl --kubeconfig="$KUBECONFIG_PATH" get deployments --no-headers=true | grep "^open-webui.*Init" | awk '{print $1}' | head -n 1)
+    OPEN_WEBUI_DEPLOYMENT_NAME=$(kubectl --kubeconfig="$KUBECONFIG_PATH" get deployments --no-headers=true | grep "^open-webui" | awk '{print $1}' | head -n 1)
     kubectl --kubeconfig="$KUBECONFIG_PATH" rollout restart deployment $OPEN_WEBUI_DEPLOYMENT_NAME -n default
-    OPENEDAI_SPEECH_SERVER_DEPLOYMENT_NAME=$(kubectl get deployments --no-headers=true | grep "^openedai-speech-server.*Init" | awk '{print $1}' | head -n 1)
+    OPENEDAI_SPEECH_SERVER_DEPLOYMENT_NAME=$(kubectl get deployments --no-headers=true | grep "^openedai-speech-server" | awk '{print $1}' | head -n 1)
     kubectl --kubeconfig="$KUBECONFIG_PATH" rollout restart deployment $OPENEDAI_SPEECH_SERVER_DEPLOYMENT_NAME -n default
-    STANDALONE_DEPLOYMENT_NAME=$(kubectl --kubeconfig="$KUBECONFIG_PATH" get deployments --no-headers=true | grep "^standalone.*Init" | awk '{print $1}' | head -n 1)
+    STANDALONE_DEPLOYMENT_NAME=$(kubectl --kubeconfig="$KUBECONFIG_PATH" get deployments --no-headers=true | grep "^standalone" | awk '{print $1}' | head -n 1)
     kubectl --kubeconfig="$KUBECONFIG_PATH" rollout restart deployment $STANDALONE_DEPLOYMENT_NAME -n default
+
+    source ./setup_ai.sh
 else
     echo "Skipping ai stack"
 fi
 
-source ./setup_ai.sh
-
-DASHBOARD_DEPLOYMENT_NAME=$(kubectl --kubeconfig="$KUBECONFIG_PATH" get deployments --no-headers=true | grep "^dashboard.*Init" | awk '{print $1}' | head -n 1)
+DASHBOARD_DEPLOYMENT_NAME=$(kubectl --kubeconfig="$KUBECONFIG_PATH" get deployments --no-headers=true | grep "^dashboard" | awk '{print $1}' | head -n 1)
 kubectl --kubeconfig="$KUBECONFIG_PATH" rollout restart deployment $DASHBOARD_DEPLOYMENT_NAME -n kubernetes-dashboard
 kubectl --kubeconfig="$KUBECONFIG_PATH" proxy &
 
