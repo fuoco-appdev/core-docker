@@ -6,7 +6,7 @@ metadata:
   name: openedai-speech-server-voices-volume-claim
 spec:
   accessModes:
-    - ReadWriteMany
+    - ReadWriteOnce
   resources:
     requests:
       storage: {{ .Values.ai.openedaiSpeechServer.voicesStorage }}

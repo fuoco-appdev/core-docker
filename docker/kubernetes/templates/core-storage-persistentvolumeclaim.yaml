@@ -6,7 +6,7 @@ metadata:
   name: storage-volume-claim
 spec:
   accessModes:
-    - ReadWriteMany
+    - ReadWriteOnce
   resources:
     requests:
       storage: {{ .Values.core.storage.storage }}

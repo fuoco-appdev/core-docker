@@ -1,7 +1,7 @@
 IFS=' ' read -ra STACK_ARRAY <<< "$STACKS"
 NGINX_POD_NAME=$(kubectl --kubeconfig="$KUBECONFIG_PATH" get pods --no-headers=true | grep "^nginx.*Init" | awk '{print $1}' | head -n 1)
 NAMESPACE="default"
-TIMEOUT=60
+TIMEOUT=300
 
 if [[ -z "$NGINX_POD_NAME" ]]; then
     echo "No pod found with label service=nginx"

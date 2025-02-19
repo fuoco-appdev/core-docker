@@ -6,7 +6,7 @@ metadata:
   name: standalone-volume-claim
 spec:
   accessModes:
-    - ReadWriteMany
+    - ReadWriteOnce
   resources:
     requests:
       storage: {{ .Values.ai.standalone.storage }}

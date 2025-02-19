@@ -6,7 +6,7 @@ metadata:
   name: nginx-volume-claim
 spec:
   accessModes:
-    - ReadWriteMany
+    - ReadWriteOnce
   resources:
     requests:
       storage: {{ .Values.nginx.configStorage }}

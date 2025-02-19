@@ -6,7 +6,7 @@ metadata:
   name: ghost-volume-claim
 spec:
   accessModes:
-    - ReadWriteMany
+    - ReadWriteOnce
   resources:
     requests:
       storage: {{ .Values.blog.ghost.storage }}

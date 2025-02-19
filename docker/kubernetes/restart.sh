@@ -1,5 +1,3 @@
-IFS=' ' read -ra STACK_ARRAY <<< "$STACKS"
-
 # Check if an argument (config file path) is provided
 if [ -n "$1" ]; then
     KUBECONFIG_PATH="$1"
@@ -9,10 +7,10 @@ fi
 
 source ./setup_env.sh
 
+IFS=' ' read -ra STACK_ARRAY <<< "$STACKS"
+
 NGINX_DEPLOYMENT_NAME=$(kubectl --kubeconfig="$KUBECONFIG_PATH" get deployments --no-headers=true | grep "^nginx" | awk '{print $1}' | head -n 1)
 kubectl --kubeconfig="$KUBECONFIG_PATH" rollout restart deployment $NGINX_DEPLOYMENT_NAME
-
-source ./setup_nginx.sh
 
 if [[ "${STACK_ARRAY[@]}" =~ "core" ]]; then
     ANALYTICS_DEPLOYMENT_NAME=$(kubectl --kubeconfig="$KUBECONFIG_PATH" get deployments --no-headers=true | grep "^analytics" | awk '{print $1}' | head -n 1)
@@ -39,8 +37,6 @@ if [[ "${STACK_ARRAY[@]}" =~ "core" ]]; then
     kubectl --kubeconfig="$KUBECONFIG_PATH" rollout restart deployment $SUPAVISOR_DEPLOYMENT_NAME -n default
     VECTOR_DEPLOYMENT_NAME=$(kubectl get deployments --no-headers=true | grep "^vector" | awk '{print $1}' | head -n 1)
     kubectl --kubeconfig="$KUBECONFIG_PATH" rollout restart deployment $VECTOR_DEPLOYMENT_NAME -n default
-
-    source ./setup_core.sh
 else
     echo "Skipping core stack"
 fi
@@ -61,8 +57,6 @@ if [[ "${STACK_ARRAY[@]}" =~ "blog" ]]; then
     kubectl --kubeconfig="$KUBECONFIG_PATH" rollout restart deployment $GHOST_DEPLOYMENT_NAME -n default
     GHOST_DB_DEPLOYMENT_NAME=$(kubectl --kubeconfig="$KUBECONFIG_PATH" get deployments --no-headers=true | grep "^ghost-db" | awk '{print $1}' | head -n 1)
     kubectl --kubeconfig="$KUBECONFIG_PATH" rollout restart deployment $GHOST_DB_DEPLOYMENT_NAME -n default
-
-    source ./setup_blog.sh
 else
     echo "Skipping blog stack"
 fi
@@ -85,8 +79,6 @@ if [[ "${STACK_ARRAY[@]}" =~ "ai" ]]; then
     kubectl --kubeconfig="$KUBECONFIG_PATH" rollout restart deployment $OPENEDAI_SPEECH_SERVER_DEPLOYMENT_NAME -n default
     STANDALONE_DEPLOYMENT_NAME=$(kubectl --kubeconfig="$KUBECONFIG_PATH" get deployments --no-headers=true | grep "^standalone" | awk '{print $1}' | head -n 1)
     kubectl --kubeconfig="$KUBECONFIG_PATH" rollout restart deployment $STANDALONE_DEPLOYMENT_NAME -n default
-
-    source ./setup_ai.sh
 else
     echo "Skipping ai stack"
 fi

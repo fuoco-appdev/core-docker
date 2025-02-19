@@ -4,7 +4,7 @@ if [[ "${STACK_ARRAY[@]}" =~ "core" ]]; then
     # Copy files to the pod
     echo "Copying files to core..."
     NAMESPACE="default"
-    TIMEOUT=30
+    TIMEOUT=300
     DB_POD_NAME=$(kubectl --kubeconfig="$KUBECONFIG_PATH" get pods --no-headers=true | grep "^db.*Init" | awk '{print $1}' | head -n 1)
     if [[ -z "$DB_POD_NAME" ]]; then
         echo "No pod found with label service=db"
