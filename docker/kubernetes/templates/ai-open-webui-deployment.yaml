@@ -37,7 +37,7 @@ spec:
               value: ''
             - name: WEBUI_URL
               value: http://127.0.0.1:3001
-          image: ghcr.io/open-webui/open-webui:main
+          image: fuocoappdev/open-webui:latest
           name: open-webui
           ports:
             - containerPort: 8080
