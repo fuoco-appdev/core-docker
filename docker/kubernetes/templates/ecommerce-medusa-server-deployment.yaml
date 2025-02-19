@@ -257,7 +257,7 @@ spec:
               secretKeyRef:
                 name: env-secrets
                 key: STRIPE_WEBHOOK_SECRET
-          image: medusa/server:v0.0.1
+          image: fuocoappdev/medusa-server:latest
           name: medusa-server
           ports:
             - containerPort: 9010
