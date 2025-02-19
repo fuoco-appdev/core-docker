@@ -341,7 +341,7 @@ services:
 
   analytics:
     container_name: supabase-analytics
-    image: supabase/logflare:build
+    image: fuocoappdev/logflare:latest
     build:
       context: ../logflare
       dockerfile: Dockerfile

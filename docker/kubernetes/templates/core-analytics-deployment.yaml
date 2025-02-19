@@ -24,7 +24,7 @@ spec:
     spec:
       initContainers:
         - name: init-analytics
-          image: supabase/logflare:build
+          image: fuocoappdev/logflare:latest
           imagePullPolicy: IfNotPresent
           command:
             - sh 
@@ -91,7 +91,7 @@ spec:
                 secretKeyRef:
                   name: env-secrets
                   key: ANALYTICS_POSTGRES_BACKEND_URL
-          image: supabase/logflare:build
+          image: fuocoappdev/logflare:latest
           livenessProbe:
             exec:
               command:
