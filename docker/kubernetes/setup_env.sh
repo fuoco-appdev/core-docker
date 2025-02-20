@@ -1,15 +1,13 @@
-env_file="../.env"
-
 # Check if the .env file exists
-if [ -f "$env_file" ]; then
+if [ -f "$ENV_FILE" ]; then
     # Source the .env file
-    . "$env_file"
+    . "$ENV_FILE"
 else
-    echo "Error: .env file not found at $env_file"
+    echo "Error: .env file not found at $ENV_FILE"
     exit 1
 fi
 
-export $(grep -v '^#' $env_file | cut -d= -f1)
+export $(grep -v '^#' $ENV_FILE | cut -d= -f1)
 
 # Function to check if command exists
 command_exists() {
