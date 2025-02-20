@@ -39,6 +39,7 @@ spec:
             ls /docker-entrypoint-initdb.d/migrations
             cp -r /docker-entrypoint-initdb.d/migrations/* /tmp/docker-entrypoint-initdb.d/migrations/
             chmod 600 /tmp/var/lib/ssl/server.key && chown postgres:postgres /tmp/var/lib/ssl/server.key
+            chmod 600 /tmp/etc/postgresql-custom/pgsodium_root.key && chown postgres:postgres /tmp/etc/postgresql-custom/pgsodium_root.key
         volumeMounts:
           - name: ssl-volume
             mountPath: /tmp/var/lib/ssl
