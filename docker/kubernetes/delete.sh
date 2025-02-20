@@ -1,22 +1,11 @@
-env_file="../.env"
+source ./setup_args.sh
 
-# Check if the .env file exists
-if [ -f "$env_file" ]; then
-    # Source the .env file
-    . "$env_file"
+if [ -n "$ENV_FILE" ]; then
+    echo "Skipping env setup"
 else
-    echo "Error: .env file not found at $env_file"
-    exit 1
+    ENV_FILE="../.env"
+    source ./setup_env.sh
 fi
-
-# Check if an argument (config file path) is provided
-if [ -n "$1" ]; then
-    KUBECONFIG_PATH="$1"
-else
-    KUBECONFIG_PATH=""
-fi
-
-export $(grep -v '^#' $env_file | cut -d= -f1)
 
 helm template "$PROJECT_NAME" "." | kubectl delete -f -
 

@@ -132,14 +132,14 @@ if [[ "${STACK_ARRAY[@]}" =~ "core" ]]; then
         kubectl --kubeconfig="$KUBECONFIG_PATH" cp ../volumes/logs/vector.yml $VECTOR_POD_NAME:/tmp/etc/vector/vector.yml -c init-vector
     fi
 
-    ANALYTICS_POD_NAME=$(kubectl --kubeconfig="$KUBECONFIG_PATH" get pods --no-headers=true | grep "^analytics" | awk '{print $1}' | head -n 1)
+    ANALYTICS_POD_NAME=$(kubectl --kubeconfig="$KUBECONFIG_PATH" get pods --no-headers=true | grep "^analytics.*Init" | awk '{print $1}' | head -n 1)
     if [[ -z "$ANALYTICS_POD_NAME" ]]; then
         echo "No pod found with label service=analytics"
     else
         start_time=$(date +%s)
         while true; do
             # Check if the pod is running
-            status=$(kubectl --kubeconfig="$KUBECONFIG_PATH" get pod $ANALYTICS_POD_NAME -n $NAMESPACE -o jsonpath='{.status.containerStatuses[*].state}')
+            status=$(kubectl --kubeconfig="$KUBECONFIG_PATH" get pod $ANALYTICS_POD_NAME -n $NAMESPACE -o jsonpath='{.status.initContainerStatuses[*].state}')
             status_key=$(echo "$status" | sed 's/^{"\([^"]*\)":.*/\1/')
             if [ "$status_key" = "running" ]; then
                 echo "Pod $ANALYTICS_POD_NAME is running"
