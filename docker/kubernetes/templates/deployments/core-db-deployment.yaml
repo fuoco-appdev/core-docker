@@ -110,7 +110,6 @@ spec:
                   name: env-secrets
                   key: JWT_EXPIRY
           image: supabase/postgres:15.8.1.020
-          imagePullPolicy: IfNotPresent
           readinessProbe:
             exec:
               command: 

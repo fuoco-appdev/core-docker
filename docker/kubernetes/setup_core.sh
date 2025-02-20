@@ -32,7 +32,6 @@ if [[ "${STACK_ARRAY[@]}" =~ "core" ]]; then
         done
 
         # Copy files to db service
-        # kubectl --kubeconfig="$KUBECONFIG_PATH" cp ../volumes/db/data/ $DB_POD_NAME:/tmp/var/lib/postgresql -c init-db
         kubectl --kubeconfig="$KUBECONFIG_PATH" cp ../volumes/db/server.crt $DB_POD_NAME:/tmp/var/lib/ssl/server.crt -c init-db
         kubectl --kubeconfig="$KUBECONFIG_PATH" cp ../volumes/db/server.key $DB_POD_NAME:/tmp/var/lib/ssl/server.key -c init-db
         kubectl --kubeconfig="$KUBECONFIG_PATH" cp ../volumes/db/realtime.sql $DB_POD_NAME:/tmp/docker-entrypoint-initdb.d/migrations/99-realtime.sql -c init-db
