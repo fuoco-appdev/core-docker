@@ -1,11 +1,11 @@
-# Check if an argument (config file path) is provided
-if [ -n "$1" ]; then
-    KUBECONFIG_PATH="$1"
-else
-    KUBECONFIG_PATH=""
-fi
+source ./setup_args.sh
 
-source ./setup_env.sh
+if [ -n "$ENV_FILE" ]; then
+    echo "Skipping env setup"
+else
+    ENV_FILE="../.env"
+    source ./setup_env.sh
+fi
 
 IFS=' ' read -ra STACK_ARRAY <<< "$STACKS"
 
