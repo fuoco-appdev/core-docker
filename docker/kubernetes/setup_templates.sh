@@ -3,10 +3,13 @@ envsubst < values.tpl.yaml > values.yaml
 
 helm template "$PROJECT_NAME" "." --show-only "templates/services/nginx-service.yaml" > release/services/nginx-service.yaml
 helm template "$PROJECT_NAME" "." --show-only "templates/deployments/nginx-deployment.yaml" > release/deployments/nginx-deployment.yaml
+helm template "$PROJECT_NAME" "." --show-only "templates/persistentvolumeclaims/nginx-persistentvolumeclaim.yaml" > release/persistentvolumeclaims/nginx-persistentvolumeclaim.yaml
+helm template "$PROJECT_NAME" "." --show-only "templates/persistentvolumeclaims/nginx-ssl-persistentvolumeclaim.yaml" > release/persistentvolumeclaims/nginx-ssl-persistentvolumeclaim.yaml
+helm template "$PROJECT_NAME" "." --show-only "templates/deployments/nginx-deployment.yaml" > release/deployments/nginx-deployment.yaml
 helm template "$PROJECT_NAME" "." --show-only "templates/daemonsets/nvidia-device-plugin-daemonset.yaml" > release/daemonsets/nvidia-device-plugin-daemonset.yaml
-helm template "$PROJECT_NAME" "."  --show-only "templates/dashboard-adminuser.yaml" > release/dashboard-adminuser.yaml
-helm template "$PROJECT_NAME" "." --show-only "templates/dashboard-clusterrole.yaml" > release/dashboard-clusterrole.yaml
-helm template "$PROJECT_NAME" "." --show-only "templates/dashboard-secret.yaml" > release/dashboard-secret.yaml
+helm template "$PROJECT_NAME" "." --show-only "templates/adminusers/dashboard-adminuser.yaml" > release/adminusers/dashboard-adminuser.yaml
+helm template "$PROJECT_NAME" "." --show-only "templates/clusterroles/dashboard-clusterrole.yaml" > release/clusterroles/dashboard-clusterrole.yaml
+helm template "$PROJECT_NAME" "." --show-only "templates/secrets/dashboard-secret.yaml" > release/secrets/dashboard-secret.yaml
 
 IFS=' ' read -ra STACK_ARRAY <<< "$STACKS"
 # Deploy services based on STACKS
