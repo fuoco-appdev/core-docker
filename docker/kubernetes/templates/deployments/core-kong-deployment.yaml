@@ -25,13 +25,11 @@ spec:
       initContainers:
       - name: init-kong
         image: kong:2.8.1
-        securityContext:
-          runAsUser: 0  # Root
         command:
           - /bin/sh
           - -c
           - |
-            chmod -R 755 /home/kong && chown -R 1000:1000 /home/kong
+            chown -R 1000:1000 /tmp/home/kong && chmod -R 755 /tmp/home/kong
             while [ ! -e /tmp/home/kong/temp.yml ] || [ ! -s /tmp/home/kong/temp.yml ]; do 
               echo 'Waiting for all copied files...'
               sleep 10
