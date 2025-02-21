@@ -52,10 +52,10 @@ spec:
           ports:
             - containerPort: 5001
           volumeMounts:
-            - name: storage-volume
+            - name: imgproxy-volume
               mountPath: /var/lib/storage
       restartPolicy: Always
       volumes:
-        - name: storage-volume
+        - name: imgproxy-volume
           persistentVolumeClaim:
-            claimName: storage-volume-claim
+            claimName: imgproxy-volume-claim
