@@ -36,6 +36,7 @@ core:
     storage: $CORE_DB_STORAGE
   imgproxy:
     replicas: $CORE_IMGPROXY_REPLICAS
+    storage: $CORE_IMGPROXY_STORAGE
   kong:
     replicas: $CORE_KONG_REPLICAS
     storage: $CORE_KONG_STORAGE

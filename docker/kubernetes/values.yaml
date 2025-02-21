@@ -36,6 +36,7 @@ core:
     storage: 100Mi
   imgproxy:
     replicas: 1
+    storage: 100Mi
   kong:
     replicas: 1
     storage: 100Mi
