@@ -26,6 +26,8 @@ spec:
           - /bin/sh
           - -c
           - |
+            mkdir -p /tmp/docker-entrypoint-initdb.d/migrations
+            mkdir -p /tmp/docker-entrypoint-initdb.d/init-scripts
             rm -r /tmp/docker-entrypoint-initdb.d/migrations/*
             rm -r /tmp/docker-entrypoint-initdb.d/init-scripts/*
             while [ ! -e /tmp/docker-entrypoint-initdb.d/migrations/99-pooler.sql ] || [ ! -s /tmp/docker-entrypoint-initdb.d/migrations/99-pooler.sql ]; do 
@@ -39,7 +41,6 @@ spec:
             ls /docker-entrypoint-initdb.d/migrations
             cp -r /docker-entrypoint-initdb.d/migrations/* /tmp/docker-entrypoint-initdb.d/migrations/
             chmod 600 /tmp/var/lib/ssl/server.key && chown postgres:postgres /tmp/var/lib/ssl/server.key
-            chmod -R 600 /tmp/etc/postgresql-custom && chown -R postgres:postgres /tmp/etc/postgresql-custom
         volumeMounts:
           - name: ssl-volume
             mountPath: /tmp/var/lib/ssl
