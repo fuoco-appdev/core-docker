@@ -70,7 +70,7 @@ if [[ "${STACK_ARRAY[@]}" =~ "core" ]]; then
         done
 
         # Copy files to kong service
-        kubectl --kubeconfig="$KUBECONFIG_PATH" cp ../volumes/api/kong.yml $KONG_POD_NAME:/tmp/home/kong/temp.yml -c init-kong
+        kubectl --kubeconfig="$KUBECONFIG_PATH" cp ../volumes/api/temp.yml $KONG_POD_NAME:/tmp/home/kong/temp.yml -c init-kong
     fi
 
     SUPAVISOR_POD_NAME=$(kubectl --kubeconfig="$KUBECONFIG_PATH" get pods --no-headers=true | grep "^supavisor.*Init" | awk '{print $1}' | head -n 1)
