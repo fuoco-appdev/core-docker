@@ -25,6 +25,8 @@ spec:
       initContainers:
       - name: init-kong
         image: kong:2.8.1
+        securityContext:
+          runAsUser: 0  # Root
         command:
           - /bin/sh
           - -c
