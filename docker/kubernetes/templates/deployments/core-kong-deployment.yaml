@@ -29,7 +29,7 @@ spec:
           - /bin/sh
           - -c
           - |
-            chown -R 1000:1000 /tmp/home/kong && chmod -R 755 /tmp/home/kong
+            chown -R kong:kong /tmp/home/kong && chmod -R 755 /tmp/home/kong
             while [ ! -e /tmp/home/kong/temp.yml ] || [ ! -s /tmp/home/kong/temp.yml ]; do 
               echo 'Waiting for all copied files...'
               sleep 10
