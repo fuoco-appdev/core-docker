@@ -25,6 +25,8 @@ spec:
       initContainers:
       - name: init-kong
         image: kong:2.8.1
+        securityContext:
+          runAsUser: 0  # Run as root
         command:
           - /bin/sh
           - -c
@@ -85,7 +87,6 @@ spec:
           volumeMounts:
             - name: kong-volume
               mountPath: /home/kong
-              subPath: kong
       restartPolicy: Always
       volumes:
         - name: kong-volume
