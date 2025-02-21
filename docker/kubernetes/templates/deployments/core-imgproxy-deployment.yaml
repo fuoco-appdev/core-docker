@@ -54,7 +54,6 @@ spec:
           volumeMounts:
             - name: storage-volume
               mountPath: /var/lib/storage
-              subPath: storage
       restartPolicy: Always
       volumes:
         - name: storage-volume
