@@ -37,7 +37,6 @@ spec:
         volumeMounts:
           - name: kong-volume
             mountPath: /tmp/home/kong
-            subPath: kong
       containers:
         - command:
             - bash
