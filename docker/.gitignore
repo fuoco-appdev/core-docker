@@ -9,6 +9,7 @@ volumes/nginx/*.crt
 volumes/nginx/*.csr
 volumes/nginx/*.key
 volumes/nginx/*.pass
+volumes/nginx/*.srl
 .env
 test.http
 docker-compose.override.yml
