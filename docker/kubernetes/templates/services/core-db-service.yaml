@@ -8,7 +8,7 @@ metadata:
     service: db
   name: db
 spec:
-  type: LoadBalancer
+  type: ClusterIP
   ports:
     - name: "5432"
       port: 5432

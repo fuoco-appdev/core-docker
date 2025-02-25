@@ -1,3 +1,10 @@
+if [ -n "$ENV_FILE" ]; then
+    echo "Skipping env setup"
+else
+    ENV_FILE="../.env"
+    source ./setup_env.sh
+fi
+
 envsubst < Chart.tpl.yaml > Chart.yaml
 envsubst < values.tpl.yaml > values.yaml
 

@@ -80,6 +80,8 @@ nginx:
   replicas: 1
   configStorage: 100Mi
   sslStorage: 100Mi
+  digitalocean:
+    certificateId: 61a4f3cf-a95f-4ba9-9a45-d7479847e2f9
 nvidia:
 s3:
   minio:
