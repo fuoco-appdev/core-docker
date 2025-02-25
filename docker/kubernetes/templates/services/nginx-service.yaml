@@ -2,6 +2,11 @@ apiVersion: v1
 kind: Service
 metadata:
   name: nginx
+  annotations:
+    service.beta.kubernetes.io/do-loadbalancer-protocol: "https"
+    service.beta.kubernetes.io/do-loadbalancer-tls-ports: "443"
+    service.beta.kubernetes.io/do-loadbalancer-certificate-id: "{{ .Values.nginx.digitalocean.certificateId }}"
+    service.beta.kubernetes.io/do-loadbalancer-disable-lets-encrypt-dns-records: "false"
   labels:
     service: nginx
 spec:
@@ -9,5 +14,11 @@ spec:
   selector:
     service: nginx
   ports:
-    - port: 80
+    - name: http
+      protocol: TCP
+      port: 80
+      targetPort: 80
+    - name: https
+      protocol: TCP
+      port: 443
       targetPort: 80
