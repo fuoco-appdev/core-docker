@@ -439,8 +439,8 @@ services:
       - ./volumes/db/jwt.sql:/docker-entrypoint-initdb.d/init-scripts/99-jwt.sql:Z
       # PGDATA directory is persisted between restarts
       - ./volumes/db/data:/var/lib/postgresql/data:Z
-      - ./volumes/db/server.key:/var/lib/ssl/private/server.key
-      - ./volumes/db/server.crt:/var/lib/ssl/server.crt
+      - ./volumes/ssl/server.key:/var/lib/ssl/private/server.key
+      - ./volumes/ssl/server.crt:/var/lib/ssl/server.crt
       # Changes required for internal supabase data such as _analytics
       - ./volumes/db/_supabase.sql:/docker-entrypoint-initdb.d/migrations/97-_supabase.sql:Z
       # Changes required for Analytics support

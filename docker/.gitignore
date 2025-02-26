@@ -5,11 +5,11 @@ volumes/milvus/rdb_data_meta_kv
 volumes/etcd
 volumes/nginx/**/*.conf
 volumes/nginx/.htpasswd
-volumes/nginx/*.crt
-volumes/nginx/*.csr
-volumes/nginx/*.key
-volumes/nginx/*.pass
-volumes/nginx/*.srl
+volumes/ssl/*.crt
+volumes/ssl/*.csr
+volumes/ssl/*.key
+volumes/ssl/*.pass
+volumes/ssl/*.srl
 .env
 test.http
 docker-compose.override.yml
