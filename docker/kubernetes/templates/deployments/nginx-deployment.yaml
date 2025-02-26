@@ -52,6 +52,8 @@ spec:
             subPath: ssl
         ports:
           - containerPort: 80
+          - containerPort: 443
+          - containerPort: 5433
       restartPolicy: Always
       volumes:
       - name: nginx-volume

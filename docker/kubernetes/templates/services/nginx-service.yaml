@@ -21,4 +21,8 @@ spec:
     - name: https
       protocol: TCP
       port: 443
-      targetPort: 80
+      targetPort: 443
+    - name: stream
+      protocol: TCP
+      port: 5433
+      targetPort: 5433

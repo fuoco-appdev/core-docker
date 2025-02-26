@@ -24,8 +24,6 @@ spec:
     spec:
       containers:
         - env:
-          - name: NODE_ENV
-            value: production
           - name: REDIS_URL
             value: redis://redis
           - name: MEDUSA_FF_SALES_CHANNELS
@@ -34,6 +32,11 @@ spec:
             value: "false"
           - name: PORT
             value: "9010"
+          - name: NODE_ENV
+            valueFrom:
+              secretKeyRef:
+                name: env-secrets
+                key: NODE_ENV
           - name: DATABASE_URL
             valueFrom:
               secretKeyRef:
