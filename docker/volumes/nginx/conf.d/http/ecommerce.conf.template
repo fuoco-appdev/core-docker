@@ -1,10 +1,7 @@
 server {
     listen 80;
-    listen 443 ssl;
+    listen 443;
     server_name $NGINX_MEDUSA_HOST_URL;
-    ssl_certificate /etc/ssl/root.crt;
-    ssl_certificate_key /etc/ssl/root.key;
-    ssl_trusted_certificate /etc/ssl/chain.crt; 
 
     location / {
         proxy_pass http://medusa-server:9010;

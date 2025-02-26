@@ -24,6 +24,8 @@ spec:
     spec:
       containers:
         - env:
+          - name: NODE_ENV
+            value: production
           - name: REDIS_URL
             value: redis://redis
           - name: MEDUSA_FF_SALES_CHANNELS
@@ -258,9 +260,17 @@ spec:
                 name: env-secrets
                 key: STRIPE_WEBHOOK_SECRET
           image: fuocoappdev/medusa-server:latest
+          imagePullPolicy: Always
           name: medusa-server
           imagePullPolicy: Always
           ports:
             - containerPort: 9010
               protocol: TCP
+          volumeMounts:
+            - mountPath: /app/medusa
+              name: medusa-server-volume
       restartPolicy: Always
+      volumes:
+        - name: medusa-server-volume
+          persistentVolumeClaim:
+            claimName: medusa-server-volume-claim
