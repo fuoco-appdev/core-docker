@@ -32,8 +32,6 @@ spec:
             done
             cat /tmp/etc/nginx/.htpasswd
             cat /tmp/etc/ssl/domain.pass
-            cat /tmp/etc/ssl/domain.crt
-            cat /tmp/etc/ssl/domain.key
             cat /tmp/etc/nginx/nginx.conf
         volumeMounts:
           - mountPath: /tmp/etc/nginx
