@@ -39,6 +39,7 @@ spec:
               value: http://127.0.0.1:3001
           image: fuocoappdev/open-webui:latest
           name: open-webui
+          imagePullPolicy: Always
           ports:
             - containerPort: 8080
               protocol: TCP

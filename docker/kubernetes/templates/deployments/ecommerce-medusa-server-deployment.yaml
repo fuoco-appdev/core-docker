@@ -259,6 +259,7 @@ spec:
                 key: STRIPE_WEBHOOK_SECRET
           image: fuocoappdev/medusa-server:latest
           name: medusa-server
+          imagePullPolicy: Always
           ports:
             - containerPort: 9010
               protocol: TCP
