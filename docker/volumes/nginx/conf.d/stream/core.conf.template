@@ -1,5 +1,5 @@
 server {
-    listen 5433;
+    listen 5432;
     server_name $NGINX_DB_HOST_URL;
     proxy_pass db:5432;
     proxy_timeout 10s;
