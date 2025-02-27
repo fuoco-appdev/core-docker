@@ -22,7 +22,3 @@ spec:
       protocol: TCP
       port: 443
       targetPort: 443
-    - name: stream
-      protocol: TCP
-      port: 5432
-      targetPort: 5432

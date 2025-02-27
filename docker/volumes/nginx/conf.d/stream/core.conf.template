@@ -1,12 +1,5 @@
 server {
-    listen 5432 ssl;
-    ssl_certificate /etc/ssl/root.crt;
-    ssl_certificate_key /etc/ssl/root.key;
-    ssl_protocols TLSv1.2 TLSv1.3;
-    ssl_ciphers HIGH:!aNULL:!MD5;
-    ssl_session_cache shared:SSL:10m;
-    ssl_session_timeout 10m;
-
+    listen 5433;
     server_name $NGINX_DB_HOST_URL;
     proxy_pass db:5432;
     proxy_timeout 10s;
