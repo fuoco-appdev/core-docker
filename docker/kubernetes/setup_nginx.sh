@@ -69,6 +69,9 @@ else
     fi
 
     kubectl --kubeconfig="$KUBECONFIG_PATH" cp ../volumes/nginx/.htpasswd $NGINX_POD_NAME:/tmp/etc/nginx/.htpasswd -c init-nginx
+    kubectl --kubeconfig="$KUBECONFIG_PATH" cp ../volumes/ssl/root.crt $NGINX_POD_NAME:/tmp/etc/ssl/root.crt -c init-nginx
+    kubectl --kubeconfig="$KUBECONFIG_PATH" cp ../volumes/ssl/root.key $NGINX_POD_NAME:/tmp/etc/ssl/root.key -c init-nginx
+    kubectl --kubeconfig="$KUBECONFIG_PATH" cp ../volumes/ssl/root.pass $NGINX_POD_NAME:/tmp/etc/ssl/root.pass -c init-nginx
     envsubst < ../volumes/nginx/nginx.conf.template > ../volumes/nginx/nginx.conf
     kubectl --kubeconfig="$KUBECONFIG_PATH" cp ../volumes/nginx/nginx.conf $NGINX_POD_NAME:/tmp/etc/nginx/nginx.conf -c init-nginx
 fi

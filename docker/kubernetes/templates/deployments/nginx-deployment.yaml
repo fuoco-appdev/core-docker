@@ -31,7 +31,7 @@ spec:
               sleep 10
             done
             cat /tmp/etc/nginx/.htpasswd
-            cat /tmp/etc/ssl/domain.pass
+            cat /tmp/etc/ssl/root.pass
             cat /tmp/etc/nginx/nginx.conf
         volumeMounts:
           - mountPath: /tmp/etc/nginx
@@ -53,7 +53,7 @@ spec:
         ports:
           - containerPort: 80
           - containerPort: 443
-          - containerPort: 5433
+          - containerPort: 5432
       restartPolicy: Always
       volumes:
       - name: nginx-volume
