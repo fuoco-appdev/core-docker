@@ -101,7 +101,7 @@ spec:
             periodSeconds: 5
             timeoutSeconds: 5
           name: supabase-analytics
-          imagePullPolicy: IfNotPresent
+          imagePullPolicy: Always
           ports:
             - containerPort: 4000
       restartPolicy: Always

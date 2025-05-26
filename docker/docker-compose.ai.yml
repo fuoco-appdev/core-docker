@@ -74,6 +74,7 @@ services:
     ports:
       - '19530:19530'
       - '9091:9091'
+    restart: unless-stopped
     deploy:
       resources:
         reservations:
@@ -82,7 +83,7 @@ services:
               capabilities: [ 'gpu' ]
               device_ids: [ '${NVIDIA_GPU_DEVICE_ID:-0}' ]
     depends_on:
-      - 'etcd'
+      - etcd
 
   openedai-speech-server:
     image: ghcr.io/matatonic/openedai-speech
