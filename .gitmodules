@@ -10,3 +10,6 @@
 [submodule "logflare"]
 	path = logflare
 	url = https://github.com/fuoco-appdev/logflare.git
+[submodule "medusa-server"]
+	path = medusa-server
+	url = https://github.com/fuoco-appdev/medusa-server.git
