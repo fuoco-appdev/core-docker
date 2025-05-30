@@ -18992,3 +18992,5 @@ Block cache entry stats(count,size,portion): DataBlock(1,0.83 KB,4.21703e-05%) M
 ** File Read Latency Histogram By Level [default] **
 
 ** File Read Latency Histogram By Level [properties] **
+2025/05/26-15:13:51.688439 52 [db/db_impl/db_impl.cc:481] Shutdown: canceling all background work
+2025/05/26-15:13:51.700474 52 [db/db_impl/db_impl.cc:699] Shutdown complete
