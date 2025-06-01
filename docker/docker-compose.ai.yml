@@ -18,11 +18,6 @@ services:
                 - gpu
 
   open-webui:
-    build:
-      context: ../open-webui
-      args:
-        OLLAMA_BASE_URL: '/ollama'
-      dockerfile: Dockerfile
     image: fuocoappdev/open-webui:latest
     container_name: open-webui
     volumes:
@@ -35,7 +30,7 @@ services:
     environment:
       - 'OLLAMA_BASE_URL=http://ollama:11434'
       - 'WEBUI_SECRET_KEY='
-      - 'WEBUI_URL=http://127.0.0.1:${OPEN_WEBUI_PORT-3002}'
+      - 'WEBUI_URL=${NGINX_OPEN_WEBUI_HOST_URL}'
       - 'VECTOR_DB=milvus'
       - 'MILVUS_URI=${MILVUS_URI}'
     extra_hosts:
@@ -94,7 +89,7 @@ services:
       EXTRA_ARGS: --log-level DEBUG --unload-timer 300
       USE_ROCM: 1
     ports:
-      - 8002:8000
+      - 127.0.0.1:8002:8000
     volumes:
       - ../openedai-speech/voices:/app/voices
       - ../openedai-speech/config:/app/config

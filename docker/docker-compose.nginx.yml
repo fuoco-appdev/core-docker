@@ -1,0 +1,27 @@
+# Usage
+#   Start:          docker compose up
+#   With helpers:   docker compose -f docker-compose.yml -f ./dev/docker-compose.dev.yml up
+#   Stop:           docker compose down
+#   Destroy:        docker compose -f docker-compose.yml -f ./dev/docker-compose.dev.yml down -v --remove-orphans
+
+services:
+  nginx:
+    container_name: nginx
+    image: nginx:latest
+    restart: unless-stopped
+    ports:
+      - 127.0.0.1:80:80/tcp
+      - 127.0.0.1:443:443/tcp
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
+    volumes:
+      - ./volumes/nginx/conf.d/http/core.conf:/etc/nginx/conf.d/http/core.conf:Z
+      - ./volumes/nginx/conf.d/stream/core.conf:/etc/nginx/conf.d/stream/core.conf:Z
+      - ./volumes/nginx/conf.d/http/ecommerce.conf:/etc/nginx/conf.d/http/ecommerce.conf:Z
+      - ./volumes/nginx/conf.d/http/ai.conf:/etc/nginx/conf.d/http/ai.conf:Z
+      - ./volumes/nginx/conf.d/http/blog.conf:/etc/nginx/conf.d/http/blog.conf:Z
+      - ./volumes/nginx/.htpasswd:/etc/nginx/.htpasswd:Z
+      - ./volumes/ssl/root.crt:/etc/ssl/root.crt:Z
+      - ./volumes/ssl/root.key:/etc/ssl/root.key:Z
+      - ./volumes/ssl/root.pass:/etc/ssl/root.pass:Z
+      - ./volumes/nginx/nginx.conf:/etc/nginx/nginx.conf:Z

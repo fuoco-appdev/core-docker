@@ -1,10 +1,10 @@
-ROOT_CERTIFICATE="../volumes/ssl/root.crt"
-ROOT_KEY="../volumes/ssl/root.key"
-INTERMEDIATE_CERTIFICATE_REQUEST="../volumes/ssl/intermediate.csr"
-INTERMEDIATE_CERTIFICATE="../volumes/ssl/intermediate.crt"
-INTERMEDIATE_KEY="../volumes/ssl/intermediate.key"
-CHAIN="../volumes/ssl/chain.crt"
-PASS="../volumes/ssl/root.pass"
+ROOT_CERTIFICATE="./volumes/ssl/root.crt"
+ROOT_KEY="./volumes/ssl/root.key"
+INTERMEDIATE_CERTIFICATE_REQUEST="./volumes/ssl/intermediate.csr"
+INTERMEDIATE_CERTIFICATE="./volumes/ssl/intermediate.crt"
+INTERMEDIATE_KEY="./volumes/ssl/intermediate.key"
+CHAIN="./volumes/ssl/chain.crt"
+PASS="./volumes/ssl/root.pass"
 
 if ! [ -e "$PASS" ]; then
     echo "Please enter the password for your SSL key:"

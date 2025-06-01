@@ -52,7 +52,7 @@ elif [ "$OS" = "MINGW"* ] || [ "$OS" = "MSYS"* ]; then
     echo "This is Windows"
 
     #Install envsubst
-    curl -L https://github.com/a8m/envsubst/releases/download/v1.2.0/envsubst.exe -o envsubst.exe
+    curl -L https://github.com/a8m/envsubst/releases/download/v1.2.0/envsubst.exe -o bin/envsubst.exe
 
     #Install helm
     winget install Helm.Helm
@@ -62,7 +62,7 @@ else
     echo "This is an unknown OS or not supported"
 
     #Install envsubst
-    curl -L https://github.com/a8m/envsubst/releases/download/v1.2.0/envsubst.exe -o envsubst.exe
+    curl -L https://github.com/a8m/envsubst/releases/download/v1.2.0/envsubst.exe -o bin/envsubst.exe
 
     #Install helm
     winget install Helm.Helm

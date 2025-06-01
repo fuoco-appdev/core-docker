@@ -1,10 +1,10 @@
-source ./setup_args.sh
+source ./kubectl_setup_args.sh
 
 if [ -n "$ENV_FILE" ]; then
-    echo "Skipping env setup"
+    echo "Skipping env delete setup"
 else
-    ENV_FILE="../.env"
-    source ./setup_env.sh
+    ENV_FILE=".env"
+    source ./kubectl_setup_env.sh
 fi
 
 helm template "$PROJECT_NAME" "." | kubectl delete -f -

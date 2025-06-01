@@ -1,8 +1,5 @@
 services:
   medusa-server:
-    build:
-      context: ../medusa-server
-      dockerfile: Dockerfile
     image: fuocoappdev/medusa-server:latest
     container_name: medusa-server
     depends_on:
@@ -16,6 +13,7 @@ services:
     environment:
       DATABASE_URL: ${MEDUSA_DATABASE_URL}
       REDIS_URL: redis://redis
+      NODE_ENV: ${NODE_ENV}
       REDIS_TLS: ${REDIS_TLS}
       REDIS_PASSWORD: ${REDIS_PASSWORD}
       JWT_SECRET: ${MEDUSA_JWT_SECRET}
@@ -64,9 +62,7 @@ services:
       MEDUSA_FF_TAX_INCLUSIVE_PRICING: "false"
       PORT: 9010
     ports:
-      - "127.0.0.1:9010:9010"
-    extra_hosts:
-      - "host.docker.internal:host-gateway"
+      - "9010:9010"
     volumes:
       - .:/app/medusa
 

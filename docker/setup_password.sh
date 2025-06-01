@@ -1,5 +1,5 @@
 # Path to the password file
-HTPASSWD_FILE="../volumes/nginx/.htpasswd"
+HTPASSWD_FILE="./volumes/nginx/.htpasswd"
 
 # Function to add or create user
 add_user() {

@@ -21,14 +21,11 @@ if ! command_exists curl; then
 fi
 
 SECONDS=0
-TIMEOUT=300
-while [ ! -e "envsubst.exe" ]; do
+TIMEOUT=10
+while [ ! -e "./bin/envsubst.exe" ]; do
     if [ $SECONDS -ge $TIMEOUT ]; then
         echo "Timeout: File $FILE did not appear within $TIMEOUT seconds."
         exit 1
     fi
     sleep 1
 done
-
-kubectl --kubeconfig="$KUBECONFIG_PATH" delete secret env-secrets --ignore-not-found
-kubectl --kubeconfig="$KUBECONFIG_PATH" create secret generic env-secrets --from-env-file=../.env
