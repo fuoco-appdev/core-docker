@@ -19,6 +19,11 @@ services:
 
   open-webui:
     image: fuocoappdev/open-webui:latest
+    build:
+      context: ../open-webui
+      args:
+        OLLAMA_BASE_URL: '/ollama'
+      dockerfile: Dockerfile
     container_name: open-webui
     volumes:
       - open-webui:/app/backend/data

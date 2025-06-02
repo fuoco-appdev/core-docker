@@ -1,6 +1,9 @@
 services:
   medusa-server:
     image: fuocoappdev/medusa-server:latest
+    build:
+      context: ../medusa-server
+      dockerfile: Dockerfile
     container_name: medusa-server
     depends_on:
       redis:
