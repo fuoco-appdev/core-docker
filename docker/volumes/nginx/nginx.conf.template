@@ -16,4 +16,5 @@ http {
 
 stream {
     $NGINX_CORE_STREAM_CONFIG
+    $NGINX_ECOMMERCE_STREAM_CONFIG
 }

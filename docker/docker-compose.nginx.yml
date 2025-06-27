@@ -18,6 +18,7 @@ services:
       - ./volumes/nginx/conf.d/http/core.conf:/etc/nginx/conf.d/http/core.conf:Z
       - ./volumes/nginx/conf.d/stream/core.conf:/etc/nginx/conf.d/stream/core.conf:Z
       - ./volumes/nginx/conf.d/http/ecommerce.conf:/etc/nginx/conf.d/http/ecommerce.conf:Z
+      - ./volumes/nginx/conf.d/stream/ecommerce.conf:/etc/nginx/conf.d/stream/ecommerce.conf:Z
       - ./volumes/nginx/conf.d/http/ai.conf:/etc/nginx/conf.d/http/ai.conf:Z
       - ./volumes/nginx/conf.d/http/blog.conf:/etc/nginx/conf.d/http/blog.conf:Z
       - ./volumes/nginx/.htpasswd:/etc/nginx/.htpasswd:Z

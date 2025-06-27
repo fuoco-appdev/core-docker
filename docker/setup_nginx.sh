@@ -20,7 +20,9 @@ fi
 
 if [[ "${STACK_ARRAY[@]}" =~ "ecommerce" ]]; then
     export NGINX_ECOMMERCE_HTTP_CONFIG="include /etc/nginx/conf.d/http/ecommerce.conf;"
+    export NGINX_ECOMMERCE_STREAM_CONFIG="include /etc/nginx/conf.d/stream/ecommerce.conf;"
     envsubst < ./volumes/nginx/conf.d/http/ecommerce.conf.template > ./volumes/nginx/conf.d/http/ecommerce.conf
+    envsubst < ./volumes/nginx/conf.d/stream/ecommerce.conf.template > ./volumes/nginx/conf.d/stream/ecommerce.conf
 else
     echo "Skipping nginx ecommerce config"
 fi

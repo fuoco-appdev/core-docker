@@ -7,7 +7,7 @@
 services:
   studio:
     container_name: supabase-studio
-    image: supabase/studio:20250113-83c9420
+    image: supabase/studio:2025.06.02-sha-8f2993d
     restart: unless-stopped
     healthcheck:
       test: [ "CMD", "node", "-e", "fetch('http://studio:3000/api/profile').then((r) => {if (r.status !== 200) throw new Error(r.status)})" ]
@@ -36,8 +36,8 @@ services:
       NEXT_PUBLIC_ENABLE_LOGS: true
       # Comment to use Big Query backend for analytics
       NEXT_ANALYTICS_BACKEND_PROVIDER: postgres
-      # Uncomment to use Big Query backend for analytics
-      # NEXT_ANALYTICS_BACKEND_PROVIDER: bigquery
+  # Uncomment to use Big Query backend for analytics
+  # NEXT_ANALYTICS_BACKEND_PROVIDER: bigquery
 
   kong:
     container_name: supabase-kong
@@ -68,7 +68,7 @@ services:
 
   auth:
     container_name: supabase-auth
-    image: supabase/gotrue:v2.167.0
+    image: supabase/gotrue:v2.174.0
     depends_on:
       db:
         # Disable this if you are using an external Postgres database
@@ -225,30 +225,30 @@ services:
       GOTRUE_MAILER_TEMPLATES_MAGIC_LINK: ${MAILER_TEMPLATES_MAGIC_LINK}
       GOTRUE_EXTERNAL_PHONE_ENABLED: ${ENABLE_PHONE_SIGNUP}
       GOTRUE_SMS_AUTOCONFIRM: ${ENABLE_PHONE_AUTOCONFIRM}
-      # Uncomment to enable custom access token hook. Please see: https://supabase.com/docs/guides/auth/auth-hooks for full list of hooks and additional details about custom_access_token_hook
+  # Uncomment to enable custom access token hook. Please see: https://supabase.com/docs/guides/auth/auth-hooks for full list of hooks and additional details about custom_access_token_hook
 
-      # GOTRUE_HOOK_CUSTOM_ACCESS_TOKEN_ENABLED: "true"
-      # GOTRUE_HOOK_CUSTOM_ACCESS_TOKEN_URI: "pg-functions://postgres/public/custom_access_token_hook"
-      # GOTRUE_HOOK_CUSTOM_ACCESS_TOKEN_SECRETS: "<standard-base64-secret>"
+  # GOTRUE_HOOK_CUSTOM_ACCESS_TOKEN_ENABLED: "true"
+  # GOTRUE_HOOK_CUSTOM_ACCESS_TOKEN_URI: "pg-functions://postgres/public/custom_access_token_hook"
+  # GOTRUE_HOOK_CUSTOM_ACCESS_TOKEN_SECRETS: "<standard-base64-secret>"
 
-      # GOTRUE_HOOK_MFA_VERIFICATION_ATTEMPT_ENABLED: "true"
-      # GOTRUE_HOOK_MFA_VERIFICATION_ATTEMPT_URI: "pg-functions://postgres/public/mfa_verification_attempt"
+  # GOTRUE_HOOK_MFA_VERIFICATION_ATTEMPT_ENABLED: "true"
+  # GOTRUE_HOOK_MFA_VERIFICATION_ATTEMPT_URI: "pg-functions://postgres/public/mfa_verification_attempt"
 
-      # GOTRUE_HOOK_PASSWORD_VERIFICATION_ATTEMPT_ENABLED: "true"
-      # GOTRUE_HOOK_PASSWORD_VERIFICATION_ATTEMPT_URI: "pg-functions://postgres/public/password_verification_attempt"
+  # GOTRUE_HOOK_PASSWORD_VERIFICATION_ATTEMPT_ENABLED: "true"
+  # GOTRUE_HOOK_PASSWORD_VERIFICATION_ATTEMPT_URI: "pg-functions://postgres/public/password_verification_attempt"
 
-      # GOTRUE_HOOK_SEND_SMS_ENABLED: "false"
-      # GOTRUE_HOOK_SEND_SMS_URI: "pg-functions://postgres/public/custom_access_token_hook"
-      # GOTRUE_HOOK_SEND_SMS_SECRETS: "v1,whsec_VGhpcyBpcyBhbiBleGFtcGxlIG9mIGEgc2hvcnRlciBCYXNlNjQgc3RyaW5n"
+  # GOTRUE_HOOK_SEND_SMS_ENABLED: "false"
+  # GOTRUE_HOOK_SEND_SMS_URI: "pg-functions://postgres/public/custom_access_token_hook"
+  # GOTRUE_HOOK_SEND_SMS_SECRETS: "v1,whsec_VGhpcyBpcyBhbiBleGFtcGxlIG9mIGEgc2hvcnRlciBCYXNlNjQgc3RyaW5n"
 
-      # GOTRUE_HOOK_SEND_EMAIL_ENABLED: "false"
-      # GOTRUE_HOOK_SEND_EMAIL_URI: "http://host.docker.internal:54321/functions/v1/email_sender"
-      # GOTRUE_HOOK_SEND_EMAIL_SECRETS: "v1,whsec_VGhpcyBpcyBhbiBleGFtcGxlIG9mIGEgc2hvcnRlciBCYXNlNjQgc3RyaW5n"
+  # GOTRUE_HOOK_SEND_EMAIL_ENABLED: "false"
+  # GOTRUE_HOOK_SEND_EMAIL_URI: "http://host.docker.internal:54321/functions/v1/email_sender"
+  # GOTRUE_HOOK_SEND_EMAIL_SECRETS: "v1,whsec_VGhpcyBpcyBhbiBleGFtcGxlIG9mIGEgc2hvcnRlciBCYXNlNjQgc3RyaW5n"
 
 
   rest:
     container_name: supabase-rest
-    image: postgrest/postgrest:v12.2.0
+    image: postgrest/postgrest:v12.2.12
     depends_on:
       db:
         # Disable this if you are using an external Postgres database
@@ -269,7 +269,7 @@ services:
   realtime:
     # This container name looks inconsistent but is correct because realtime constructs tenant id by parsing the subdomain
     container_name: realtime-dev.supabase-realtime
-    image: supabase/realtime:v2.33.58
+    image: supabase/realtime:v2.34.47
     depends_on:
       db:
         # Disable this if you are using an external Postgres database
@@ -301,7 +301,7 @@ services:
 
   meta:
     container_name: supabase-meta
-    image: supabase/postgres-meta:v0.84.2
+    image: supabase/postgres-meta:v0.89.3
     depends_on:
       db:
         # Disable this if you are using an external Postgres database
@@ -319,7 +319,7 @@ services:
 
   # functions:
   #   container_name: supabase-edge-functions
-  #   image: supabase/edge-runtime:v1.65.3
+  #   image: supabase/edge-runtime:v1.67.4
   #   restart: unless-stopped
   #   depends_on:
   #     analytics:
@@ -341,7 +341,7 @@ services:
 
   analytics:
     container_name: supabase-analytics
-    image: fuocoappdev/logflare:latest
+    image: supabase/logflare:1.14.2
     build:
       context: ../logflare
       dockerfile: Dockerfile
@@ -371,7 +371,8 @@ services:
       DB_PORT: ${POSTGRES_PORT}
       DB_PASSWORD: ${POSTGRES_PASSWORD}
       DB_SCHEMA: _analytics
-      LOGFLARE_API_KEY: ${LOGFLARE_API_KEY}
+      LOGFLARE_PUBLIC_ACCESS_TOKEN: ${LOGFLARE_PUBLIC_ACCESS_TOKEN}
+      LOGFLARE_PRIVATE_ACCESS_TOKEN: ${LOGFLARE_PRIVATE_ACCESS_TOKEN}
       LOGFLARE_SINGLE_TENANT: true
       LOGFLARE_SUPABASE_MODE: true
       LOGFLARE_MIN_CLUSTER_SIZE: 1
@@ -380,14 +381,14 @@ services:
       POSTGRES_BACKEND_URL: ${ANALYTICS_POSTGRES_BACKEND_URL}
       POSTGRES_BACKEND_SCHEMA: _analytics
       LOGFLARE_FEATURE_FLAG_OVERRIDE: multibackend=true
-      # Uncomment to use Big Query backend for analytics
-      # GOOGLE_PROJECT_ID: ${GOOGLE_PROJECT_ID}
-      # GOOGLE_PROJECT_NUMBER: ${GOOGLE_PROJECT_NUMBER}
+    # Uncomment to use Big Query backend for analytics
+    # GOOGLE_PROJECT_ID: ${GOOGLE_PROJECT_ID}
+    # GOOGLE_PROJECT_NUMBER: ${GOOGLE_PROJECT_NUMBER}
     ports:
       - 4000:4000
 
   db-setup:
-    image: supabase/postgres:15.8.1.020
+    image: supabase/postgres:15.8.1.060
     depends_on:
       - db
     entrypoint: [ "bash", "-c", "chmod 600 /var/lib/ssl/server.key && chown postgres:postgres /var/lib/ssl/server.key" ]
@@ -398,7 +399,7 @@ services:
   # Comment out everything below this point if you are using an external Postgres database
   db:
     container_name: supabase-db
-    image: supabase/postgres:15.8.1.020
+    image: supabase/postgres:15.8.1.060
     healthcheck:
       test: pg_isready -U postgres -h localhost
       interval: 5s
@@ -472,12 +473,12 @@ services:
       - ./volumes/logs/vector.yml:/etc/vector/vector.yml:ro
       - ${DOCKER_SOCKET_LOCATION}:/var/run/docker.sock:ro
     environment:
-      LOGFLARE_API_KEY: ${LOGFLARE_API_KEY}
+      LOGFLARE_PUBLIC_ACCESS_TOKEN: ${LOGFLARE_PUBLIC_ACCESS_TOKEN}
     command: [ "--config", "etc/vector/vector.yml" ]
 
   storage:
     container_name: supabase-storage
-    image: supabase/storage-api:v1.14.5
+    image: supabase/storage-api:v1.23.0
     depends_on:
       db:
         # Disable this if you are using an external Postgres database
@@ -539,7 +540,7 @@ services:
   # Update the DATABASE_URL if you are using an external Postgres database
   supavisor:
     container_name: supabase-pooler
-    image: supabase/supavisor:1.1.56
+    image: supabase/supavisor:2.5.1
     healthcheck:
       test: curl -sSfL --head -o /dev/null "http://127.0.0.1:4000/api/health"
       interval: 10s
