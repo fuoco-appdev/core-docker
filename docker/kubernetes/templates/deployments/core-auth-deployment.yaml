@@ -510,7 +510,7 @@ spec:
                 secretKeyRef:
                   name: env-secrets
                   key: ENABLE_PHONE_AUTOCONFIRM
-          image: supabase/gotrue:v2.167.0
+          image: supabase/gotrue:v2.174.0
           livenessProbe:
             exec:
               command:

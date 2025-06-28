@@ -95,7 +95,7 @@ spec:
                 secretKeyRef:
                   name: env-secrets
                   key: MINIO_ROOT_PASSWORD
-          image: supabase/storage-api:v1.14.5
+          image: supabase/storage-api:v1.23.0
           livenessProbe:
             exec:
               command:

@@ -21,7 +21,7 @@ spec:
     spec:
       initContainers:
       - name: init-db
-        image: supabase/postgres:15.8.1.020
+        image: supabase/postgres:15.8.1.060
         command:
           - /bin/sh
           - -c
@@ -112,7 +112,7 @@ spec:
                 secretKeyRef:
                   name: env-secrets
                   key: JWT_EXPIRY
-          image: supabase/postgres:15.8.1.020
+          image: supabase/postgres:15.8.1.060
           readinessProbe:
             exec:
               command: 

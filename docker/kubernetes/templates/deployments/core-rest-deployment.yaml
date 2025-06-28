@@ -63,7 +63,7 @@ spec:
                 secretKeyRef:
                   name: env-secrets
                   key: JWT_EXPIRY
-          image: postgrest/postgrest:v12.2.0
+          image: postgrest/postgrest:v12.2.12
           name: supabase-rest
           ports:
             - containerPort: 3000

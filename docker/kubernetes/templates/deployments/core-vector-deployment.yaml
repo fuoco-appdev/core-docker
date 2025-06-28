@@ -41,11 +41,11 @@ spec:
             subPath: vector
       containers:
         - env:
-            - name: LOGFLARE_API_KEY
+            - name: LOGFLARE_PUBLIC_ACCESS_TOKEN
               valueFrom:
                 secretKeyRef:
                   name: env-secrets
-                  key: LOGFLARE_API_KEY
+                  key: LOGFLARE_PUBLIC_ACCESS_TOKEN
           image: timberio/vector:0.28.1-alpine
           args:
             - --config

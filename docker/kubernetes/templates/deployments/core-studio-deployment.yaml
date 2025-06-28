@@ -84,12 +84,12 @@ spec:
                 secretKeyRef:
                   name: env-secrets
                   key: AUTH_JWT_SECRET
-            - name: LOGFLARE_API_KEY
+            - name: LOGFLARE_PRIVATE_ACCESS_TOKEN
               valueFrom:
                 secretKeyRef:
                   name: env-secrets
-                  key: LOGFLARE_API_KEY
-          image: supabase/studio:20250113-83c9420
+                  key: LOGFLARE_PRIVATE_ACCESS_TOKEN
+          image: supabase/studio:2025.06.02-sha-8f2993d
           livenessProbe:
             exec:
               command:

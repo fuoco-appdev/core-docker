@@ -78,7 +78,7 @@ spec:
                 secretKeyRef:
                   name: env-secrets
                   key: ANON_KEY
-          image: supabase/realtime:v2.33.58
+          image: supabase/realtime:v2.34.47
           livenessProbe:
             exec:
               command:

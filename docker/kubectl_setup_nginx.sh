@@ -39,6 +39,7 @@ else
 
     if [[ "${STACK_ARRAY[@]}" =~ "ecommerce" ]]; then
         kubectl --kubeconfig="$KUBECONFIG_PATH" cp ./volumes/nginx/conf.d/http/ecommerce.conf $NGINX_POD_NAME:/tmp/etc/nginx/conf.d/http/ecommerce.conf -c init-nginx
+        kubectl --kubeconfig="$KUBECONFIG_PATH" cp ./volumes/nginx/conf.d/stream/ecommerce.conf $NGINX_POD_NAME:/tmp/etc/nginx/conf.d/stream/ecommerce.conf -c init-nginx
     else
         echo "Skipping nginx ecommerce config"
     fi

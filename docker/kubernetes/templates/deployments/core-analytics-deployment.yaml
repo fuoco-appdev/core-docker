@@ -24,7 +24,7 @@ spec:
     spec:
       initContainers:
         - name: init-analytics
-          image: fuocoappdev/logflare:latest
+          image: supabase/logflare:1.15.4
           imagePullPolicy: Always
           command:
             - sh 
@@ -81,17 +81,22 @@ spec:
                 secretKeyRef:
                   name: env-secrets
                   key: POSTGRES_PASSWORD
-            - name: LOGFLARE_API_KEY
+            - name: LOGFLARE_PUBLIC_ACCESS_TOKEN
               valueFrom:
                 secretKeyRef:
                   name: env-secrets
-                  key: LOGFLARE_API_KEY
+                  key: LOGFLARE_PUBLIC_ACCESS_TOKEN
+            - name: LOGFLARE_PRIVATE_ACCESS_TOKEN
+              valueFrom:
+                secretKeyRef:
+                  name: env-secrets
+                  key: LOGFLARE_PRIVATE_ACCESS_TOKEN
             - name: POSTGRES_BACKEND_URL
               valueFrom:
                 secretKeyRef:
                   name: env-secrets
                   key: ANALYTICS_POSTGRES_BACKEND_URL
-          image: fuocoappdev/logflare:latest
+          image: supabase/logflare:1.15.4
           livenessProbe:
             exec:
               command:
