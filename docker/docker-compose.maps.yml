@@ -1,0 +1,25 @@
+services:
+  nominatim:
+    container_name: nominatim
+    image: mediagis/nominatim:5.1
+    restart: always
+    ports:
+      - "8083:8080"
+    environment:
+      - PBF_URL=https://download.geofabrik.de/north-america/canada-latest.osm.pbf
+      - REPLICATION_URL=https://download.geofabrik.de/north-america/canada-updates/
+      - NOMINATIM_PASSWORD=very_secure_password
+      - POSTGRES_SHARED_BUFFERS=2GB
+      - POSTGRES_MAINTENANCE_WORK_MEM=2GB
+      - POSTGRES_AUTOVACUUM_WORK_MEM=1GB
+      - POSTGRES_EFFECTIVE_CACHE_SIZE=4GB
+      - IMPORT_STYLE=full
+      - UPDATE_MODE=continuous
+    volumes:
+      - nominatim-data:/var/lib/postgresql/14/main
+      - nominatim-flatnode:/nominatim/flatnode
+    shm_size: 4gb
+
+volumes:
+  nominatim-data:
+  nominatim-flatnode:
