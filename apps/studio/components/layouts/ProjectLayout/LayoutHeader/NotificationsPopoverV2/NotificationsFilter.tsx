@@ -19,17 +19,18 @@ import {
 } from 'ui'
 
 import { CommandGroup } from '@ui/components/shadcn/ui/command'
-import { CriticalIcon, WarningIcon } from 'ui'
 import { useOrganizationsQuery } from 'data/organizations/organizations-query'
 import { useProjectsQuery } from 'data/projects/projects-query'
 import { useNotificationsStateSnapshot } from 'state/notifications'
+import { CriticalIcon, WarningIcon } from 'ui'
 
 export const NotificationsFilter = ({ activeTab }: { activeTab: 'inbox' | 'archived' }) => {
   const [open, setOpen] = useState(false)
   const snap = useNotificationsStateSnapshot()
 
   const { data: organizations } = useOrganizationsQuery()
-  const { data: projects } = useProjectsQuery()
+  const { data } = useProjectsQuery()
+  const projects = data?.projects ?? []
 
   return (
     <Popover_Shadcn_ modal={true} open={open} onOpenChange={setOpen}>
@@ -91,7 +92,7 @@ export const NotificationsFilter = ({ activeTab }: { activeTab: 'inbox' | 'archi
                       name="warning"
                       checked={snap.filterPriorities.includes('Warning')}
                     ></Checkbox_Shadcn_>
-                    <WarningIcon className="w-2 h-2" />
+                    <WarningIcon className="size-4" />
                     Warning
                   </Label_Shadcn_>
                 </CommandItem_Shadcn_>
@@ -112,7 +113,7 @@ export const NotificationsFilter = ({ activeTab }: { activeTab: 'inbox' | 'archi
                       name="critical"
                       checked={snap.filterPriorities.includes('Critical')}
                     ></Checkbox_Shadcn_>
-                    <CriticalIcon className="w-2 h-2" />
+                    <CriticalIcon className="size-4" />
                     Critical
                   </Label_Shadcn_>
                 </CommandItem_Shadcn_>

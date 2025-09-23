@@ -64,6 +64,10 @@ export type ConnectionType = {
   label: string
   guideLink?: string
   children: ConnectionType[]
+  files?: {
+    name: string
+    content: string
+  }[]
 }
 
 export const FRAMEWORKS: ConnectionType[] = [
@@ -348,3 +352,7 @@ export const CONNECTION_TYPES = [
   { key: 'mobiles', label: 'Mobile Frameworks', obj: MOBILES },
   { key: 'orms', label: 'ORMs', obj: ORMS },
 ]
+
+export const PGBOUNCER_ENABLED_BUT_NO_IPV4_ADDON_TEXT =
+  'Purchase IPv4 add-on or use Shared Pooler if on a IPv4 network'
+export const IPV4_ADDON_TEXT = 'Connections are IPv4 proxied with IPv4 add-on'

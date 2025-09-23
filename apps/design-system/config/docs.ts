@@ -38,13 +38,13 @@ export const docsConfig: DocsConfig = {
           items: [],
         },
         {
-          title: 'Color usage',
-          href: '/docs/color-usage',
+          title: 'Tailwind Classes',
+          href: '/docs/tailwind-classes',
           items: [],
         },
         {
-          title: 'Tailwind classes',
-          href: '/docs/tailwind-classes',
+          title: 'Color Usage',
+          href: '/docs/color-usage',
           items: [],
         },
         {
@@ -115,6 +115,21 @@ export const docsConfig: DocsConfig = {
         {
           title: 'Multi Select',
           href: '/docs/fragments/multi-select',
+          items: [],
+        },
+        {
+          title: 'Filter Bar',
+          href: '/docs/fragments/filter-bar',
+          items: [],
+        },
+        {
+          title: 'Logs Bar Chart',
+          href: '/docs/fragments/logs-bar-chart',
+          items: [],
+        },
+        {
+          title: 'Table of Contents (TOC)',
+          href: '/docs/fragments/toc',
           items: [],
         },
       ],
@@ -345,6 +360,11 @@ export const docsConfig: DocsConfig = {
           items: [],
         },
         {
+          title: 'Sidebar',
+          href: '/docs/components/sidebar',
+          items: [],
+        },
+        {
           title: 'Sonner',
           href: '/docs/components/sonner',
           items: [],
@@ -367,11 +387,6 @@ export const docsConfig: DocsConfig = {
         {
           title: 'Textarea',
           href: '/docs/components/textarea',
-          items: [],
-        },
-        {
-          title: 'Toast',
-          href: '/docs/components/toast',
           items: [],
         },
         {

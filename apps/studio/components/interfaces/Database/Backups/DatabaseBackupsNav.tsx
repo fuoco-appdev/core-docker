@@ -1,8 +1,6 @@
-import { useProjectContext } from 'components/layouts/ProjectLayout/ProjectContext'
-import { useFlag } from 'hooks/ui/useFlag'
 import Link from 'next/link'
-import React from 'react'
 
+import { useSelectedProjectQuery } from 'hooks/misc/useSelectedProject'
 import { Badge, NavMenu, NavMenuItem } from 'ui'
 
 type Props = {
@@ -10,8 +8,7 @@ type Props = {
 }
 
 function DatabaseBackupsNav({ active }: Props) {
-  const isCloneToNewProjectEnabled = useFlag('clonetonewproject')
-  const ref = useProjectContext()?.project?.ref
+  const { ref, cloud_provider } = useSelectedProjectQuery()?.data || {}
 
   const navMenuItems = [
     {
@@ -27,13 +24,13 @@ function DatabaseBackupsNav({ active }: Props) {
       href: `/project/${ref}/database/backups/pitr`,
     },
     {
-      enabled: isCloneToNewProjectEnabled,
+      enabled: cloud_provider !== 'FLY',
       id: 'rtnp',
       label: (
         <div className="flex items-center gap-1">
           Restore to new project{' '}
           <Badge size="small" className="!text-[10px] px-1.5 py-0">
-            New
+            Beta
           </Badge>
         </div>
       ),
@@ -42,7 +39,7 @@ function DatabaseBackupsNav({ active }: Props) {
   ] as const
 
   return (
-    <NavMenu>
+    <NavMenu className="overflow-hidden overflow-x-auto">
       {navMenuItems.map(
         (item) =>
           item.enabled && (

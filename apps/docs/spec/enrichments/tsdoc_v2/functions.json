@@ -7,34 +7,15 @@
   "originalName": "",
   "children": [
     {
-      "id": 63,
+      "id": 67,
       "name": "FunctionRegion",
       "kind": 8,
       "kindString": "Enumeration",
       "flags": {},
       "children": [
         {
-          "id": 64,
+          "id": 68,
           "name": "Any",
-          "kind": 16,
-          "kindString": "Enumeration Member",
-          "flags": {},
-          "sources": [
-            {
-              "fileName": "src/types.ts",
-              "line": 45,
-              "character": 2
-            }
-          ],
-          "type": {
-            "type": "literal",
-            "value": "any"
-          },
-          "defaultValue": "\"any\""
-        },
-        {
-          "id": 65,
-          "name": "ApNortheast1",
           "kind": 16,
           "kindString": "Enumeration Member",
           "flags": {},
@@ -47,13 +28,13 @@
           ],
           "type": {
             "type": "literal",
-            "value": "ap-northeast-1"
+            "value": "any"
           },
-          "defaultValue": "\"ap-northeast-1\""
+          "defaultValue": "\"any\""
         },
         {
-          "id": 66,
-          "name": "ApNortheast2",
+          "id": 69,
+          "name": "ApNortheast1",
           "kind": 16,
           "kindString": "Enumeration Member",
           "flags": {},
@@ -66,13 +47,13 @@
           ],
           "type": {
             "type": "literal",
-            "value": "ap-northeast-2"
+            "value": "ap-northeast-1"
           },
-          "defaultValue": "\"ap-northeast-2\""
+          "defaultValue": "\"ap-northeast-1\""
         },
         {
-          "id": 67,
-          "name": "ApSouth1",
+          "id": 70,
+          "name": "ApNortheast2",
           "kind": 16,
           "kindString": "Enumeration Member",
           "flags": {},
@@ -85,13 +66,13 @@
           ],
           "type": {
             "type": "literal",
-            "value": "ap-south-1"
+            "value": "ap-northeast-2"
           },
-          "defaultValue": "\"ap-south-1\""
+          "defaultValue": "\"ap-northeast-2\""
         },
         {
-          "id": 68,
-          "name": "ApSoutheast1",
+          "id": 71,
+          "name": "ApSouth1",
           "kind": 16,
           "kindString": "Enumeration Member",
           "flags": {},
@@ -104,13 +85,13 @@
           ],
           "type": {
             "type": "literal",
-            "value": "ap-southeast-1"
+            "value": "ap-south-1"
           },
-          "defaultValue": "\"ap-southeast-1\""
+          "defaultValue": "\"ap-south-1\""
         },
         {
-          "id": 69,
-          "name": "ApSoutheast2",
+          "id": 72,
+          "name": "ApSoutheast1",
           "kind": 16,
           "kindString": "Enumeration Member",
           "flags": {},
@@ -123,13 +104,13 @@
           ],
           "type": {
             "type": "literal",
-            "value": "ap-southeast-2"
+            "value": "ap-southeast-1"
           },
-          "defaultValue": "\"ap-southeast-2\""
+          "defaultValue": "\"ap-southeast-1\""
         },
         {
-          "id": 70,
-          "name": "CaCentral1",
+          "id": 73,
+          "name": "ApSoutheast2",
           "kind": 16,
           "kindString": "Enumeration Member",
           "flags": {},
@@ -142,13 +123,13 @@
           ],
           "type": {
             "type": "literal",
-            "value": "ca-central-1"
+            "value": "ap-southeast-2"
           },
-          "defaultValue": "\"ca-central-1\""
+          "defaultValue": "\"ap-southeast-2\""
         },
         {
-          "id": 71,
-          "name": "EuCentral1",
+          "id": 74,
+          "name": "CaCentral1",
           "kind": 16,
           "kindString": "Enumeration Member",
           "flags": {},
@@ -161,13 +142,13 @@
           ],
           "type": {
             "type": "literal",
-            "value": "eu-central-1"
+            "value": "ca-central-1"
           },
-          "defaultValue": "\"eu-central-1\""
+          "defaultValue": "\"ca-central-1\""
         },
         {
-          "id": 72,
-          "name": "EuWest1",
+          "id": 75,
+          "name": "EuCentral1",
           "kind": 16,
           "kindString": "Enumeration Member",
           "flags": {},
@@ -180,13 +161,13 @@
           ],
           "type": {
             "type": "literal",
-            "value": "eu-west-1"
+            "value": "eu-central-1"
           },
-          "defaultValue": "\"eu-west-1\""
+          "defaultValue": "\"eu-central-1\""
         },
         {
-          "id": 73,
-          "name": "EuWest2",
+          "id": 76,
+          "name": "EuWest1",
           "kind": 16,
           "kindString": "Enumeration Member",
           "flags": {},
@@ -199,13 +180,13 @@
           ],
           "type": {
             "type": "literal",
-            "value": "eu-west-2"
+            "value": "eu-west-1"
           },
-          "defaultValue": "\"eu-west-2\""
+          "defaultValue": "\"eu-west-1\""
         },
         {
-          "id": 74,
-          "name": "EuWest3",
+          "id": 77,
+          "name": "EuWest2",
           "kind": 16,
           "kindString": "Enumeration Member",
           "flags": {},
@@ -218,13 +199,13 @@
           ],
           "type": {
             "type": "literal",
-            "value": "eu-west-3"
+            "value": "eu-west-2"
           },
-          "defaultValue": "\"eu-west-3\""
+          "defaultValue": "\"eu-west-2\""
         },
         {
-          "id": 75,
-          "name": "SaEast1",
+          "id": 78,
+          "name": "EuWest3",
           "kind": 16,
           "kindString": "Enumeration Member",
           "flags": {},
@@ -237,13 +218,13 @@
           ],
           "type": {
             "type": "literal",
-            "value": "sa-east-1"
+            "value": "eu-west-3"
           },
-          "defaultValue": "\"sa-east-1\""
+          "defaultValue": "\"eu-west-3\""
         },
         {
-          "id": 76,
-          "name": "UsEast1",
+          "id": 79,
+          "name": "SaEast1",
           "kind": 16,
           "kindString": "Enumeration Member",
           "flags": {},
@@ -256,13 +237,13 @@
           ],
           "type": {
             "type": "literal",
-            "value": "us-east-1"
+            "value": "sa-east-1"
           },
-          "defaultValue": "\"us-east-1\""
+          "defaultValue": "\"sa-east-1\""
         },
         {
-          "id": 77,
-          "name": "UsWest1",
+          "id": 80,
+          "name": "UsEast1",
           "kind": 16,
           "kindString": "Enumeration Member",
           "flags": {},
@@ -275,13 +256,13 @@
           ],
           "type": {
             "type": "literal",
-            "value": "us-west-1"
+            "value": "us-east-1"
           },
-          "defaultValue": "\"us-west-1\""
+          "defaultValue": "\"us-east-1\""
         },
         {
-          "id": 78,
-          "name": "UsWest2",
+          "id": 81,
+          "name": "UsWest1",
           "kind": 16,
           "kindString": "Enumeration Member",
           "flags": {},
@@ -289,6 +270,25 @@
             {
               "fileName": "src/types.ts",
               "line": 59,
+              "character": 2
+            }
+          ],
+          "type": {
+            "type": "literal",
+            "value": "us-west-1"
+          },
+          "defaultValue": "\"us-west-1\""
+        },
+        {
+          "id": 82,
+          "name": "UsWest2",
+          "kind": 16,
+          "kindString": "Enumeration Member",
+          "flags": {},
+          "sources": [
+            {
+              "fileName": "src/types.ts",
+              "line": 60,
               "character": 2
             }
           ],
@@ -303,13 +303,13 @@
         {
           "title": "Enumeration Members",
           "kind": 16,
-          "children": [64, 65, 66, 67, 68, 69, 70, 71, 72, 73, 74, 75, 76, 77, 78]
+          "children": [68, 69, 70, 71, 72, 73, 74, 75, 76, 77, 78, 79, 80, 81, 82]
         }
       ],
       "sources": [
         {
           "fileName": "src/types.ts",
-          "line": 44,
+          "line": 45,
           "character": 12
         }
       ]
@@ -453,6 +453,72 @@
                                     "package": "typescript",
                                     "name": "Promise"
                                   }
+                                },
+                                {
+                                  "id": 13,
+                                  "name": "__type",
+                                  "kind": 4096,
+                                  "kindString": "Call signature",
+                                  "flags": {},
+                                  "parameters": [
+                                    {
+                                      "id": 14,
+                                      "name": "input",
+                                      "kind": 32768,
+                                      "kindString": "Parameter",
+                                      "flags": {},
+                                      "type": {
+                                        "type": "union",
+                                        "types": [
+                                          {
+                                            "type": "intrinsic",
+                                            "name": "string"
+                                          },
+                                          {
+                                            "type": "reference",
+                                            "qualifiedName": "Request",
+                                            "package": "typescript",
+                                            "name": "Request"
+                                          },
+                                          {
+                                            "type": "reference",
+                                            "qualifiedName": "URL",
+                                            "package": "typescript",
+                                            "name": "URL"
+                                          }
+                                        ]
+                                      }
+                                    },
+                                    {
+                                      "id": 15,
+                                      "name": "init",
+                                      "kind": 32768,
+                                      "kindString": "Parameter",
+                                      "flags": {
+                                        "isOptional": true
+                                      },
+                                      "type": {
+                                        "type": "reference",
+                                        "qualifiedName": "RequestInit",
+                                        "package": "typescript",
+                                        "name": "RequestInit"
+                                      }
+                                    }
+                                  ],
+                                  "type": {
+                                    "type": "reference",
+                                    "typeArguments": [
+                                      {
+                                        "type": "reference",
+                                        "qualifiedName": "Response",
+                                        "package": "typescript",
+                                        "name": "Response"
+                                      }
+                                    ],
+                                    "qualifiedName": "Promise",
+                                    "package": "typescript",
+                                    "name": "Promise"
+                                  }
                                 }
                               ]
                             }
@@ -491,7 +557,7 @@
                           }
                         },
                         {
-                          "id": 13,
+                          "id": 16,
                           "name": "region",
                           "kind": 1024,
                           "kindString": "Property",
@@ -507,7 +573,7 @@
                           ],
                           "type": {
                             "type": "reference",
-                            "id": 63,
+                            "id": 67,
                             "name": "FunctionRegion"
                           }
                         }
@@ -516,7 +582,7 @@
                         {
                           "title": "Properties",
                           "kind": 1024,
-                          "children": [8, 7, 13]
+                          "children": [8, 7, 16]
                         }
                       ]
                     }
@@ -533,7 +599,7 @@
           ]
         },
         {
-          "id": 17,
+          "id": 20,
           "name": "fetch",
           "kind": 1024,
           "kindString": "Property",
@@ -550,21 +616,21 @@
           "type": {
             "type": "reflection",
             "declaration": {
-              "id": 18,
+              "id": 21,
               "name": "__type",
               "kind": 65536,
               "kindString": "Type literal",
               "flags": {},
               "signatures": [
                 {
-                  "id": 19,
+                  "id": 22,
                   "name": "__type",
                   "kind": 4096,
                   "kindString": "Call signature",
                   "flags": {},
                   "parameters": [
                     {
-                      "id": 20,
+                      "id": 23,
                       "name": "input",
                       "kind": 32768,
                       "kindString": "Parameter",
@@ -588,7 +654,73 @@
                       }
                     },
                     {
-                      "id": 21,
+                      "id": 24,
+                      "name": "init",
+                      "kind": 32768,
+                      "kindString": "Parameter",
+                      "flags": {
+                        "isOptional": true
+                      },
+                      "type": {
+                        "type": "reference",
+                        "qualifiedName": "RequestInit",
+                        "package": "typescript",
+                        "name": "RequestInit"
+                      }
+                    }
+                  ],
+                  "type": {
+                    "type": "reference",
+                    "typeArguments": [
+                      {
+                        "type": "reference",
+                        "qualifiedName": "Response",
+                        "package": "typescript",
+                        "name": "Response"
+                      }
+                    ],
+                    "qualifiedName": "Promise",
+                    "package": "typescript",
+                    "name": "Promise"
+                  }
+                },
+                {
+                  "id": 25,
+                  "name": "__type",
+                  "kind": 4096,
+                  "kindString": "Call signature",
+                  "flags": {},
+                  "parameters": [
+                    {
+                      "id": 26,
+                      "name": "input",
+                      "kind": 32768,
+                      "kindString": "Parameter",
+                      "flags": {},
+                      "type": {
+                        "type": "union",
+                        "types": [
+                          {
+                            "type": "intrinsic",
+                            "name": "string"
+                          },
+                          {
+                            "type": "reference",
+                            "qualifiedName": "Request",
+                            "package": "typescript",
+                            "name": "Request"
+                          },
+                          {
+                            "type": "reference",
+                            "qualifiedName": "URL",
+                            "package": "typescript",
+                            "name": "URL"
+                          }
+                        ]
+                      }
+                    },
+                    {
+                      "id": 27,
                       "name": "init",
                       "kind": 32768,
                       "kindString": "Parameter",
@@ -623,7 +755,7 @@
           }
         },
         {
-          "id": 15,
+          "id": 18,
           "name": "headers",
           "kind": 1024,
           "kindString": "Property",
@@ -655,7 +787,7 @@
           }
         },
         {
-          "id": 16,
+          "id": 19,
           "name": "region",
           "kind": 1024,
           "kindString": "Property",
@@ -671,12 +803,12 @@
           ],
           "type": {
             "type": "reference",
-            "id": 63,
+            "id": 67,
             "name": "FunctionRegion"
           }
         },
         {
-          "id": 14,
+          "id": 17,
           "name": "url",
           "kind": 1024,
           "kindString": "Property",
@@ -696,7 +828,7 @@
           }
         },
         {
-          "id": 25,
+          "id": 31,
           "name": "invoke",
           "kind": 2048,
           "kindString": "Method",
@@ -710,7 +842,7 @@
           ],
           "signatures": [
             {
-              "id": 26,
+              "id": 32,
               "name": "invoke",
               "kind": 4096,
               "kindString": "Call signature",
@@ -720,7 +852,7 @@
               },
               "typeParameter": [
                 {
-                  "id": 27,
+                  "id": 33,
                   "name": "T",
                   "kind": 131072,
                   "kindString": "Type parameter",
@@ -733,7 +865,7 @@
               ],
               "parameters": [
                 {
-                  "id": 28,
+                  "id": 34,
                   "name": "functionName",
                   "kind": 32768,
                   "kindString": "Parameter",
@@ -747,7 +879,7 @@
                   }
                 },
                 {
-                  "id": 29,
+                  "id": 35,
                   "name": "options",
                   "kind": 32768,
                   "kindString": "Parameter",
@@ -757,7 +889,7 @@
                   },
                   "type": {
                     "type": "reference",
-                    "id": 30,
+                    "id": 36,
                     "name": "FunctionInvokeOptions"
                   },
                   "defaultValue": "{}"
@@ -768,11 +900,11 @@
                 "typeArguments": [
                   {
                     "type": "reference",
-                    "id": 61,
+                    "id": 83,
                     "typeArguments": [
                       {
                         "type": "reference",
-                        "id": 27,
+                        "id": 33,
                         "name": "T"
                       }
                     ],
@@ -787,7 +919,7 @@
           ]
         },
         {
-          "id": 22,
+          "id": 28,
           "name": "setAuth",
           "kind": 2048,
           "kindString": "Method",
@@ -801,7 +933,7 @@
           ],
           "signatures": [
             {
-              "id": 23,
+              "id": 29,
               "name": "setAuth",
               "kind": 4096,
               "kindString": "Call signature",
@@ -811,7 +943,7 @@
               },
               "parameters": [
                 {
-                  "id": 24,
+                  "id": 30,
                   "name": "token",
                   "kind": 32768,
                   "kindString": "Parameter",
@@ -842,12 +974,12 @@
         {
           "title": "Properties",
           "kind": 1024,
-          "children": [17, 15, 16, 14]
+          "children": [20, 18, 19, 17]
         },
         {
           "title": "Methods",
           "kind": 2048,
-          "children": [25, 22]
+          "children": [31, 28]
         }
       ],
       "sources": [
@@ -859,14 +991,14 @@
       ]
     },
     {
-      "id": 39,
+      "id": 45,
       "name": "FunctionsError",
       "kind": 128,
       "kindString": "Class",
       "flags": {},
       "children": [
         {
-          "id": 40,
+          "id": 46,
           "name": "constructor",
           "kind": 512,
           "kindString": "Constructor",
@@ -874,20 +1006,20 @@
           "sources": [
             {
               "fileName": "src/types.ts",
-              "line": 19,
+              "line": 20,
               "character": 2
             }
           ],
           "signatures": [
             {
-              "id": 41,
+              "id": 47,
               "name": "new FunctionsError",
               "kind": 16384,
               "kindString": "Constructor signature",
               "flags": {},
               "parameters": [
                 {
-                  "id": 42,
+                  "id": 48,
                   "name": "message",
                   "kind": 32768,
                   "kindString": "Parameter",
@@ -898,7 +1030,7 @@
                   }
                 },
                 {
-                  "id": 43,
+                  "id": 49,
                   "name": "name",
                   "kind": 32768,
                   "kindString": "Parameter",
@@ -910,7 +1042,7 @@
                   "defaultValue": "'FunctionsError'"
                 },
                 {
-                  "id": 44,
+                  "id": 50,
                   "name": "context",
                   "kind": 32768,
                   "kindString": "Parameter",
@@ -925,7 +1057,7 @@
               ],
               "type": {
                 "type": "reference",
-                "id": 39,
+                "id": 45,
                 "name": "FunctionsError"
               },
               "overwrites": {
@@ -940,7 +1072,7 @@
           }
         },
         {
-          "id": 45,
+          "id": 51,
           "name": "context",
           "kind": 1024,
           "kindString": "Property",
@@ -948,7 +1080,7 @@
           "sources": [
             {
               "fileName": "src/types.ts",
-              "line": 18,
+              "line": 19,
               "character": 2
             }
           ],
@@ -962,18 +1094,18 @@
         {
           "title": "Constructors",
           "kind": 512,
-          "children": [40]
+          "children": [46]
         },
         {
           "title": "Properties",
           "kind": 1024,
-          "children": [45]
+          "children": [51]
         }
       ],
       "sources": [
         {
           "fileName": "src/types.ts",
-          "line": 17,
+          "line": 18,
           "character": 13
         }
       ],
@@ -988,30 +1120,30 @@
       "extendedBy": [
         {
           "type": "reference",
-          "id": 46,
+          "id": 52,
           "name": "FunctionsFetchError"
         },
         {
           "type": "reference",
-          "id": 51,
+          "id": 57,
           "name": "FunctionsHttpError"
         },
         {
           "type": "reference",
-          "id": 56,
+          "id": 62,
           "name": "FunctionsRelayError"
         }
       ]
     },
     {
-      "id": 46,
+      "id": 52,
       "name": "FunctionsFetchError",
       "kind": 128,
       "kindString": "Class",
       "flags": {},
       "children": [
         {
-          "id": 47,
+          "id": 53,
           "name": "constructor",
           "kind": 512,
           "kindString": "Constructor",
@@ -1019,20 +1151,20 @@
           "sources": [
             {
               "fileName": "src/types.ts",
-              "line": 27,
+              "line": 28,
               "character": 2
             }
           ],
           "signatures": [
             {
-              "id": 48,
+              "id": 54,
               "name": "new FunctionsFetchError",
               "kind": 16384,
               "kindString": "Constructor signature",
               "flags": {},
               "parameters": [
                 {
-                  "id": 49,
+                  "id": 55,
                   "name": "context",
                   "kind": 32768,
                   "kindString": "Parameter",
@@ -1045,24 +1177,24 @@
               ],
               "type": {
                 "type": "reference",
-                "id": 46,
+                "id": 52,
                 "name": "FunctionsFetchError"
               },
               "overwrites": {
                 "type": "reference",
-                "id": 41,
+                "id": 47,
                 "name": "FunctionsError.constructor"
               }
             }
           ],
           "overwrites": {
             "type": "reference",
-            "id": 40,
+            "id": 46,
             "name": "FunctionsError.constructor"
           }
         },
         {
-          "id": 50,
+          "id": 56,
           "name": "context",
           "kind": 1024,
           "kindString": "Property",
@@ -1070,7 +1202,7 @@
           "sources": [
             {
               "fileName": "src/types.ts",
-              "line": 18,
+              "line": 19,
               "character": 2
             }
           ],
@@ -1080,7 +1212,7 @@
           },
           "inheritedFrom": {
             "type": "reference",
-            "id": 45,
+            "id": 51,
             "name": "FunctionsError.context"
           }
         }
@@ -1089,38 +1221,38 @@
         {
           "title": "Constructors",
           "kind": 512,
-          "children": [47]
+          "children": [53]
         },
         {
           "title": "Properties",
           "kind": 1024,
-          "children": [50]
+          "children": [56]
         }
       ],
       "sources": [
         {
           "fileName": "src/types.ts",
-          "line": 26,
+          "line": 27,
           "character": 13
         }
       ],
       "extendedTypes": [
         {
           "type": "reference",
-          "id": 39,
+          "id": 45,
           "name": "FunctionsError"
         }
       ]
     },
     {
-      "id": 51,
+      "id": 57,
       "name": "FunctionsHttpError",
       "kind": 128,
       "kindString": "Class",
       "flags": {},
       "children": [
         {
-          "id": 52,
+          "id": 58,
           "name": "constructor",
           "kind": 512,
           "kindString": "Constructor",
@@ -1128,20 +1260,20 @@
           "sources": [
             {
               "fileName": "src/types.ts",
-              "line": 39,
+              "line": 40,
               "character": 2
             }
           ],
           "signatures": [
             {
-              "id": 53,
+              "id": 59,
               "name": "new FunctionsHttpError",
               "kind": 16384,
               "kindString": "Constructor signature",
               "flags": {},
               "parameters": [
                 {
-                  "id": 54,
+                  "id": 60,
                   "name": "context",
                   "kind": 32768,
                   "kindString": "Parameter",
@@ -1154,24 +1286,24 @@
               ],
               "type": {
                 "type": "reference",
-                "id": 51,
+                "id": 57,
                 "name": "FunctionsHttpError"
               },
               "overwrites": {
                 "type": "reference",
-                "id": 41,
+                "id": 47,
                 "name": "FunctionsError.constructor"
               }
             }
           ],
           "overwrites": {
             "type": "reference",
-            "id": 40,
+            "id": 46,
             "name": "FunctionsError.constructor"
           }
         },
         {
-          "id": 55,
+          "id": 61,
           "name": "context",
           "kind": 1024,
           "kindString": "Property",
@@ -1179,7 +1311,7 @@
           "sources": [
             {
               "fileName": "src/types.ts",
-              "line": 18,
+              "line": 19,
               "character": 2
             }
           ],
@@ -1189,7 +1321,7 @@
           },
           "inheritedFrom": {
             "type": "reference",
-            "id": 45,
+            "id": 51,
             "name": "FunctionsError.context"
           }
         }
@@ -1198,38 +1330,38 @@
         {
           "title": "Constructors",
           "kind": 512,
-          "children": [52]
+          "children": [58]
         },
         {
           "title": "Properties",
           "kind": 1024,
-          "children": [55]
+          "children": [61]
         }
       ],
       "sources": [
         {
           "fileName": "src/types.ts",
-          "line": 38,
+          "line": 39,
           "character": 13
         }
       ],
       "extendedTypes": [
         {
           "type": "reference",
-          "id": 39,
+          "id": 45,
           "name": "FunctionsError"
         }
       ]
     },
     {
-      "id": 56,
+      "id": 62,
       "name": "FunctionsRelayError",
       "kind": 128,
       "kindString": "Class",
       "flags": {},
       "children": [
         {
-          "id": 57,
+          "id": 63,
           "name": "constructor",
           "kind": 512,
           "kindString": "Constructor",
@@ -1237,20 +1369,20 @@
           "sources": [
             {
               "fileName": "src/types.ts",
-              "line": 33,
+              "line": 34,
               "character": 2
             }
           ],
           "signatures": [
             {
-              "id": 58,
+              "id": 64,
               "name": "new FunctionsRelayError",
               "kind": 16384,
               "kindString": "Constructor signature",
               "flags": {},
               "parameters": [
                 {
-                  "id": 59,
+                  "id": 65,
                   "name": "context",
                   "kind": 32768,
                   "kindString": "Parameter",
@@ -1263,24 +1395,24 @@
               ],
               "type": {
                 "type": "reference",
-                "id": 56,
+                "id": 62,
                 "name": "FunctionsRelayError"
               },
               "overwrites": {
                 "type": "reference",
-                "id": 41,
+                "id": 47,
                 "name": "FunctionsError.constructor"
               }
             }
           ],
           "overwrites": {
             "type": "reference",
-            "id": 40,
+            "id": 46,
             "name": "FunctionsError.constructor"
           }
         },
         {
-          "id": 60,
+          "id": 66,
           "name": "context",
           "kind": 1024,
           "kindString": "Property",
@@ -1288,7 +1420,7 @@
           "sources": [
             {
               "fileName": "src/types.ts",
-              "line": 18,
+              "line": 19,
               "character": 2
             }
           ],
@@ -1298,7 +1430,7 @@
           },
           "inheritedFrom": {
             "type": "reference",
-            "id": 45,
+            "id": 51,
             "name": "FunctionsError.context"
           }
         }
@@ -1307,31 +1439,31 @@
         {
           "title": "Constructors",
           "kind": 512,
-          "children": [57]
+          "children": [63]
         },
         {
           "title": "Properties",
           "kind": 1024,
-          "children": [60]
+          "children": [66]
         }
       ],
       "sources": [
         {
           "fileName": "src/types.ts",
-          "line": 32,
+          "line": 33,
           "character": 13
         }
       ],
       "extendedTypes": [
         {
           "type": "reference",
-          "id": 39,
+          "id": 45,
           "name": "FunctionsError"
         }
       ]
     },
     {
-      "id": 30,
+      "id": 36,
       "name": "FunctionInvokeOptions",
       "kind": 4194304,
       "kindString": "Type alias",
@@ -1339,21 +1471,21 @@
       "sources": [
         {
           "fileName": "src/types.ts",
-          "line": 62,
+          "line": 63,
           "character": 12
         }
       ],
       "type": {
         "type": "reflection",
         "declaration": {
-          "id": 31,
+          "id": 37,
           "name": "__type",
           "kind": 65536,
           "kindString": "Type literal",
           "flags": {},
           "children": [
             {
-              "id": 38,
+              "id": 44,
               "name": "body",
               "kind": 1024,
               "kindString": "Property",
@@ -1366,7 +1498,7 @@
               "sources": [
                 {
                   "fileName": "src/types.ts",
-                  "line": 78,
+                  "line": 79,
                   "character": 2
                 }
               ],
@@ -1435,7 +1567,7 @@
               }
             },
             {
-              "id": 32,
+              "id": 38,
               "name": "headers",
               "kind": 1024,
               "kindString": "Property",
@@ -1448,14 +1580,14 @@
               "sources": [
                 {
                   "fileName": "src/types.ts",
-                  "line": 66,
+                  "line": 67,
                   "character": 2
                 }
               ],
               "type": {
                 "type": "reflection",
                 "declaration": {
-                  "id": 33,
+                  "id": 39,
                   "name": "__type",
                   "kind": 65536,
                   "kindString": "Type literal",
@@ -1463,19 +1595,19 @@
                   "sources": [
                     {
                       "fileName": "src/types.ts",
-                      "line": 66,
+                      "line": 67,
                       "character": 12
                     }
                   ],
                   "indexSignature": {
-                    "id": 34,
+                    "id": 40,
                     "name": "__index",
                     "kind": 8192,
                     "kindString": "Index signature",
                     "flags": {},
                     "parameters": [
                       {
-                        "id": 35,
+                        "id": 41,
                         "name": "key",
                         "kind": 32768,
                         "flags": {},
@@ -1494,7 +1626,7 @@
               }
             },
             {
-              "id": 36,
+              "id": 42,
               "name": "method",
               "kind": 1024,
               "kindString": "Property",
@@ -1507,7 +1639,7 @@
               "sources": [
                 {
                   "fileName": "src/types.ts",
-                  "line": 70,
+                  "line": 71,
                   "character": 2
                 }
               ],
@@ -1538,7 +1670,7 @@
               }
             },
             {
-              "id": 37,
+              "id": 43,
               "name": "region",
               "kind": 1024,
               "kindString": "Property",
@@ -1551,13 +1683,13 @@
               "sources": [
                 {
                   "fileName": "src/types.ts",
-                  "line": 74,
+                  "line": 75,
                   "character": 2
                 }
               ],
               "type": {
                 "type": "reference",
-                "id": 63,
+                "id": 67,
                 "name": "FunctionRegion"
               }
             }
@@ -1566,13 +1698,13 @@
             {
               "title": "Properties",
               "kind": 1024,
-              "children": [38, 32, 36, 37]
+              "children": [44, 38, 42, 43]
             }
           ],
           "sources": [
             {
               "fileName": "src/types.ts",
-              "line": 62,
+              "line": 63,
               "character": 36
             }
           ]
@@ -1580,7 +1712,7 @@
       }
     },
     {
-      "id": 61,
+      "id": 83,
       "name": "FunctionsResponse",
       "kind": 4194304,
       "kindString": "Type alias",
@@ -1588,13 +1720,13 @@
       "sources": [
         {
           "fileName": "src/types.ts",
-          "line": 15,
+          "line": 16,
           "character": 12
         }
       ],
       "typeParameter": [
         {
-          "id": 62,
+          "id": 84,
           "name": "T",
           "kind": 131072,
           "kindString": "Type parameter",
@@ -1609,7 +1741,7 @@
             "typeArguments": [
               {
                 "type": "reference",
-                "id": 62,
+                "id": 84,
                 "name": "T"
               }
             ],
@@ -1627,17 +1759,17 @@
     {
       "title": "Enumerations",
       "kind": 8,
-      "children": [63]
+      "children": [67]
     },
     {
       "title": "Classes",
       "kind": 128,
-      "children": [1, 39, 46, 51, 56]
+      "children": [1, 45, 52, 57, 62]
     },
     {
       "title": "Type Aliases",
       "kind": 4194304,
-      "children": [30, 61]
+      "children": [36, 83]
     }
   ],
   "sources": [

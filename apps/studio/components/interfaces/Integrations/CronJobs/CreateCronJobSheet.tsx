@@ -1,21 +1,25 @@
 import { zodResolver } from '@hookform/resolvers/zod'
 import { PermissionAction } from '@supabase/shared-types/out/constants'
 import { toString as CronToString } from 'cronstrue'
-import { useState } from 'react'
+import { parseAsString, useQueryState } from 'nuqs'
+import { useEffect, useState } from 'react'
 import { SubmitHandler, useForm } from 'react-hook-form'
 import { toast } from 'sonner'
 import z from 'zod'
 
+import { useWatch } from '@ui/components/shadcn/ui/form'
+import { useParams } from 'common'
 import { urlRegex } from 'components/interfaces/Auth/Auth.constants'
 import EnableExtensionModal from 'components/interfaces/Database/Extensions/EnableExtensionModal'
-import { useProjectContext } from 'components/layouts/ProjectLayout/ProjectContext'
 import { ButtonTooltip } from 'components/ui/ButtonTooltip'
+import { getDatabaseCronJob } from 'data/database-cron-jobs/database-cron-job-query'
 import { useDatabaseCronJobCreateMutation } from 'data/database-cron-jobs/database-cron-jobs-create-mutation'
-import { CronJob, useCronJobsQuery } from 'data/database-cron-jobs/database-cron-jobs-query'
+import { CronJob } from 'data/database-cron-jobs/database-cron-jobs-infinite-query'
 import { useDatabaseExtensionsQuery } from 'data/database-extensions/database-extensions-query'
 import { useSendEventMutation } from 'data/telemetry/send-event-mutation'
-import { useCheckPermissions } from 'hooks/misc/useCheckPermissions'
-import { TELEMETRY_EVENTS, TELEMETRY_VALUES } from 'lib/constants/telemetry'
+import { useAsyncCheckPermissions } from 'hooks/misc/useCheckPermissions'
+import { useSelectedOrganizationQuery } from 'hooks/misc/useSelectedOrganization'
+import { useSelectedProjectQuery } from 'hooks/misc/useSelectedProject'
 import {
   Button,
   Form_Shadcn_,
@@ -77,6 +81,8 @@ const edgeFunctionSchema = z.object({
         return false
       }
     }, 'Input must be valid JSON'),
+  // When editing a cron job, we want to keep the original command as a snippet in case the user wants to manually edit it
+  snippet: z.string().trim(),
 })
 
 const httpRequestSchema = z.object({
@@ -103,13 +109,18 @@ const httpRequestSchema = z.object({
         return false
       }
     }, 'Input must be valid JSON'),
+  // When editing a cron job, we want to keep the original command as a snippet in case the user wants to manually edit it
+  snippet: z.string().trim(),
 })
 
 const sqlFunctionSchema = z.object({
   type: z.literal('sql_function'),
   schema: z.string().trim().min(1, 'Please select one of the listed database schemas'),
   functionName: z.string().trim().min(1, 'Please select one of the listed database functions'),
+  // When editing a cron job, we want to keep the original command as a snippet in case the user wants to manually edit it
+  snippet: z.string().trim(),
 })
+
 const sqlSnippetSchema = z.object({
   type: z.literal('sql_snippet'),
   snippet: z.string().trim().min(1),
@@ -160,6 +171,30 @@ export type CronJobType = CreateCronJobForm['values']
 
 const FORM_ID = 'create-cron-job-sidepanel'
 
+const buildCommand = (values: CronJobType) => {
+  let command = ''
+  if (values.type === 'edge_function') {
+    command = buildHttpRequestCommand(
+      values.method,
+      values.edgeFunctionName,
+      values.httpHeaders,
+      values.httpBody,
+      values.timeoutMs
+    )
+  } else if (values.type === 'http_request') {
+    command = buildHttpRequestCommand(
+      values.method,
+      values.endpoint,
+      values.httpHeaders,
+      values.httpBody,
+      values.timeoutMs
+    )
+  } else if (values.type === 'sql_function') {
+    command = `SELECT ${values.schema}.${values.functionName}()`
+  }
+  return command
+}
+
 export const CreateCronJobSheet = ({
   selectedCronJob,
   supportsSeconds,
@@ -167,25 +202,33 @@ export const CreateCronJobSheet = ({
   setIsClosing,
   onClose,
 }: CreateCronJobSheetProps) => {
-  const { project } = useProjectContext()
-  const isEditing = !!selectedCronJob?.jobname
+  const { childId } = useParams()
+  const { data: project } = useSelectedProjectQuery()
+  const { data: org } = useSelectedOrganizationQuery()
+  const [searchQuery] = useQueryState('search', parseAsString.withDefault(''))
+  const [isLoadingGetCronJob, setIsLoadingGetCronJob] = useState(false)
 
+  const jobId = Number(childId)
+  const isEditing = !!selectedCronJob?.jobname
   const [showEnableExtensionModal, setShowEnableExtensionModal] = useState(false)
 
-  const { data: cronJobs } = useCronJobsQuery({
+  const { data } = useDatabaseExtensionsQuery({
     projectRef: project?.ref,
     connectionString: project?.connectionString,
   })
+  const pgNetExtension = (data ?? []).find((ext) => ext.name === 'pg_net')
+  const pgNetExtensionInstalled = pgNetExtension?.installed_version != undefined
 
   const { mutate: sendEvent } = useSendEventMutation()
-  const { mutate: upsertCronJob, isLoading } = useDatabaseCronJobCreateMutation()
+  const { mutate: upsertCronJob, isLoading: isUpserting } = useDatabaseCronJobCreateMutation()
+  const isLoading = isLoadingGetCronJob || isUpserting
 
-  const canToggleExtensions = useCheckPermissions(
+  const { can: canToggleExtensions } = useAsyncCheckPermissions(
     PermissionAction.TENANT_SQL_ADMIN_WRITE,
     'extensions'
   )
 
-  const cronJobValues = parseCronJobCommand(selectedCronJob?.command || '')
+  const cronJobValues = parseCronJobCommand(selectedCronJob?.command || '', project?.ref!)
 
   const form = useForm<CreateCronJobForm>({
     resolver: zodResolver(FormSchema),
@@ -198,11 +241,8 @@ export const CreateCronJobSheet = ({
   })
 
   const isEdited = form.formState.isDirty
-
   // if the form hasn't been touched and the user clicked esc or the backdrop, close the sheet
-  if (!isEdited && isClosing) {
-    onClose()
-  }
+  if (!isEdited && isClosing) onClose()
 
   const onClosePanel = () => {
     if (isEdited) {
@@ -212,42 +252,89 @@ export const CreateCronJobSheet = ({
     }
   }
 
+  const [
+    cronType,
+    endpoint,
+    edgeFunctionName,
+    method,
+    httpHeaders,
+    httpBody,
+    timeoutMs,
+    schema,
+    functionName,
+  ] = useWatch({
+    control: form.control,
+    name: [
+      'values.type',
+      'values.endpoint',
+      'values.edgeFunctionName',
+      'values.method',
+      'values.httpHeaders',
+      'values.httpBody',
+      'values.timeoutMs',
+      'values.schema',
+      'values.functionName',
+    ],
+  })
+
+  // update the snippet field when the user changes the any values in the form
+  useEffect(() => {
+    const command = buildCommand({
+      type: cronType,
+      method,
+      edgeFunctionName,
+      timeoutMs,
+      httpHeaders,
+      httpBody,
+      functionName,
+      schema,
+      endpoint,
+      snippet: '',
+    })
+    if (command) {
+      form.setValue('values.snippet', command)
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [
+    edgeFunctionName,
+    endpoint,
+    method,
+    // for some reason, the httpHeaders are not memoized and cause the useEffect to trigger even when the value is the same
+    JSON.stringify(httpHeaders),
+    httpBody,
+    timeoutMs,
+    schema,
+    functionName,
+    form,
+  ])
+
   const onSubmit: SubmitHandler<CreateCronJobForm> = async ({ name, schedule, values }) => {
-    // job names should be unique
-    const nameExists = cronJobs?.some(
-      (job) => job.jobname === name && job.jobname !== selectedCronJob?.jobname
-    )
-    if (nameExists) {
-      form.setError('name', {
-        type: 'manual',
-        message: 'A cron job with this name already exists',
-      })
-      return
+    if (!project) return console.error('Project is required')
+
+    if (!isEditing) {
+      try {
+        setIsLoadingGetCronJob(true)
+        const checkExistingJob = await getDatabaseCronJob({
+          projectRef: project.ref,
+          connectionString: project.connectionString,
+          name,
+        })
+        const nameExists = !!checkExistingJob
+
+        if (nameExists) {
+          return form.setError('name', {
+            type: 'manual',
+            message: 'A cron job with this name already exists',
+          })
+        }
+      } catch (error: any) {
+        toast.error(`Failed to validate cron job name: ${error.message}`)
+      } finally {
+        setIsLoadingGetCronJob(false)
+      }
     }
 
-    let command = ''
-    if (values.type === 'edge_function') {
-      command = buildHttpRequestCommand(
-        values.method,
-        values.edgeFunctionName,
-        values.httpHeaders,
-        values.httpBody,
-        values.timeoutMs
-      )
-    } else if (values.type === 'http_request') {
-      command = buildHttpRequestCommand(
-        values.method,
-        values.endpoint,
-        values.httpHeaders,
-        values.httpBody,
-        values.timeoutMs
-      )
-    } else if (values.type === 'sql_function') {
-      command = `'CALL ${values.schema}.${values.functionName}()'`
-    } else {
-      command = `$$${values.snippet}$$`
-    }
-
+    const command = `$$${values.snippet}$$`
     const query = buildCronQuery(name, schedule, command)
 
     upsertCronJob(
@@ -255,6 +342,9 @@ export const CreateCronJobSheet = ({
         projectRef: project!.ref,
         connectionString: project?.connectionString,
         query,
+        searchTerm: searchQuery,
+        // [Joshen] Only need to invalidate a specific cron job if in the job's previous run tab
+        identifier: !!jobId ? jobId : undefined,
       },
       {
         onSuccess: () => {
@@ -264,34 +354,38 @@ export const CreateCronJobSheet = ({
             toast.success(`Successfully created cron job ${name}`)
           }
 
-          // We should allow sending custom properties with events
-          sendEvent({
-            action: TELEMETRY_EVENTS.CRON_JOBS,
-            value: isEditing
-              ? TELEMETRY_VALUES.CRON_JOB_UPDATED
-              : TELEMETRY_VALUES.CRON_JOB_CREATED,
-            label: isEditing ? 'Cron job was updated' : 'Cron job was created',
-            properties: {
-              cron_job_type: values.type,
-              cron_job_schedule: schedule,
-            },
-          })
+          if (isEditing) {
+            sendEvent({
+              action: 'cron_job_updated',
+              properties: {
+                type: values.type,
+                schedule: schedule,
+              },
+              groups: {
+                project: project?.ref ?? 'Unknown',
+                organization: org?.slug ?? 'Unknown',
+              },
+            })
+          } else {
+            sendEvent({
+              action: 'cron_job_created',
+              properties: {
+                type: values.type,
+                schedule: schedule,
+              },
+              groups: {
+                project: project?.ref ?? 'Unknown',
+                organization: org?.slug ?? 'Unknown',
+              },
+            })
+          }
 
           onClose()
         },
       }
     )
+    setIsLoadingGetCronJob(false)
   }
-
-  const { data } = useDatabaseExtensionsQuery({
-    projectRef: project?.ref,
-    connectionString: project?.connectionString,
-  })
-
-  const pgNetExtension = (data ?? []).find((ext) => ext.name === 'pg_net')
-  const pgNetExtensionInstalled = pgNetExtension?.installed_version != undefined
-
-  const cronType = form.watch('values.type')
 
   return (
     <>
@@ -340,7 +434,7 @@ export const CreateCronJobSheet = ({
                           name="function_type"
                           value={field.value}
                           disabled={field.disabled}
-                          onValueChange={field.onChange}
+                          onValueChange={(value) => field.onChange(value)}
                         >
                           {CRONJOB_DEFINITIONS.map((definition) => (
                             <RadioGroupStackedItem

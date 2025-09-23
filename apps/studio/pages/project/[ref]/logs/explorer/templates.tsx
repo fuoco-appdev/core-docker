@@ -1,17 +1,25 @@
 import { useParams } from 'common'
 import { CodeIcon } from 'lucide-react'
 import { useState } from 'react'
-import { Button, Popover, cn } from 'ui'
 
 import { TEMPLATES } from 'components/interfaces/Settings/Logs/Logs.constants'
 import type { LogTemplate } from 'components/interfaces/Settings/Logs/Logs.types'
+import DefaultLayout from 'components/layouts/DefaultLayout'
 import LogsLayout from 'components/layouts/LogsLayout/LogsLayout'
 import CardButton from 'components/ui/CardButton'
 import LogsExplorerHeader from 'components/ui/Logs/LogsExplorerHeader'
+import { UnknownInterface } from 'components/ui/UnknownInterface'
+import { useIsFeatureEnabled } from 'hooks/misc/useIsFeatureEnabled'
 import type { NextPageWithLayout } from 'types'
+import { Button, Popover, cn } from 'ui'
 
 export const LogsTemplatesPage: NextPageWithLayout = () => {
   const { ref: projectRef } = useParams()
+  const isTemplatesEnabled = useIsFeatureEnabled('logs:templates')
+
+  if (!isTemplatesEnabled) {
+    return <UnknownInterface urlBack={`/project/${projectRef}/logs/explorer`} />
+  }
 
   return (
     <div className="mx-auto h-full w-full px-5 py-6">
@@ -27,7 +35,11 @@ export const LogsTemplatesPage: NextPageWithLayout = () => {
   )
 }
 
-LogsTemplatesPage.getLayout = (page) => <LogsLayout>{page}</LogsLayout>
+LogsTemplatesPage.getLayout = (page) => (
+  <DefaultLayout>
+    <LogsLayout>{page}</LogsLayout>
+  </DefaultLayout>
+)
 
 export default LogsTemplatesPage
 

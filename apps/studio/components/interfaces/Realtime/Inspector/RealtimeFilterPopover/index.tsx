@@ -2,7 +2,9 @@ import { PlusCircle } from 'lucide-react'
 import Link from 'next/link'
 import { Dispatch, SetStateAction, useState } from 'react'
 
+import { useParams } from 'common'
 import { useSendEventMutation } from 'data/telemetry/send-event-mutation'
+import { useSelectedOrganizationQuery } from 'hooks/misc/useSelectedOrganization'
 import {
   Badge,
   Button,
@@ -31,6 +33,8 @@ export const RealtimeFilterPopover = ({ config, onChangeConfig }: RealtimeFilter
   const [applyConfigOpen, setApplyConfigOpen] = useState(false)
   const [tempConfig, setTempConfig] = useState(config)
 
+  const { ref } = useParams()
+  const { data: org } = useSelectedOrganizationQuery()
   const { mutate: sendEvent } = useSendEventMutation()
 
   const onOpen = (v: boolean) => {
@@ -65,7 +69,7 @@ export const RealtimeFilterPopover = ({ config, onChangeConfig }: RealtimeFilter
             )}
           </Button>
         </PopoverTrigger_Shadcn_>
-        <PopoverContent_Shadcn_ className="p-0 w-[365px]" align="start">
+        <PopoverContent_Shadcn_ className="p-0 w-[365px]" align="start" portal={true}>
           <div className="border-b border-overlay text-xs px-4 py-3 text-foreground">
             Listen to event types
           </div>
@@ -201,9 +205,8 @@ export const RealtimeFilterPopover = ({ config, onChangeConfig }: RealtimeFilter
         onCancel={() => setApplyConfigOpen(false)}
         onConfirm={() => {
           sendEvent({
-            category: 'realtime_inspector',
-            action: 'applied_filters',
-            label: 'realtime_inspector_config',
+            action: 'realtime_inspector_filters_applied',
+            groups: { project: ref ?? 'Unknown', organization: org?.slug ?? 'Unknown' },
           })
           onChangeConfig(tempConfig)
           setApplyConfigOpen(false)

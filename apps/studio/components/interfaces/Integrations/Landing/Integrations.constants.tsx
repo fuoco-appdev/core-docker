@@ -56,7 +56,7 @@ const supabaseIntegrations: IntegrationDefinition[] = [
     id: 'queues',
     type: 'postgres_extension' as const,
     requiredExtensions: ['pgmq'],
-    missingExtensionsAlert: <UpgradeDatabaseAlert />,
+    missingExtensionsAlert: <UpgradeDatabaseAlert minimumVersion="15.6.1.143" />,
     name: `Queues`,
     icon: ({ className, ...props } = {}) => (
       <Layers className={cn('inset-0 p-2 text-black w-full h-full', className)} {...props} />
@@ -87,7 +87,7 @@ const supabaseIntegrations: IntegrationDefinition[] = [
     ],
     navigate: (id: string, pageId: string = 'overview', childId: string | undefined) => {
       if (childId) {
-        return dynamic(() => import('../Queues/QueueTab').then((mod) => mod.QueueTab), {
+        return dynamic(() => import('../Queues/QueuePage').then((mod) => mod.QueuePage), {
           loading: Loading,
         })
       }
@@ -121,7 +121,7 @@ const supabaseIntegrations: IntegrationDefinition[] = [
     icon: ({ className, ...props } = {}) => (
       <Clock5 className={cn('inset-0 p-2 text-black w-full h-full', className)} {...props} />
     ),
-    description: 'Schedule recurring Jobs in Postgres.',
+    description: 'Schedule recurring Jobs in Postgres',
     docsUrl: 'https://github.com/citusdata/pg_cron',
     author: {
       name: 'Citus Data',
@@ -143,12 +143,9 @@ const supabaseIntegrations: IntegrationDefinition[] = [
     ],
     navigate: (id: string, pageId: string = 'overview', childId: string | undefined) => {
       if (childId) {
-        return dynamic(
-          () => import('../CronJobs/PreviousRunsTab').then((mod) => mod.PreviousRunsTab),
-          {
-            loading: Loading,
-          }
-        )
+        return dynamic(() => import('../CronJobs/CronJobPage').then((mod) => mod.CronJobPage), {
+          loading: Loading,
+        })
       }
       switch (pageId) {
         case 'overview':
@@ -173,6 +170,7 @@ const supabaseIntegrations: IntegrationDefinition[] = [
     id: 'vault',
     type: 'postgres_extension' as const,
     requiredExtensions: ['supabase_vault'],
+    missingExtensionsAlert: <UpgradeDatabaseAlert />,
     name: `Vault`,
     status: 'alpha',
     icon: ({ className, ...props } = {}) => (
@@ -187,10 +185,6 @@ const supabaseIntegrations: IntegrationDefinition[] = [
         label: 'Overview',
       },
       {
-        route: 'keys',
-        label: 'Keys',
-      },
-      {
         route: 'secrets',
         label: 'Secrets',
       },
@@ -202,16 +196,6 @@ const supabaseIntegrations: IntegrationDefinition[] = [
             () =>
               import('components/interfaces/Integrations/Integration/IntegrationOverviewTab').then(
                 (mod) => mod.IntegrationOverviewTab
-              ),
-            {
-              loading: Loading,
-            }
-          )
-        case 'keys':
-          return dynamic(
-            () =>
-              import('../Vault/Keys/EncryptionKeysManagement').then(
-                (mod) => mod.EncryptionKeysManagement
               ),
             {
               loading: Loading,

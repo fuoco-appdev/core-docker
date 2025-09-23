@@ -113,22 +113,22 @@ const sheetVariants = cva(classes, {
     {
       side: ['right', 'left'],
       size: 'default',
-      class: 'w-1/3',
+      class: 'lg:w-1/3',
     },
     {
       side: ['right', 'left'],
       size: 'sm',
-      class: 'w-1/4',
+      class: 'lg:w-1/4',
     },
     {
       side: ['right', 'left'],
       size: 'lg',
-      class: 'w-1/2',
+      class: 'lg:w-1/2',
     },
     {
       side: ['right', 'left'],
       size: 'xl',
-      class: 'w-4/6',
+      class: 'lg:w-4/6',
     },
     {
       side: ['right', 'left'],
@@ -151,14 +151,15 @@ export interface DialogContentProps
   extends React.ComponentPropsWithoutRef<typeof SheetPrimitive.Content>,
     VariantProps<typeof sheetVariants> {
   showClose?: boolean
+  hasOverlay?: boolean
 }
 
 const SheetContent = React.forwardRef<
   React.ElementRef<typeof SheetPrimitive.Content>,
   DialogContentProps
->(({ side, size, className, children, showClose = true, ...props }, ref) => (
+>(({ side, size, className, children, showClose = true, hasOverlay = true, ...props }, ref) => (
   <SheetPortal side={side}>
-    <SheetOverlay />
+    {hasOverlay && <SheetOverlay />}
     <SheetPrimitive.Content
       ref={ref}
       className={cn(sheetVariants({ side, size }), className)}
@@ -193,7 +194,7 @@ const SheetFooter = ({ className, ...props }: React.HTMLAttributes<HTMLDivElemen
   <div
     className={cn(
       'px-5 py-3 border-t w-full',
-      'flex flex-col-reverse sm:flex-row sm:justify-end sm:space-x-2',
+      'flex flex-col-reverse sm:flex-row sm:justify-end gap-2',
       className
     )}
     {...props}

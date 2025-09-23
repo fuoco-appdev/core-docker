@@ -2,6 +2,7 @@ import { useParams } from 'common'
 import { useState } from 'react'
 
 import { useSendEventMutation } from 'data/telemetry/send-event-mutation'
+import { useSelectedOrganizationQuery } from 'hooks/misc/useSelectedOrganization'
 import { Header } from './Header'
 import MessagesTable from './MessagesTable'
 import { SendMessageModal } from './SendMessageModal'
@@ -12,8 +13,9 @@ import { RealtimeConfig, useRealtimeMessages } from './useRealtimeMessages'
  */
 export const RealtimeInspector = () => {
   const { ref } = useParams()
-  const [sendMessageShown, setSendMessageShown] = useState(false)
+  const { data: org } = useSelectedOrganizationQuery()
 
+  const [sendMessageShown, setSendMessageShown] = useState(false)
   const [realtimeConfig, setRealtimeConfig] = useState<RealtimeConfig>({
     enabled: false,
     projectRef: ref!,
@@ -51,9 +53,8 @@ export const RealtimeInspector = () => {
         onSelectCancel={() => setSendMessageShown(false)}
         onSelectConfirm={(v) => {
           sendEvent({
-            category: 'realtime_inspector',
-            action: 'send_broadcast_message',
-            label: 'realtime_inspector_results',
+            action: 'realtime_inspector_broadcast_sent',
+            groups: { project: ref ?? 'Unknown', organization: org?.slug ?? 'Unknown' },
           })
           sendMessage(v.message, v.payload, () => setSendMessageShown(false))
         }}
