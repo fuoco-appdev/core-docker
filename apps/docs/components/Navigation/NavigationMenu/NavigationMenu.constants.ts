@@ -1,4 +1,5 @@
 import type { ComponentProps } from 'react'
+// End of third-party imports
 
 import { isFeatureEnabled } from 'common/enabled-features'
 import type { IconPanel } from 'ui-patterns/IconPanel'
@@ -7,15 +8,21 @@ import type { GlobalMenuItems, NavMenuConstant, NavMenuSection } from '../Naviga
 const {
   authenticationShowProviders: allAuthProvidersEnabled,
   billingAll: billingEnabled,
-  docsAuth: authEnabled,
+  docsAuthArchitecture: authArchitectureEnabled,
+  docsAuthConfiguration: authConfigurationEnabled,
+  docsAuthFlows: authFlowsEnabled,
+  docsAuthFullSecurity: authFullSecurityEnabled,
+  docsAuthTroubleshooting: authTroubleshootingEnabled,
   docsCompliance: complianceEnabled,
   docsContribution: contributionEnabled,
-  'docsSelf-hosting': selfHostingEnabled,
+  docsFdw: fdwEnabled,
   docsFrameworkQuickstarts: frameworkQuickstartsEnabled,
   docsFullPlatform: fullPlatformEnabled,
+  docsLocalDevelopment: localDevelopmentEnabled,
   docsMobileTutorials: mobileTutorialsEnabled,
   docsPgtap: pgTapEnabled,
   docsProductionChecklist: productionChecklistEnabled,
+  'docsSelf-hosting': selfHostingEnabled,
   docsWebApps: webAppsEnabled,
   integrationsPartners: integrationsEnabled,
   sdkCsharp: sdkCsharpEnabled,
@@ -26,15 +33,21 @@ const {
 } = isFeatureEnabled([
   'authentication:show_providers',
   'billing:all',
-  'docs:auth',
-  'docs:contribution',
+  'docs:auth_architecture',
+  'docs:auth_configuration',
+  'docs:auth_flows',
+  'docs:auth_full_security',
+  'docs:auth_troubleshooting',
   'docs:compliance',
-  'docs:self-hosting',
+  'docs:contribution',
+  'docs:fdw',
   'docs:framework_quickstarts',
   'docs:full_platform',
+  'docs:local_development',
   'docs:mobile_tutorials',
   'docs:pgtap',
   'docs:production_checklist',
+  'docs:self-hosting',
   'docs:web_apps',
   'integrations:partners',
   'sdk:csharp',
@@ -54,6 +67,7 @@ export const GLOBAL_MENU_ITEMS: GlobalMenuItems = [
       icon: 'getting-started',
       href: '/guides/getting-started',
       level: 'gettingstarted',
+      enabled: frameworkQuickstartsEnabled,
     },
   ],
   [
@@ -72,7 +86,6 @@ export const GLOBAL_MENU_ITEMS: GlobalMenuItems = [
             icon: 'auth',
             href: '/guides/auth' as `/${string}`,
             level: 'auth',
-            enabled: authEnabled,
           },
           {
             label: 'Storage',
@@ -127,6 +140,7 @@ export const GLOBAL_MENU_ITEMS: GlobalMenuItems = [
             icon: 'dev-cli',
             href: '/guides/local-development' as `/${string}`,
             level: 'local_development',
+            enabled: localDevelopmentEnabled,
           },
           {
             label: 'Deployment',
@@ -250,6 +264,12 @@ export const GLOBAL_MENU_ITEMS: GlobalMenuItems = [
             icon: 'reference-api',
             href: '/reference/api/introduction' as `/${string}`,
             level: 'reference_javascript',
+          },
+          {
+            label: 'UI Library',
+            icon: 'ui',
+            href: 'https://supabase.com/ui' as `/${string}`,
+            level: 'ui',
           },
         ],
         [
@@ -638,7 +658,6 @@ export const PhoneLoginsItems = [
 export const auth: NavMenuConstant = {
   icon: 'auth',
   title: 'Auth',
-  enabled: authEnabled,
   items: [
     {
       name: 'Overview',
@@ -647,9 +666,11 @@ export const auth: NavMenuConstant = {
     {
       name: 'Architecture',
       url: '/guides/auth/architecture',
+      enabled: authArchitectureEnabled,
     },
     {
       name: 'Getting Started',
+      enabled: frameworkQuickstartsEnabled,
       items: [
         {
           name: 'Next.js',
@@ -684,6 +705,7 @@ export const auth: NavMenuConstant = {
     },
     {
       name: 'Flows (How-tos)',
+      enabled: authFlowsEnabled,
       items: [
         {
           name: 'Server-Side Rendering',
@@ -773,7 +795,11 @@ export const auth: NavMenuConstant = {
       name: 'Debugging',
       items: [
         { name: 'Error Codes', url: '/guides/auth/debugging/error-codes' },
-        { name: 'Troubleshooting', url: '/guides/auth/troubleshooting' },
+        {
+          name: 'Troubleshooting',
+          url: '/guides/auth/troubleshooting',
+          enabled: authTroubleshootingEnabled,
+        },
       ],
     },
     {
@@ -790,6 +816,7 @@ export const auth: NavMenuConstant = {
     },
     {
       name: 'Configuration',
+      enabled: authConfigurationEnabled,
       items: [
         {
           name: 'General Configuration',
@@ -837,16 +864,29 @@ export const auth: NavMenuConstant = {
     {
       name: 'Security',
       items: [
-        { name: 'Password Security', url: '/guides/auth/password-security' },
-        { name: 'Rate Limits', url: '/guides/auth/rate-limits' },
-        { name: 'Bot Detection (CAPTCHA)', url: '/guides/auth/auth-captcha' },
-        { name: 'Audit Logs', url: '/guides/auth/audit-logs' },
+        {
+          name: 'Password Security',
+          url: '/guides/auth/password-security',
+          enabled: authFullSecurityEnabled,
+        },
+        { name: 'Rate Limits', url: '/guides/auth/rate-limits', enabled: authFullSecurityEnabled },
+        {
+          name: 'Bot Detection (CAPTCHA)',
+          url: '/guides/auth/auth-captcha',
+          enabled: authFullSecurityEnabled,
+        },
+        { name: 'Audit Logs', url: '/guides/auth/audit-logs', enabled: authFullSecurityEnabled },
         {
           name: 'JSON Web Tokens (JWT)',
           url: '/guides/auth/jwts',
+          enabled: authFullSecurityEnabled,
           items: [{ name: 'Claims Reference', url: '/guides/auth/jwt-fields' }],
         },
-        { name: 'JWT Signing Keys', url: '/guides/auth/signing-keys' },
+        {
+          name: 'JWT Signing Keys',
+          url: '/guides/auth/signing-keys',
+          enabled: authFullSecurityEnabled,
+        },
         { name: 'Row Level Security', url: '/guides/database/postgres/row-level-security' },
         {
           name: 'Column Level Security',
@@ -1224,6 +1264,7 @@ export const database: NavMenuConstant = {
     {
       name: 'Foreign Data Wrappers',
       url: undefined,
+      enabled: fdwEnabled,
       items: [
         {
           name: 'Overview',
@@ -1350,7 +1391,13 @@ export const queues: NavMenuConstant = {
     {
       name: 'Getting Started',
       url: undefined,
-      items: [{ name: 'Quickstart', url: '/guides/queues/quickstart' }],
+      items: [
+        { name: 'Quickstart', url: '/guides/queues/quickstart' },
+        {
+          name: 'Consuming Messages with Edge Functions',
+          url: '/guides/queues/consuming-messages-with-edge-functions',
+        },
+      ],
     },
     {
       name: 'References',
@@ -2097,6 +2144,7 @@ export const ai: NavMenuConstant = {
 export const local_development: NavMenuConstant = {
   icon: 'dev-cli',
   title: 'Local Dev / CLI',
+  enabled: localDevelopmentEnabled,
   url: '/guides/local-development',
   items: [
     { name: 'Overview', url: '/guides/local-development' },
@@ -2409,8 +2457,6 @@ export const platform: NavMenuConstant = {
           name: 'Manage your usage',
           url: '/guides/platform/manage-your-usage' as `/${string}`,
           items: [
-            { name: 'Usage limits', url: '/guides/platform/usage-limits' as `/${string}` },
-            { name: 'Overages', url: '/guides/platform/overages' as `/${string}` },
             {
               name: 'Compute',
               url: '/guides/platform/manage-your-usage/compute' as `/${string}`,
@@ -2504,6 +2550,32 @@ export const platform: NavMenuConstant = {
         {
           name: 'Credits',
           url: '/guides/platform/credits' as `/${string}`,
+        },
+        {
+          name: 'AWS Marketplace',
+          url: '/guides/platform/aws-marketplace',
+          items: [
+            {
+              name: 'Getting Started',
+              url: '/guides/platform/aws-marketplace/getting-started',
+            },
+            {
+              name: 'Account Setup',
+              url: '/guides/platform/aws-marketplace/account-setup',
+            },
+            {
+              name: 'Manage your subscription',
+              url: '/guides/platform/aws-marketplace/manage-your-subscription',
+            },
+            {
+              name: 'Invoices',
+              url: '/guides/platform/aws-marketplace/invoices',
+            },
+            {
+              name: 'FAQ',
+              url: '/guides/platform/aws-marketplace/faq',
+            },
+          ],
         },
         {
           name: 'Billing FAQ',

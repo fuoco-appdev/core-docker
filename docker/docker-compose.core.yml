@@ -7,7 +7,7 @@
 services:
   studio:
     container_name: supabase-studio
-    image: supabase/studio:2025.06.30-sha-6f5982d
+    image: supabase/studio:2025.10.27-sha-85b84e0
     restart: unless-stopped
     healthcheck:
       test:
@@ -28,8 +28,10 @@ services:
       analytics:
         condition: service_healthy
     environment:
+      HOSTNAME: "::"
       STUDIO_PG_META_URL: http://meta:8080
       POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
+      PG_META_CRYPTO_KEY: ${PG_META_CRYPTO_KEY}
       DEFAULT_ORGANIZATION_NAME: ${STUDIO_DEFAULT_ORGANIZATION}
       DEFAULT_PROJECT_NAME: ${STUDIO_DEFAULT_PROJECT}
       DASHBOARD_USERNAME: ${STUDIO_DASHBOARD_USERNAME}
@@ -64,7 +66,7 @@ services:
       KONG_DECLARATIVE_CONFIG: /home/kong/kong.yml
       # https://github.com/supabase/cli/issues/14
       KONG_DNS_ORDER: LAST,A,CNAME
-      KONG_PLUGINS: request-transformer,cors,key-auth,acl,basic-auth
+      KONG_PLUGINS: request-transformer,cors,key-auth,acl,basic-auth,request-termination,ip-restriction
       KONG_NGINX_PROXY_PROXY_BUFFER_SIZE: 160k
       KONG_NGINX_PROXY_PROXY_BUFFERS: 64 160k
       SUPABASE_ANON_KEY: ${ANON_KEY}
@@ -73,11 +75,11 @@ services:
       DASHBOARD_PASSWORD: ${DASHBOARD_PASSWORD}
     volumes:
       # https://github.com/supabase/supabase/issues/12661
-      - ./volumes/api/kong.yml:/home/kong/temp.yml:ro
+      - ./volumes/api/kong.yml:/home/kong/temp.yml:ro,z
 
   auth:
     container_name: supabase-auth
-    image: supabase/gotrue:v2.177.0
+    image: supabase/gotrue:v2.180.0
     depends_on:
       db:
         condition: service_healthy
@@ -258,7 +260,7 @@ services:
 
   rest:
     container_name: supabase-rest
-    image: postgrest/postgrest:v12.2.12
+    image: postgrest/postgrest:v13.0.7
     depends_on:
       db:
         condition: service_healthy
@@ -280,7 +282,7 @@ services:
   realtime:
     # This container name looks inconsistent but is correct because realtime constructs tenant id by parsing the subdomain
     container_name: realtime-dev.supabase-realtime
-    image: supabase/realtime:v2.34.47
+    image: supabase/realtime:v2.57.2
     depends_on:
       db:
         condition: service_healthy
@@ -313,7 +315,7 @@ services:
 
   meta:
     container_name: supabase-meta
-    image: supabase/postgres-meta:v0.91.0
+    image: supabase/postgres-meta:v0.93.1
     depends_on:
       db:
         # Disable this if you are using an external Postgres database
@@ -328,6 +330,7 @@ services:
       PG_META_DB_NAME: ${POSTGRES_DB}
       PG_META_DB_USER: supabase_admin
       PG_META_DB_PASSWORD: ${POSTGRES_PASSWORD}
+      CRYPTO_KEY: ${PG_META_CRYPTO_KEY}
 
   # functions:
   #   container_name: supabase-edge-functions
@@ -353,10 +356,7 @@ services:
 
   analytics:
     container_name: supabase-analytics
-    image: supabase/logflare:1.15.4
-    build:
-      context: ../logflare
-      dockerfile: Dockerfile
+    image: supabase/logflare:1.22.6
     healthcheck:
       test: [ "CMD", "curl", "http://localhost:4000/health" ]
       timeout: 5s
@@ -399,7 +399,7 @@ services:
       - 4000:4000
 
   db-setup:
-    image: supabase/postgres:15.8.1.060
+    image: supabase/postgres:15.8.1.085
     depends_on:
       - db
     entrypoint: [ "bash", "-c", "chmod 600 /var/lib/ssl/server.key && chown postgres:postgres /var/lib/ssl/server.key" ]
@@ -410,7 +410,7 @@ services:
   # Comment out everything below this point if you are using an external Postgres database
   db:
     container_name: supabase-db
-    image: supabase/postgres:15.8.1.060
+    image: supabase/postgres:15.8.1.085
     healthcheck:
       test: pg_isready -U postgres -h localhost
       interval: 5s
@@ -489,7 +489,7 @@ services:
 
   storage:
     container_name: supabase-storage
-    image: supabase/storage-api:v1.25.7
+    image: supabase/storage-api:v1.28.2
     depends_on:
       db:
         # Disable this if you are using an external Postgres database
@@ -558,7 +558,7 @@ services:
   # Update the DATABASE_URL if you are using an external Postgres database
   supavisor:
     container_name: supabase-pooler
-    image: supabase/supavisor:2.5.7
+    image: supabase/supavisor:2.7.3
     healthcheck:
       test: [
           "CMD",
@@ -592,7 +592,7 @@ services:
       - DATABASE_URL=ecto://supabase_admin:${POSTGRES_PASSWORD}@db:${POSTGRES_PORT}/_supabase
       - CLUSTER_POSTGRES=true
       - SECRET_KEY_BASE=${SECRET_KEY_BASE}
-      - VAULT_ENC_KEY=your-encryption-key-32-chars-min
+      - VAULT_ENC_KEY=${VAULT_ENC_KEY}
       - API_JWT_SECRET=${API_JWT_SECRET}
       - METRICS_JWT_SECRET=${METRICS_JWT_SECRET}
       - REGION=local
