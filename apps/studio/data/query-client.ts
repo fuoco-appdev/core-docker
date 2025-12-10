@@ -18,6 +18,8 @@ const SKIP_RETRY_PATHNAME_MATCHERS = [
   '/v1/projects/:ref/analytics/endpoints/logs.all',
 ].map((pathname) => match(pathname))
 
+export const MAX_RETRY_FAILURE_COUNT = 3
+
 let queryClient: QueryClient | undefined
 
 export function getQueryClient() {
@@ -40,15 +42,22 @@ export function getQueryClient() {
               return false
             }
 
+            // Skip retries for specific pathnames to avoid unnecessary load
+            // CRITICAL: We must still retry 429 (rate limit) errors even on these pathnames.
+            // Without this exception, queries fail immediately on rate limits, causing the
+            // frontend to issue fresh requests (via refetch/user actions), which amplifies
+            // the rate limiting problem. By retrying 429s with proper backoff (using the
+            // retryAfter header below), we respect rate limits and prevent request storms.
             if (
               error instanceof ResponseError &&
               error.requestPathname &&
-              SKIP_RETRY_PATHNAME_MATCHERS.some((matchFn) => matchFn(error.requestPathname!))
+              SKIP_RETRY_PATHNAME_MATCHERS.some((matchFn) => matchFn(error.requestPathname!)) &&
+              error.code !== 429
             ) {
               return false
             }
 
-            if (failureCount < 3) {
+            if (failureCount < MAX_RETRY_FAILURE_COUNT) {
               return true
             }
 

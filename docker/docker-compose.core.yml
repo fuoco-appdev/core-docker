@@ -7,7 +7,7 @@
 services:
   studio:
     container_name: supabase-studio
-    image: supabase/studio:2025.10.27-sha-85b84e0
+    image: supabase/studio:2025.11.26-sha-8f096b5
     restart: unless-stopped
     healthcheck:
       test:
@@ -30,6 +30,9 @@ services:
     environment:
       HOSTNAME: "::"
       STUDIO_PG_META_URL: http://meta:8080
+      POSTGRES_PORT: ${POSTGRES_PORT}
+      POSTGRES_HOST: ${POSTGRES_HOST}
+      POSTGRES_DB: ${POSTGRES_DB}
       POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
       PG_META_CRYPTO_KEY: ${PG_META_CRYPTO_KEY}
       DEFAULT_ORGANIZATION_NAME: ${STUDIO_DEFAULT_ORGANIZATION}
@@ -305,13 +308,14 @@ services:
       DB_NAME: ${POSTGRES_DB}
       DB_AFTER_CONNECT_QUERY: 'SET search_path TO _realtime'
       DB_ENC_KEY: supabaserealtime
-      API_JWT_SECRET: ${API_JWT_SECRET}
-      SECRET_KEY_BASE: UpNVntn3cDxHJpq99YMc1T1AQgQpc8kfYTuRgBiYa15BLrx8etQoXz3gZv1/u2oq
+      API_JWT_SECRET: ${JWT_SECRET}
+      SECRET_KEY_BASE: ${SECRET_KEY_BASE}
       ERL_AFLAGS: -proto_dist inet_tcp
       DNS_NODES: "''"
       RLIMIT_NOFILE: "10000"
       APP_NAME: realtime
       SEED_SELF_HOST: true
+      RUN_JANITOR: "true"
 
   meta:
     container_name: supabase-meta
@@ -356,7 +360,7 @@ services:
 
   analytics:
     container_name: supabase-analytics
-    image: supabase/logflare:1.22.6
+    image: supabase/logflare:1.26.13
     healthcheck:
       test: [ "CMD", "curl", "http://localhost:4000/health" ]
       timeout: 5s
@@ -489,7 +493,7 @@ services:
 
   storage:
     container_name: supabase-storage
-    image: supabase/storage-api:v1.28.2
+    image: supabase/storage-api:v1.32.0
     depends_on:
       db:
         # Disable this if you are using an external Postgres database
@@ -500,13 +504,13 @@ services:
         condition: service_started
     healthcheck:
       test: [
-          "CMD",
-          "wget",
-          "--no-verbose",
-          "--tries=1",
-          "--spider",
-          "http://storage:5000/status"
-        ]
+        "CMD",
+        "wget",
+        "--no-verbose",
+        "--tries=1",
+        "--spider",
+        "http://storage:5000/status"
+          ]
       timeout: 5s
       interval: 5s
       retries: 3
@@ -558,17 +562,17 @@ services:
   # Update the DATABASE_URL if you are using an external Postgres database
   supavisor:
     container_name: supabase-pooler
-    image: supabase/supavisor:2.7.3
+    image: supabase/supavisor:2.7.4
     healthcheck:
       test: [
-          "CMD",
-          "curl",
-          "-sSfL",
-          "--head",
-          "-o",
-          "/dev/null",
-          "http://127.0.0.1:4000/api/health"
-        ]
+        "CMD",
+        "curl",
+        "-sSfL",
+        "--head",
+        "-o",
+        "/dev/null",
+        "http://127.0.0.1:4000/api/health"
+          ]
       interval: 10s
       timeout: 5s
       retries: 5
@@ -578,31 +582,34 @@ services:
       analytics:
         condition: service_healthy
     command:
-      - /bin/sh
-      - -c
-      - /app/bin/migrate && /app/bin/supavisor eval "$$(cat /etc/pooler/pooler.exs)" && /app/bin/server
+      [
+        "/bin/sh",
+        "-c",
+        "/app/bin/migrate && /app/bin/supavisor eval \"$$(cat /etc/pooler/pooler.exs)\" && /app/bin/server"
+      ]
     restart: unless-stopped
     ports:
       - ${POOLER_PROXY_PORT_TRANSACTION}:6543
     environment:
-      - PORT=4000
-      - POSTGRES_PORT=${POSTGRES_PORT}
-      - POSTGRES_DB=${POSTGRES_DB}
-      - POSTGRES_PASSWORD=${POSTGRES_PASSWORD}
-      - DATABASE_URL=ecto://supabase_admin:${POSTGRES_PASSWORD}@db:${POSTGRES_PORT}/_supabase
-      - CLUSTER_POSTGRES=true
-      - SECRET_KEY_BASE=${SECRET_KEY_BASE}
-      - VAULT_ENC_KEY=${VAULT_ENC_KEY}
-      - API_JWT_SECRET=${API_JWT_SECRET}
-      - METRICS_JWT_SECRET=${METRICS_JWT_SECRET}
-      - REGION=local
-      - ERL_AFLAGS=-proto_dist inet_tcp
-      - POOLER_TENANT_ID=${POOLER_TENANT_ID}
-      - POOLER_DEFAULT_POOL_SIZE=${POOLER_DEFAULT_POOL_SIZE}
-      - POOLER_MAX_CLIENT_CONN=${POOLER_MAX_CLIENT_CONN}
-      - POOLER_POOL_MODE=transaction
+      PORT: 4000
+      POSTGRES_PORT: ${POSTGRES_PORT}
+      POSTGRES_DB: ${POSTGRES_DB}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
+      DATABASE_URL: ecto://supabase_admin:${POSTGRES_PASSWORD}@db:${POSTGRES_PORT}/_supabase
+      CLUSTER_POSTGRES: true
+      SECRET_KEY_BASE: ${SECRET_KEY_BASE}
+      VAULT_ENC_KEY: ${VAULT_ENC_KEY}
+      API_JWT_SECRET: ${JWT_SECRET}
+      METRICS_JWT_SECRET: ${JWT_SECRET}
+      REGION: local
+      ERL_AFLAGS: -proto_dist inet_tcp
+      POOLER_TENANT_ID: ${POOLER_TENANT_ID}
+      POOLER_DEFAULT_POOL_SIZE: ${POOLER_DEFAULT_POOL_SIZE}
+      POOLER_MAX_CLIENT_CONN: ${POOLER_MAX_CLIENT_CONN}
+      POOLER_POOL_MODE: transaction
+      DB_POOL_SIZE: ${POOLER_DB_POOL_SIZE}
     volumes:
-      - ./volumes/pooler/pooler.exs:/etc/pooler/pooler.exs:ro
+      - ./volumes/pooler/pooler.exs:/etc/pooler/pooler.exs:ro,z
 
 volumes:
   db-config:
