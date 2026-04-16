@@ -58,7 +58,12 @@ spec:
                 secretKeyRef:
                   name: env-secrets
                   key: POSTGRES_PASSWORD
-          image: supabase/postgres-meta:v0.89.3
+            - name: CRYPTO_KEY
+              valueFrom:
+                secretKeyRef:
+                  name: env-secrets
+                  key: PG_META_CRYPTO_KEY
+          image: supabase/postgres-meta:v0.93.1
           ports:
             - containerPort: 8080
           name: supabase-meta

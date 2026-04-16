@@ -24,6 +24,8 @@ spec:
     spec:
       containers:
         - env:
+            - name: HOSTNAME
+              value: "::"
             - name: LOGFLARE_URL
               value: http://analytics:4000
             - name: NEXT_ANALYTICS_BACKEND_PROVIDER
@@ -33,7 +35,50 @@ spec:
             - name: STUDIO_PG_META_URL
               value: http://meta:8080
             - name: SUPABASE_URL
-              value: http://kong:8000
+              valueFrom:
+                secretKeyRef:
+                  name: env-secrets
+                  key: SUPABASE_URL
+            - name: OPENAI_API_KEY
+              valueFrom:
+                secretKeyRef:
+                  name: env-secrets
+                  key: OPENAI_API_KEY
+            - name: SUPABASE_PUBLIC_URL
+              valueFrom:
+                secretKeyRef:
+                  name: env-secrets
+                  key: SUPABASE_PUBLIC_URL
+            - name: SUPABASE_ANON_KEY
+              valueFrom:
+                secretKeyRef:
+                  name: env-secrets
+                  key: ANON_KEY
+            - name: SUPABASE_SERVICE_KEY
+              valueFrom:
+                secretKeyRef:
+                  name: env-secrets
+                  key: SERVICE_ROLE_KEY
+            - name: POSTGRES_PORT
+              valueFrom:
+                secretKeyRef:
+                  name: env-secrets
+                  key: POSTGRES_PORT
+            - name: POSTGRES_HOST
+              valueFrom:
+                secretKeyRef:
+                  name: env-secrets
+                  key: POSTGRES_HOST
+            - name: POSTGRES_DB
+              valueFrom:
+                secretKeyRef:
+                  name: env-secrets
+                  key: POSTGRES_DB
+            - name: PG_META_CRYPTO_KEY
+              valueFrom:
+                secretKeyRef:
+                  name: env-secrets
+                  key: PG_META_CRYPTO_KEY
             - name: POSTGRES_PASSWORD
               valueFrom:
                 secretKeyRef:
@@ -59,26 +104,6 @@ spec:
                 secretKeyRef:
                   name: env-secrets
                   key: STUDIO_DASHBOARD_PASSWORD
-            - name: OPENAI_API_KEY
-              valueFrom:
-                secretKeyRef:
-                  name: env-secrets
-                  key: OPENAI_API_KEY
-            - name: SUPABASE_PUBLIC_URL
-              valueFrom:
-                secretKeyRef:
-                  name: env-secrets
-                  key: SUPABASE_PUBLIC_URL
-            - name: SUPABASE_ANON_KEY
-              valueFrom:
-                secretKeyRef:
-                  name: env-secrets
-                  key: ANON_KEY
-            - name: SUPABASE_SERVICE_KEY
-              valueFrom:
-                secretKeyRef:
-                  name: env-secrets
-                  key: SERVICE_ROLE_KEY
             - name: AUTH_JWT_SECRET
               valueFrom:
                 secretKeyRef:
@@ -89,7 +114,7 @@ spec:
                 secretKeyRef:
                   name: env-secrets
                   key: LOGFLARE_PRIVATE_ACCESS_TOKEN
-          image: supabase/studio:2025.06.02-sha-8f2993d
+          image: supabase/studio:2025.11.26-sha-8f096b5
           livenessProbe:
             exec:
               command:

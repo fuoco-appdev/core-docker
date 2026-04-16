@@ -24,7 +24,7 @@ spec:
     spec:
       initContainers:
         - name: init-analytics
-          image: supabase/logflare:1.15.4
+          image: supabase/logflare:1.26.13
           imagePullPolicy: Always
           command:
             - sh 
@@ -96,7 +96,7 @@ spec:
                 secretKeyRef:
                   name: env-secrets
                   key: ANALYTICS_POSTGRES_BACKEND_URL
-          image: supabase/logflare:1.15.4
+          image: supabase/logflare:1.26.13
           livenessProbe:
             exec:
               command:

@@ -24,7 +24,7 @@ spec:
     spec:
       initContainers:
       - name: init-supavisor
-        image: supabase/supavisor:2.5.1
+        image: supabase/supavisor:2.7.4
         command:
           - /bin/sh
           - -c
@@ -56,10 +56,21 @@ spec:
               value: "4000"
             - name: REGION
               value: local
-            - name: SECRET_KEY_BASE
-              value: UpNVntn3cDxHJpq99YMc1T1AQgQpc8kfYTuRgBiYa15BLrx8etQoXz3gZv1/u2oq
+            - name: DB_POOL_SIZE
+              valueFrom:
+                secretKeyRef:
+                  name: env-secrets
+                  key: POOLER_DB_POOL_SIZE
             - name: VAULT_ENC_KEY
-              value: your-encryption-key-32-chars-min
+              valueFrom:
+                secretKeyRef:
+                  name: env-secrets
+                  key: VAULT_ENC_KEY
+            - name: SECRET_KEY_BASE
+              valueFrom:
+                secretKeyRef:
+                  name: env-secrets
+                  key: SECRET_KEY_BASE
             - name: POSTGRES_PORT
               valueFrom:
                 secretKeyRef:
@@ -105,7 +116,7 @@ spec:
                 secretKeyRef:
                   name: env-secrets
                   key: POOLER_MAX_CLIENT_CONN
-          image: supabase/supavisor:2.5.1
+          image: supabase/supavisor:2.7.4
           livenessProbe:
             exec:
               command:

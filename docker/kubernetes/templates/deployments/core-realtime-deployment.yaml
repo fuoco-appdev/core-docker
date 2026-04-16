@@ -44,9 +44,9 @@ spec:
               value: "4000"
             - name: RLIMIT_NOFILE
               value: "10000"
-            - name: SECRET_KEY_BASE
-              value: UpNVntn3cDxHJpq99YMc1T1AQgQpc8kfYTuRgBiYa15BLrx8etQoXz3gZv1/u2oq
             - name: SEED_SELF_HOST
+              value: "true"
+            - name: RUN_JANITOR
               value: "true"
             - name: DB_HOST
               valueFrom:
@@ -78,7 +78,12 @@ spec:
                 secretKeyRef:
                   name: env-secrets
                   key: ANON_KEY
-          image: supabase/realtime:v2.34.47
+            - name: SECRET_KEY_BASE
+              valueFrom:
+                secretKeyRef:
+                  name: env-secrets
+                  key: SECRET_KEY_BASE
+          image: supabase/realtime:v2.57.2
           livenessProbe:
             exec:
               command:

@@ -72,16 +72,6 @@ spec:
               secretKeyRef:
                 name: env-secrets
                 key: MEDUSA_BACKEND_URL
-          - name: MEILISEARCH_API_KEY
-            valueFrom:
-              secretKeyRef:
-                name: env-secrets
-                key: MEILI_MASTER_KEY
-          - name: MEILISEARCH_HOST
-            valueFrom:
-              secretKeyRef:
-                name: env-secrets
-                key: MEILI_HOST
           - name: MEILI_PRODUCTS_DISPLAYED_ATTRIBUTES
             valueFrom:
               secretKeyRef:
@@ -222,6 +212,46 @@ spec:
               secretKeyRef:
                 name: env-secrets
                 key: SENDGRID_USER_PASSWORD_RESET_ID
+          - name: RESEND_API_KEY
+            valueFrom:
+              secretKeyRef:
+                name: env-secrets
+                key: RESEND_API_KEY
+          - name: RESEND_FROM
+            valueFrom:
+              secretKeyRef:
+                name: env-secrets
+                key: RESEND_FROM
+          - name: ORDER_CANCELED_TEMPLATE_URL_EN
+            valueFrom:
+              secretKeyRef:
+                name: env-secrets
+                key: ORDER_CANCELED_TEMPLATE_URL_EN
+          - name: ORDER_COMPLETED_TEMPLATE_URL_EN
+            valueFrom:
+              secretKeyRef:
+                name: env-secrets
+                key: ORDER_COMPLETED_TEMPLATE_URL_EN
+          - name: ORDER_PLACED_TEMPLATE_URL_EN
+            valueFrom:
+              secretKeyRef:
+                name: env-secrets
+                key: ORDER_PLACED_TEMPLATE_URL_EN
+          - name: ORDER_RETURN_RECEIVED_TEMPLATE_URL_EN
+            valueFrom:
+              secretKeyRef:
+                name: env-secrets
+                key: ORDER_RETURN_RECEIVED_TEMPLATE_URL_EN
+          - name: ORDER_RETURN_REQUESTED_TEMPLATE_URL_EN
+            valueFrom:
+              secretKeyRef:
+                name: env-secrets
+                key: ORDER_RETURN_REQUESTED_TEMPLATE_URL_EN
+          - name: ORDER_SHIPPED_TEMPLATE_URL_EN
+            valueFrom:
+              secretKeyRef:
+                name: env-secrets
+                key: ORDER_SHIPPED_TEMPLATE_URL_EN
           - name: SPACE_ACCESS_KEY_ID
             valueFrom:
               secretKeyRef:

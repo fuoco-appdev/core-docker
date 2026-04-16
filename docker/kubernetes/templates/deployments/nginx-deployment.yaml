@@ -8,11 +8,11 @@ spec:
     type: Recreate
   selector:
     matchLabels:
-      service: nginx
+      service: nginx-core
   template:
     metadata:
       labels:
-        service: nginx
+        service: nginx-core
     spec:
       initContainers:
       - name: init-nginx
