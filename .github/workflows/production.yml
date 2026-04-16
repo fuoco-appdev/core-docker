@@ -7,8 +7,10 @@
 #   Variables (recommended; not sensitive):
 #     DIGITALOCEAN_KUBERNETES_CLUSTER_NAME — Cluster name as shown in the DO control panel (or use workflow input).
 #
-# The apply scripts expect nginx basic auth and TLS material under docker/volumes/ (see docker/.gitignore).
-# Provide those files in the repo for this job, or extend this workflow to unpack them from an artifact/secret.
+# Optional secret when volumes/ssl/root.pass is missing (kubectl_apply.sh sources setup_ssl.sh):
+#   PRODUCTION_SSL_ROOT_KEY_PASS — sets SSL_ROOT_KEY_PASS for non-interactive setup_ssl.sh in CI.
+#
+# The apply scripts also expect nginx basic auth under docker/volumes/nginx/ (see docker/.gitignore).
 name: Production
 
 on:
@@ -93,7 +95,12 @@ jobs:
         working-directory: docker
         env:
           KUBECONFIG_FILE: ${{ env.KUBECONFIG_FILE }}
+          SSL_ROOT_KEY_PASS: ${{ secrets.PRODUCTION_SSL_ROOT_KEY_PASS }}
         run: |
+          if [[ ! -f ./volumes/ssl/root.pass && -z "${SSL_ROOT_KEY_PASS:-}" ]]; then
+            echo "Missing docker/volumes/ssl/root.pass. Add it to the repo or set PRODUCTION_SSL_ROOT_KEY_PASS (kubectl_apply.sh runs setup_ssl.sh)."
+            exit 1
+          fi
           set -a
           source "${GITHUB_WORKSPACE}/.env"
           set +a

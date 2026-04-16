@@ -6,11 +6,21 @@ INTERMEDIATE_KEY="./volumes/ssl/intermediate.key"
 CHAIN="./volumes/ssl/chain.crt"
 PASS="./volumes/ssl/root.pass"
 
+# Non-interactive (e.g. GitHub Actions): set SSL_ROOT_KEY_PASS; optional SSL_CERT_ROOT_SUBJ / SSL_CERT_INTERMEDIATE_SUBJ.
+SSL_CERT_ROOT_SUBJ="${SSL_CERT_ROOT_SUBJ:-/O=Self-signed/CN=docker-stack-root}"
+SSL_CERT_INTERMEDIATE_SUBJ="${SSL_CERT_INTERMEDIATE_SUBJ:-/O=Self-signed/CN=docker-stack-intermediate}"
+
+mkdir -p "$(dirname "$PASS")"
+
 if ! [ -e "$PASS" ]; then
-    echo "Please enter the password for your SSL key:"
-    read -s SSL_PASSWORD
-    echo
-    echo "$SSL_PASSWORD" > "$PASS"
+    if [ -n "${SSL_ROOT_KEY_PASS:-}" ]; then
+        printf '%s\n' "$SSL_ROOT_KEY_PASS" > "$PASS"
+    else
+        echo "Please enter the password for your SSL key:"
+        read -s SSL_PASSWORD
+        echo
+        echo "$SSL_PASSWORD" > "$PASS"
+    fi
 fi
 
 if ! [ -e "$ROOT_KEY" ]; then
@@ -19,7 +29,7 @@ if ! [ -e "$ROOT_KEY" ]; then
 fi
 
 if ! [ -e "$ROOT_CERTIFICATE" ]; then
-    openssl req -x509 -new -key $ROOT_KEY -days 3650 -out $ROOT_CERTIFICATE
+    openssl req -x509 -new -key $ROOT_KEY -days 3650 -out $ROOT_CERTIFICATE -subj "$SSL_CERT_ROOT_SUBJ"
     dos2unix $ROOT_CERTIFICATE
 fi
 
@@ -30,7 +40,7 @@ fi
 
 if ! [ -e "$INTERMEDIATE_CERTIFICATE_REQUEST" ]; then
     echo "Create ssl key"
-    openssl req -new -key $INTERMEDIATE_KEY -out $INTERMEDIATE_CERTIFICATE_REQUEST
+    openssl req -new -key $INTERMEDIATE_KEY -out $INTERMEDIATE_CERTIFICATE_REQUEST -subj "$SSL_CERT_INTERMEDIATE_SUBJ"
     dos2unix $INTERMEDIATE_CERTIFICATE_REQUEST
 fi
 
