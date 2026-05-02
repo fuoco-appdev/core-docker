@@ -72,16 +72,16 @@ spec:
           env:
             - name: POSTGRES_HOST
               value: /var/run/postgresql
-            - name: PGPORT
-              valueFrom:
-                secretKeyRef:
-                  name: env-secrets
-                  key: POSTGRES_PORT
+            - name: PGDATABASE
+              value: postgres
+            - name: POSTGRES_DB
+              value: postgres
             - name: POSTGRES_PORT
-              valueFrom:
-                secretKeyRef:
-                  name: env-secrets
-                  key: POSTGRES_PORT
+              value: "5432"
+            - name: PGPORT
+              value: "5432"
+            - name: JWT_EXP
+              value: "3600"
             - name: PGPASSWORD
               valueFrom:
                 secretKeyRef:
@@ -92,26 +92,11 @@ spec:
                 secretKeyRef:
                   name: env-secrets
                   key: POSTGRES_PASSWORD
-            - name: PGDATABASE
-              valueFrom:
-                secretKeyRef:
-                  name: env-secrets
-                  key: POSTGRES_DB
-            - name: POSTGRES_DB
-              valueFrom:
-                secretKeyRef:
-                  name: env-secrets
-                  key: POSTGRES_DB
             - name: JWT_SECRET
               valueFrom:
                 secretKeyRef:
                   name: env-secrets
                   key: JWT_SECRET
-            - name: JWT_EXP
-              valueFrom:
-                secretKeyRef:
-                  name: env-secrets
-                  key: JWT_EXPIRY
           image: supabase/postgres:15.8.1.085
           readinessProbe:
             exec:

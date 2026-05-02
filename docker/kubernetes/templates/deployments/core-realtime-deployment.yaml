@@ -49,10 +49,9 @@ spec:
             - name: RUN_JANITOR
               value: "true"
             - name: DB_HOST
-              valueFrom:
-                secretKeyRef:
-                  name: env-secrets
-                  key: POSTGRES_HOST
+              value: db
+            - name: DB_NAME
+              value: postgres
             - name: DB_PORT
               valueFrom:
                 secretKeyRef:
@@ -63,11 +62,6 @@ spec:
                 secretKeyRef:
                   name: env-secrets
                   key: POSTGRES_PASSWORD
-            - name: DB_NAME
-              valueFrom:
-                secretKeyRef:
-                  name: env-secrets
-                  key: POSTGRES_DB
             - name: API_JWT_SECRET
               valueFrom:
                 secretKeyRef:

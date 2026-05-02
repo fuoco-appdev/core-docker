@@ -40,6 +40,16 @@ spec:
               value: authenticated
             - name: GOTRUE_JWT_DEFAULT_GROUP_NAME
               value: authenticated
+            - name: GOTRUE_JWT_EXP
+              value: "3600"
+            - name: GOTRUE_MAILER_URLPATHS_CONFIRMATION
+              value: /auth/v1/verify
+            - name: GOTRUE_MAILER_URLPATHS_EMAIL_CHANGE
+              value: /auth/v1/verify
+            - name: GOTRUE_MAILER_URLPATHS_INVITE
+              value: /auth/v1/verify
+            - name: GOTRUE_MAILER_URLPATHS_RECOVERY
+              value: /auth/v1/verify
             - name: API_EXTERNAL_URL
               valueFrom:
                 secretKeyRef:
@@ -65,11 +75,6 @@ spec:
                 secretKeyRef:
                   name: env-secrets
                   key: DISABLE_SIGNUP
-            - name: GOTRUE_JWT_EXP
-              valueFrom:
-                secretKeyRef:
-                  name: env-secrets
-                  key: JWT_EXPIRY
             - name: GOTRUE_JWT_SECRET
               valueFrom:
                 secretKeyRef:
@@ -440,26 +445,6 @@ spec:
                 secretKeyRef:
                   name: env-secrets
                   key: SMTP_SENDER_NAME
-            - name: GOTRUE_MAILER_URLPATHS_INVITE
-              valueFrom:
-                secretKeyRef:
-                  name: env-secrets
-                  key: MAILER_URLPATHS_INVITE
-            - name: GOTRUE_MAILER_URLPATHS_CONFIRMATION
-              valueFrom:
-                secretKeyRef:
-                  name: env-secrets
-                  key: MAILER_URLPATHS_CONFIRMATION
-            - name: GOTRUE_MAILER_URLPATHS_RECOVERY
-              valueFrom:
-                secretKeyRef:
-                  name: env-secrets
-                  key: MAILER_URLPATHS_RECOVERY
-            - name: GOTRUE_MAILER_URLPATHS_EMAIL_CHANGE
-              valueFrom:
-                secretKeyRef:
-                  name: env-secrets
-                  key: MAILER_URLPATHS_EMAIL_CHANGE
             - name: GOTRUE_MAILER_SUBJECTS_INVITE
               valueFrom:
                 secretKeyRef:

@@ -56,6 +56,10 @@ spec:
               value: "4000"
             - name: REGION
               value: local
+            - name: POSTGRES_DB
+              value: postgres
+            - name: POSTGRES_PORT
+              value: "5432"
             - name: DB_POOL_SIZE
               valueFrom:
                 secretKeyRef:
@@ -71,16 +75,6 @@ spec:
                 secretKeyRef:
                   name: env-secrets
                   key: SECRET_KEY_BASE
-            - name: POSTGRES_PORT
-              valueFrom:
-                secretKeyRef:
-                  name: env-secrets
-                  key: POSTGRES_PORT
-            - name: POSTGRES_DB
-              valueFrom:
-                secretKeyRef:
-                  name: env-secrets
-                  key: POSTGRES_DB
             - name: POSTGRES_PASSWORD
               valueFrom:
                 secretKeyRef:

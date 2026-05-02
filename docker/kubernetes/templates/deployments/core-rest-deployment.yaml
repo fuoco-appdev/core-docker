@@ -38,6 +38,8 @@ spec:
               value: anon
             - name: PGRST_DB_USE_LEGACY_GUCS
               value: "false"
+            - name: PGRST_APP_SETTINGS_JWT_EXP
+              value: "3600"
             - name: PGRST_DB_URI
               valueFrom:
                 secretKeyRef:
@@ -58,11 +60,6 @@ spec:
                 secretKeyRef:
                   name: env-secrets
                   key: PGRST_APP_SETTINGS_JWT_SECRET
-            - name: PGRST_APP_SETTINGS_JWT_EXP
-              valueFrom:
-                secretKeyRef:
-                  name: env-secrets
-                  key: JWT_EXPIRY
           image: postgrest/postgrest:v13.0.7
           name: supabase-rest
           ports:

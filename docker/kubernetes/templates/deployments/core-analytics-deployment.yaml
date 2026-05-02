@@ -51,6 +51,8 @@ spec:
               value: _analytics
             - name: PORT
               value: '4000'
+            - name: DB_PORT
+              value: "5432"
             - name: HOST
               valueFrom:
                 secretKeyRef:
@@ -67,15 +69,7 @@ spec:
                   name: env-secrets
                   key: NGINX_LOGFLARE_HOST_URL
             - name: DB_HOSTNAME
-              valueFrom:
-                secretKeyRef:
-                  name: env-secrets
-                  key: POSTGRES_HOST
-            - name: DB_PORT
-              valueFrom:
-                secretKeyRef:
-                  name: env-secrets
-                  key: POSTGRES_PORT
+              value: db
             - name: DB_PASSWORD
               valueFrom:
                 secretKeyRef:

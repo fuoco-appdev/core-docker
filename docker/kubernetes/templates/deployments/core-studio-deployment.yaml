@@ -34,11 +34,14 @@ spec:
               value: "true"
             - name: STUDIO_PG_META_URL
               value: http://meta:8080
+            - name: POSTGRES_HOST
+              value: db
+            - name: POSTGRES_DB
+              value: postgres
+            - name: POSTGRES_PORT
+              value: "5432"
             - name: SUPABASE_URL
-              valueFrom:
-                secretKeyRef:
-                  name: env-secrets
-                  key: SUPABASE_URL
+              value: http://kong:8000
             - name: OPENAI_API_KEY
               valueFrom:
                 secretKeyRef:
@@ -59,21 +62,6 @@ spec:
                 secretKeyRef:
                   name: env-secrets
                   key: SERVICE_ROLE_KEY
-            - name: POSTGRES_PORT
-              valueFrom:
-                secretKeyRef:
-                  name: env-secrets
-                  key: POSTGRES_PORT
-            - name: POSTGRES_HOST
-              valueFrom:
-                secretKeyRef:
-                  name: env-secrets
-                  key: POSTGRES_HOST
-            - name: POSTGRES_DB
-              valueFrom:
-                secretKeyRef:
-                  name: env-secrets
-                  key: POSTGRES_DB
             - name: PG_META_CRYPTO_KEY
               valueFrom:
                 secretKeyRef:

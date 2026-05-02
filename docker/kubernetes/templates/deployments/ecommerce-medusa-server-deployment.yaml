@@ -72,56 +72,6 @@ spec:
               secretKeyRef:
                 name: env-secrets
                 key: MEDUSA_BACKEND_URL
-          - name: MEILI_PRODUCTS_DISPLAYED_ATTRIBUTES
-            valueFrom:
-              secretKeyRef:
-                name: env-secrets
-                key: MEILI_PRODUCTS_DISPLAYED_ATTRIBUTES
-          - name: MEILI_PRODUCTS_FILTERABLE_ATTRIBUTES
-            valueFrom:
-              secretKeyRef:
-                name: env-secrets
-                key: MEILI_PRODUCTS_FILTERABLE_ATTRIBUTES
-          - name: MEILI_PRODUCTS_PRIMARY_KEY
-            valueFrom:
-              secretKeyRef:
-                name: env-secrets
-                key: MEILI_PRODUCTS_PRIMARY_KEY
-          - name: MEILI_PRODUCTS_SEARCHABLE_ATTRIBUTES
-            valueFrom:
-              secretKeyRef:
-                name: env-secrets
-                key: MEILI_PRODUCTS_SEARCHABLE_ATTRIBUTES
-          - name: MEILI_PRODUCTS_SORTABLE_ATTRIBUTES
-            valueFrom:
-              secretKeyRef:
-                name: env-secrets
-                key: MEILI_PRODUCTS_SORTABLE_ATTRIBUTES
-          - name: MEILI_STOCK_LOCATIONS_DISPLAYED_ATTRIBUTES
-            valueFrom:
-              secretKeyRef:
-                name: env-secrets
-                key: MEILI_STOCK_LOCATIONS_DISPLAYED_ATTRIBUTES
-          - name: MEILI_STOCK_LOCATIONS_FILTERABLE_ATTRIBUTES
-            valueFrom:
-              secretKeyRef:
-                name: env-secrets
-                key: MEILI_STOCK_LOCATIONS_FILTERABLE_ATTRIBUTES
-          - name: MEILI_STOCK_LOCATIONS_PRIMARY_KEY
-            valueFrom:
-              secretKeyRef:
-                name: env-secrets
-                key: MEILI_STOCK_LOCATIONS_PRIMARY_KEY
-          - name: MEILI_STOCK_LOCATIONS_SEARCHABLE_ATTRIBUTES
-            valueFrom:
-              secretKeyRef:
-                name: env-secrets
-                key: MEILI_STOCK_LOCATIONS_SEARCHABLE_ATTRIBUTES
-          - name: MEILI_STOCK_LOCATIONS_SORTABLE_ATTRIBUTES
-            valueFrom:
-              secretKeyRef:
-                name: env-secrets
-                key: MEILI_STOCK_LOCATIONS_SORTABLE_ATTRIBUTES
           - name: NOTIFICATION_TELEGRAM_BOT_TOKEN
             valueFrom:
               secretKeyRef:
@@ -252,31 +202,6 @@ spec:
               secretKeyRef:
                 name: env-secrets
                 key: ORDER_SHIPPED_TEMPLATE_URL_EN
-          - name: SPACE_ACCESS_KEY_ID
-            valueFrom:
-              secretKeyRef:
-                name: env-secrets
-                key: SPACE_ACCESS_KEY_ID
-          - name: SPACE_BUCKET
-            valueFrom:
-              secretKeyRef:
-                name: env-secrets
-                key: SPACE_BUCKET
-          - name: SPACE_ENDPOINT
-            valueFrom:
-              secretKeyRef:
-                name: env-secrets
-                key: SPACE_ENDPOINT
-          - name: SPACE_SECRET_ACCESS_KEY
-            valueFrom:
-              secretKeyRef:
-                name: env-secrets
-                key: SPACE_SECRET_ACCESS_KEY
-          - name: SPACE_URL
-            valueFrom:
-              secretKeyRef:
-                name: env-secrets
-                key: SPACE_URL
           - name: STORE_CORS
             valueFrom:
               secretKeyRef:

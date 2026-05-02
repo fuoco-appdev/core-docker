@@ -8,6 +8,9 @@ docker/volumes/ssl/*.key
 docker/volumes/ssl/*.pass
 docker/volumes/ssl/*.srl
 docker/kubernetes/values-substituted.yaml
+docker/kubernetes/Chart.yaml
+docker/kubernetes/values.yaml
+docker/kubernetes/release
 
 .DS_Store
 node_modules
